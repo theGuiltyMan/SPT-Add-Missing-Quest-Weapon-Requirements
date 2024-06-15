@@ -1,0 +1,25 @@
+{
+    ////////////////////////////////////
+    // #### Weapon Types ####
+    // AssaultCarbine
+    // AssaultRifle-
+    // MachineGun
+    // GrenadeLauncher
+    // MarksmanRifle
+    // Pistol
+    // Revolver
+    // Shotgun
+    // SniperRifle
+    // Smg
+    ////////////////////////////////////
+    // #### Restrictive Weapon Types ####
+    // BoltActionSniperRife (SniperRifle)
+    // PumpActionShotgun (Shotgun)
+    // Revolver (Pistol)
+    ////////////////////////////////////
+    "5447b6094bdc2dc3278b4567": "MarksmanRifle", // MP-18 7.62x54R single-shot rifle
+    "64748cb8de82c85eaf0a273a": "PumpActionShotgun", // MP-43 12ga sawed-off double-barrel shotgun
+    "5580223e4bdc2d1c128b457f": "PumpActionShotgun", // MP-43-1C 12ga double-barrel shotgun
+    "60db29ce99594040e04c4a27": "Shotgun,Revolver", // MTs-255-12 12ga shotgun
+    "dummyEnd": true
+}
