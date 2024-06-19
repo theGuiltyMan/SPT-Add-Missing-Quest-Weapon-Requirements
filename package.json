@@ -5,10 +5,12 @@
     "license": "MIT",
     "author": "GuiltyMan",
     "akiVersion": "~3.8",
-	"loadBefore": [],
-	"loadAfter": ["Virtuals Custom Quest Loader"],
-	"incompatibilities": [],
-	"contributors": [],
+    "loadBefore": [],
+    "loadAfter": [
+        "Virtuals Custom Quest Loader"
+    ],
+    "incompatibilities": [],
+    "contributors": [],
     "scripts": {
         "setup": "npm i",
         "build": "node ./build.mjs",
@@ -26,5 +28,8 @@
         "tsyringe": "4.8.0",
         "typescript": "5.4",
         "winston": "3.12"
+    },
+    "dependencies": {
+        "jsonc": "~2.0"
     }
 }
