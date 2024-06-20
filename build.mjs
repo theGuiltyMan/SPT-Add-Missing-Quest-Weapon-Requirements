@@ -37,6 +37,7 @@ import { dirname } from "path";
 import ignore from "ignore";
 import archiver from "archiver";
 import winston from "winston";
+import { exec } from "child_process";
 
 // Get the command line arguments to determine whether to use verbose logging.
 const args = process.argv.slice(2);
@@ -119,6 +120,8 @@ async function main()
 
         // copy the files into the SPT directory
         await fs.copy(projectDir, path.join(sptDir, `user/mods/${projectName}`));
+        // run command line code
+        
 
 
         // Create a zip archive of the project files.

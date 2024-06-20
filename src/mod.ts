@@ -1,5 +1,4 @@
-import { DependencyContainer } from "tsyringe";
-import path from "path";
+import { DependencyContainer, inject } from "tsyringe";
 import { ITemplateItem } from "@spt-aki/models/eft/common/tables/ITemplateItem";
 import { IPostDBLoadMod } from "@spt-aki/models/external/IPostDBLoadMod";
 import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
@@ -7,14 +6,17 @@ import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
 import { LogTextColor } from "@spt-aki/models/spt/logging/LogTextColor";
 import { LogBackgroundColor } from "@spt-aki/models/spt/logging/LogBackgroundColor";
 import { VFS } from "@spt-aki/utils/VFS";
-import fs from "fs";
 import { IOverriddenQuest } from "./models/IOverriddenQuests";
 import { IOverriddenWeapons } from "./models/IOverriddenWeapons";
 import { IQuestOverride } from "./models/IQuestOverride";
 import { IQuestOverrides } from "./models/IQuestOverrides";
 import { IQuest } from "@spt-aki/models/eft/common/tables/IQuest";
 
-import { readJson, tryReadJson } from "./util/jsonHelper";
+import fs from "fs";
+import path from "path";
+import { readJson, tryReadJson} from "./util/jsonHelper";
+import {LogHelper} from "./util/logHelper";
+import { IWeaponCategory } from "./models/IWeaponCategory";
 enum LogType 
     {
     NONE = 0,
@@ -25,6 +27,11 @@ enum LogType
 
 class Mod implements IPostDBLoadMod 
 {
+    constructor(
+    )
+    {
+    }
+
     private databaseServer: DatabaseServer;
     private vfs: VFS;
     private logger: ILogger;
@@ -49,12 +56,20 @@ class Mod implements IPostDBLoadMod
     {
     // Database will be loaded, this is the fresh state of the DB so NOTHING from the AKI
     // logic has modified anything yet. This is the DB loaded straight from the JSON files
+
         this.databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
         this.vfs = container.resolve<VFS>("VFS");
         this.logger = container.resolve<ILogger>("WinstonLogger");
+
+        const h = container.resolve<LogHelper>("LogHelper")
+        this.logger.logWithColor("ASD", LogTextColor.CYAN, LogBackgroundColor.MAGENTA);
+        this.logger.logWithColor(`log: ${h===undefined}`, LogTextColor.CYAN, LogBackgroundColor.MAGENTA);
+        this.logger.logWithColor(`type: ${typeof h}`, LogTextColor.CYAN, LogBackgroundColor.MAGENTA);
+
         this.config = readJson<any>(path.resolve(__dirname, "../config/config.jsonc"))
 
         this.logType = LogType[this.config.logType.toUpperCase() as keyof typeof LogType] || LogType.FILE;
+
 
         this.addToLog(this.logType.toString());
         if (this.config.delay <= 0)
@@ -72,11 +87,7 @@ class Mod implements IPostDBLoadMod
     private locale : Record<string, string> = {};
 
     
-    private getPrintable(id: string) : string 
-    {
-        const name = this.locale[`${id} Name`] || this.locale[`${id} name`] || "Unknown";
-        return `${name} (${id})`;
-    }
+
 
     private patchQuests(): void
     {
@@ -99,7 +110,8 @@ class Mod implements IPostDBLoadMod
             const questOverrides : Record<string, IQuestOverride> = {};
             const overriddenWeapons : Record<string, string> = {};
             const canBeUsedAs : Record<string, Set<string>> = {};
-    
+            const customCategories : Record<string, IWeaponCategory> = {}; // todo actual type
+
             const modsDirectory = path.resolve(__dirname, "../../");
             // #region config parsing
             this.vfs.getDirs(modsDirectory).map(m=>path.resolve(modsDirectory, m))
@@ -170,39 +182,89 @@ class Mod implements IPostDBLoadMod
                     }
 
                     const  overriddenWeaponsData = tryReadJson<IOverriddenWeapons>(path.resolve(modDir, "MissingQuestWeapons"), "OverriddenWeapons");
-                    if (questOverridesData) 
+                    if (overriddenWeaponsData) 
                     {
-                        for (const key in overriddenWeaponsData.Override) 
+                        if (overriddenWeaponsData.Override)
                         {
-                            overriddenWeapons[key] = overriddenWeaponsData.Override[key];
+                            for (const key in overriddenWeaponsData.Override) 
+                            {
+                                overriddenWeapons[key] = overriddenWeaponsData.Override[key];
+                            }
                         }
 
                     
-                        for (const key in overriddenWeaponsData.CanBeUsedAs) 
+                        if (overriddenWeaponsData.CanBeUsedAs)
                         {
-                            if (!canBeUsedAs[key]) 
+                            for (const key in overriddenWeaponsData.CanBeUsedAs) 
                             {
-                                canBeUsedAs[key] = new Set();
-                            }
-                            overriddenWeaponsData.CanBeUsedAs[key].forEach(v=>canBeUsedAs[key].add(v));
-                            for (const v of overriddenWeaponsData.CanBeUsedAs[key]) 
-                            {
-                                if (!canBeUsedAs[v]) 
+                                if (!canBeUsedAs[key]) 
                                 {
-                                    canBeUsedAs[v] = new Set();
+                                    canBeUsedAs[key] = new Set<string>();
                                 }
-                                canBeUsedAs[v].add(key);
+                                overriddenWeaponsData.CanBeUsedAs[key].forEach(v=>canBeUsedAs[key].add(v));
+                                for (const v of overriddenWeaponsData.CanBeUsedAs[key]) 
+                                {
+                                    if (!canBeUsedAs[v]) 
+                                    {
+                                        canBeUsedAs[v] = new Set<string>();
+                                    }
+                                    canBeUsedAs[v].add(key);
+                                }
                             }
                         }
+                        if (overriddenWeaponsData.CustomCategories)
+                        {
+                            for (const customCategory of overriddenWeaponsData.CustomCategories) 
+                            {
+                                this.addToLog(JSON.stringify(customCategory, null, 4));
+                                if (!customCategories[customCategory.name]) 
+                                {
+                                    customCategories[customCategory.name] = {
+                                        name : customCategory.name,
+                                        ids : new Set<string>(),
+                                        whiteListedKeywords : new Set<string>(),
+                                        blackListedKeywords : new Set<string>()
+                                    };
+                                }
 
+                                // merge with existing categories except the name
+                                const category = customCategories[customCategory.name];
+                                if (customCategory.ids)
+                                {
+                                    for (const id of customCategory.ids) 
+                                    {
+                                        category.ids.add(id);
+                                    }
+                                }
+                                if (customCategory.whiteListedKeywords)
+                                {
+                                    for (const id of customCategory.whiteListedKeywords) 
+                                    {
+                                        category.whiteListedKeywords.add(id);
+                                    }
+                                }
+
+                                if (customCategory.blackListedKeywords)
+                                {
+                                    for (const id of customCategory.blackListedKeywords) 
+                                    {
+                                        category.blackListedKeywords.add(id);
+                                      
+                                    }
+                                }
+                                this.addToLog(JSON.stringify(category, null, 4))
+                            }
+                        }
                     }
-            
                 })
             // #endregion
-
+        
+            this.addToLog("^%%%%%%%%%%%")
             this.addToLog(`Blacklisted Quests: ${Object.values(questOverrides).filter(q=>q.skip).map(q=>q.id).join(", ")}`);
             this.addToLog(`Overridden Weapons: ${JSON.stringify(overriddenWeapons, null, 4)}`);
-
+            this.addToLog(`CanBeUsedAs: ${JSON.stringify(canBeUsedAs)}`);
+            this.addToLog(`CanBeUsedAs: ${stringify(canBeUsedAs)}`);
+            this.addToLog(`Custom Categories: ${JSON.stringify(customCategories)}`);
             //#region weapon categorization methods
             const countAsWeapon = (name: string) : number => 
             {
@@ -425,7 +487,7 @@ class Mod implements IPostDBLoadMod
 
                                 if (weaponType == null && bestCandidate != null)
                                 {
-                                    this.addToLog(`Quest ${this.getPrintable(questId)} best candidate: \n Type: ${bestCandidate.type} \n Weapons: ${bestCandidate.weapons.map((w: string)=> this.getPrintable(w)).join(", ")} \n Missing: ${bestCandidate.missing.map(w=> this.getPrintable(w)).join(", ")}`);
+                                    this.addToLog(`Quest ${this.logHelper.getPrintable(questId)} best candidate: \n Type: ${bestCandidate.type} \n Weapons: ${bestCandidate.weapons.map((w: string)=> this.getPrintable(w)).join(", ")} \n Missing: ${bestCandidate.missing.map(w=> this.getPrintable(w)).join(", ")}`);
                                 }
                                 const lastEntry = counterCondition.weapon.length;
                                 if (weaponType)

@@ -40,15 +40,14 @@
         ]
     },
     // for quests that need specific types of weapons
-    "CustomTypes": [
+    "CustomCategories": [
         {
-            "Name": "AKS-74U", // Identifier
+            "name": "AKS-74U", // Identifier
             "ids": [], // weapon ids
-            "whiteListedSearch": [
-                "AKS-74U",
-                "SAG AK Short"
+            "whiteListedKeywords": [
+                "AKS-74U"
             ], //  these will be searched in the weapon name and description
-            "blackListedWeapons": [] //  weapons with name/description containing these will be removed
+            "blackListedKeywords": [] //  weapons with name/description containing these will be removed
         }
     ]
 }

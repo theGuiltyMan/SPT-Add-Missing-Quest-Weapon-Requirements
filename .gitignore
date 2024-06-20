@@ -1,6 +1,6 @@
 # Dependency directories
 node_modules/
-types/
+# types/
 # Build outputs
 dist/
 build/
