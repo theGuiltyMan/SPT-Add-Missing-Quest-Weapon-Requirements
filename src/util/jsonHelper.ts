@@ -2,8 +2,6 @@ import fs from "fs";
 import { safe as safejsonc, jsonc } from "jsonc";
 import path from "path";
 
-
-
 /**
  * Reads and parses a JSON or JSONC file from the specified file path.
  * 
