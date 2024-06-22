@@ -1,5 +1,6 @@
 export interface IAddMissingQuestRequirementConfig 
 {
+    debug: any
     kindOf: Record<string, string>
     BlackListedItems: string[]
     BlackListedWeaponsTypes: string[]

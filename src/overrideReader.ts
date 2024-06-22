@@ -1,100 +1,102 @@
 import { VFS } from "@spt-aki/utils/VFS";
 import path from "path";
-import { inject, injectable } from "tsyringe";
+import { DependencyContainer, inject, injectable } from "tsyringe";
 import { IOverriddenWeapons } from "./models/IOverriddenWeapons";
 import { IQuestOverrides } from "./models/IQuestOverrides";
 import { tryReadJson } from "./util/jsonHelper";
 import { LogHelper } from "./util/logHelper";
-import { IQuestOverride } from "./models/IQuestOverride";
-import { IWeaponCategory } from "./models/IWeaponCategory";
+import { OverridedSettings } from "./models/OverridedSettings";
+import { pushIfNotExists } from "./util/misc";
+
+
 
 @injectable()
 export class OverrideReader 
 {
-
     constructor(
         @inject("LogHelper") protected logger: LogHelper,
         @inject("VFS") protected vfs: VFS,
         @inject("modDir") protected modsDirectory: string
     )
     {
+        logger.log("OverrideReader created");
     }
  
-    public run() : void 
+    public run(childContainer: DependencyContainer) : void 
     {
-        this.readOverrides();
-        // todo:  categorize based on read data
+        childContainer.registerInstance<OverridedSettings>("OverridedSettings", this.readOverrides());
     }
     
-    private readOverrides() : void 
-    {
-        this.logger.addLog("Reading overrides");
+    private readOverrides() : OverridedSettings
+    {   
+        const overridedSettings = new OverridedSettings();
+        this.logger.log("Reading overrides");
         this.vfs.getDirs(this.modsDirectory).map(m=>path.resolve(this.modsDirectory, m))
             .filter(modDir => this.vfs.exists(path.resolve(modDir, "MissingQuestWeapons")))
             .forEach(modDir => 
             {
-                this.logger.addLog(`Processing mod: ${path.basename(modDir)}`)
+                this.logger.log(`Processing mod: ${path.basename(modDir)}`)
                 this.logger.plusIndent();
             
                 const questOverridesData = tryReadJson<IQuestOverrides>(path.resolve(modDir, "MissingQuestWeapons"), "QuestOverrides");
-                const questOverrides : Record<string, IQuestOverride> = {};
-                const overriddenWeapons : Record<string, string> = {};
-                const canBeUsedAs : Record<string, Set<string>> = {};
-                const customCategories : Record<string, IWeaponCategory> = {}; // todo actual type
                 if (questOverridesData) 
                 {
                     questOverridesData.Overrides.forEach((v) => 
                     {
 
-                        if (!questOverrides[v.questId])
+                        if (!overridedSettings.questOverrides[v.id])
                         {
-                            questOverrides[v.questId] =  {
-                                id : v.questId,
-                                whiteListedWeapons: new Set<string>,
-                                blackListedWeapons: new Set<string>,
+                            overridedSettings.questOverrides[v.id] =  {
+                                id : v.id,
+                                whiteListedWeapons: [],
+                                blackListedWeapons: [],
                                 skip: false,
-                                onlyUseWhiteListedWeapons: v.disabled
+                                onlyUseWhiteListedWeapons: false
                             }
                         }
-                        const questOverride = questOverrides[v.questId];
+                        const questOverride = overridedSettings.questOverrides[v.id];
 
-                        this.logger.addLog(`Processing quest override: ${this.logger.asReadable(v.questId)}`)
+                        this.logger.log(`Processing quest override: ${v.id})}`)
 
                         if (v.whiteListedWeapons)
                         {
-                            v.whiteListedWeapons.forEach(w=>questOverride.whiteListedWeapons.add(w));
+                            v.whiteListedWeapons.forEach(w=>pushIfNotExists(questOverride.whiteListedWeapons,w));
                         }
                         if (v.blackListedWeapons)
                         {
-                            v.blackListedWeapons.forEach(w=>questOverride.blackListedWeapons.add(w));
+                            v.blackListedWeapons.forEach(w=>pushIfNotExists(questOverride.blackListedWeapons,w));
                         }
 
-                        // check if any weapons conflicted
-                        for (const w of v.whiteListedWeapons) 
+                        if (v.skip)
                         {
-                            if (questOverride.blackListedWeapons.has(w)) 
+                            questOverride.skip = true;
+                        }
+                        // check if any weapons conflicted
+                        if (v.whiteListedWeapons )
+                        {
+                            for (const w of v.whiteListedWeapons) 
                             {
-                                this.logger.error(`Weapon ${w} is both blacklisted and whitelisted for quest ${v.questId}`);
+                                if (questOverride.blackListedWeapons.includes(w)) 
+                                {
+                                    this.logger.error(`Weapon ${w} is both blacklisted and whitelisted for quest ${v.id}`);
+                                }
                             }
                         }
                     });
 
                     questOverridesData.BlackListedQuests.forEach(v=>
                     {
-                        if (!questOverrides[v])
+                        if (!overridedSettings.questOverrides[v])
                         {
-                            questOverrides[v] =  {
+                            overridedSettings.questOverrides[v] =  {
                                 id : v,
-                                skip: true,
-                                blackListedWeapons: new Set<string>,
-                                onlyUseWhiteListedWeapons: false,
-                                whiteListedWeapons: new Set<string>()
+                                blackListed: true
                             }
                         }
                         else 
                         {
                             this.logger.error(`Quest ${v} is both in blacklisted quests and in quest overrides. Blacklisting will take precedence.`);
-                            questOverrides[v].skip = true;
+                            overridedSettings.questOverrides[v].skip = true;
                         }
                     })
                 }
@@ -106,7 +108,7 @@ export class OverrideReader
                     {
                         for (const key in overriddenWeaponsData.Override) 
                         {
-                            overriddenWeapons[key] = overriddenWeaponsData.Override[key];
+                            overridedSettings.overriddenWeapons[key] = overriddenWeaponsData.Override[key];
                         }
                     }
 
@@ -115,18 +117,18 @@ export class OverrideReader
                     {
                         for (const key in overriddenWeaponsData.CanBeUsedAs) 
                         {
-                            if (!canBeUsedAs[key]) 
+                            if (!overridedSettings.canBeUsedAs[key]) 
                             {
-                                canBeUsedAs[key] = new Set<string>();
+                                overridedSettings.canBeUsedAs[key] = [];
                             }
-                            overriddenWeaponsData.CanBeUsedAs[key].forEach(v=>canBeUsedAs[key].add(v));
+                            overriddenWeaponsData.CanBeUsedAs[key].forEach(v=>pushIfNotExists(overridedSettings.canBeUsedAs[key],v));
                             for (const v of overriddenWeaponsData.CanBeUsedAs[key]) 
                             {
-                                if (!canBeUsedAs[v]) 
+                                if (!overridedSettings.canBeUsedAs[v]) 
                                 {
-                                    canBeUsedAs[v] = new Set<string>();
+                                    overridedSettings.canBeUsedAs[v] = [];
                                 }
-                                canBeUsedAs[v].add(key);
+                                pushIfNotExists(overridedSettings.canBeUsedAs[v],key);
                             }
                         }
                     }
@@ -134,31 +136,35 @@ export class OverrideReader
                     {
                         for (const customCategory of overriddenWeaponsData.CustomCategories) 
                         {
-                            this.logger.addLog(customCategory);
-                            if (!customCategories[customCategory.name]) 
+
+                            if (!overridedSettings.customCategories[customCategory.name]) 
                             {
-                                customCategories[customCategory.name] = {
+                                overridedSettings.customCategories[customCategory.name] = {
                                     name : customCategory.name,
-                                    ids : new Set<string>(),
-                                    whiteListedKeywords : new Set<string>(),
-                                    blackListedKeywords : new Set<string>()
+                                    ids : [],
+                                    whiteListedKeywords : [],
+                                    blackListedKeywords : [],
+                                    allowedCalibres : [],
+                                    alsoCheckDescription : customCategory.alsoCheckDescription || false
                                 };
                             }
+                        
 
                             // merge with existing categories except the name
-                            const category = customCategories[customCategory.name];
+                            const category = overridedSettings.customCategories[customCategory.name];
                             if (customCategory.ids)
                             {
                                 for (const id of customCategory.ids) 
                                 {
-                                    category.ids.add(id);
+                                    pushIfNotExists(category.ids,id);
                                 }
                             }
+
                             if (customCategory.whiteListedKeywords)
                             {
                                 for (const id of customCategory.whiteListedKeywords) 
                                 {
-                                    category.whiteListedKeywords.add(id);
+                                    pushIfNotExists(category.whiteListedKeywords,id);
                                 }
                             }
 
@@ -166,15 +172,41 @@ export class OverrideReader
                             {
                                 for (const id of customCategory.blackListedKeywords) 
                                 {
-                                    category.blackListedKeywords.add(id);
+                                    pushIfNotExists(category.blackListedKeywords,id);
                                       
                                 }
                             }
-                            this.logger.addLog(category)
+
+                            if (customCategory.allowedCalibres)
+                            {
+                                for (const id of customCategory.allowedCalibres) 
+                                {
+                                    pushIfNotExists(category.allowedCalibres,id);
+                                }
+                            }
+
+                            customCategory.alsoCheckDescription ||= category.alsoCheckDescription;
+                            this.logger.log(category)
                         }
                     }
                 }
                 this.logger.minusIndent();
+
+                
             })
+
+
+        this.logger.log("##### Quest Overrides #####");
+        this.logger.plusIndent();
+        for (const key in overridedSettings.questOverrides) 
+        {
+            this.logger.log(overridedSettings.questOverrides[key]);
+        }
+        this.logger.minusIndent();
+            
+        this.logger.log("##### #####");
+
+        this.logger.log("##### Overridden Weapons #####");
+        return overridedSettings;
     }
 }

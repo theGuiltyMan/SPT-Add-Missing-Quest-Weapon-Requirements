@@ -19,6 +19,7 @@
     // PumpActionShotgun (Shotgun)
     // Revolver (Pistol)
     ////////////////////////////////////
+    // no more needed since this can be done using the CustomCategories, but its already working so no need to change it
     "Override": {
         "64748cb8de82c85eaf0a273a": "PumpActionShotgun,Shotgun", // MP-43 12ga sawed-off double-barrel shotgun
         "5580223e4bdc2d1c128b457f": "PumpActionShotgun,Shotgun", // MP-43-1C 12ga double-barrel shotgun
@@ -30,6 +31,8 @@
         "5d52cc5ba4b9367408500062": "GrenadeLauncher", // AGS-30 30x29mm automatic grenade launcher
         "6275303a9f372d6ea97f9ec7": "GrenadeLauncher", // Milkor M32A1 MSGL 40mm grenade launcher
         "620109578d82e67e7911abf2": "GrenadeLauncher,Pistol", // ZiD SP-81 26x75 signal pistol
+        "6657bc8faeddd6b0a9b40224": "MarksmanRifle", // SVD 7.62x54R Sniper Rifle
+        "6657bd4d3a4d6e7c33fd2fdc": "MarksmanRifle", // SVD 7.62x54R Sniper Rifle
         "61f7c9e189e6fb1a5e3ea78d": "BoltActionSniperRifle,SniperRifle,Shotgun,PumpActionShotgun" // MP-18 7.62x54R single-shot rifle (god gives his toughest types to his strongest weapons)
     },
     // the weapons will be added when any other weapons are in the list
@@ -42,12 +45,51 @@
     // for quests that need specific types of weapons
     "CustomCategories": [
         {
+            "name": "AKM", // Identifier
+            "ids": [], // if a weapon is in this list, it will be considered as this category no matter what
+            "whiteListedKeywords": ["\\b(AKM|AK-1|VPO)\\w*"], //  these will be searched in the weapon name and description
+            "blackListedKeywords": [], //  weapons with name/description containing these will be removed
+            "allowedCalibres": ["Caliber762x39"], //  weapons with only these will be added,
+            "alsoCheckDescription": false //  if true, the description will also be checked
+        },
+        {
             "name": "AKS-74U", // Identifier
-            "ids": [], // weapon ids
-            "whiteListedKeywords": [
-                "AKS-74U"
-            ], //  these will be searched in the weapon name and description
-            "blackListedKeywords": [] //  weapons with name/description containing these will be removed
+            "ids": [], // if a weapon is in this list, it will be considered as this category no matter what
+            "whiteListedKeywords": ["\\b(AKS-74U|SAG AK-545)\\w*"], //  these will be searched in the weapon name and description
+            "blackListedKeywords": [], //  weapons with name/description containing these will be removed
+            "allowedCalibres": [], //  weapons with only these will be added,
+            "alsoCheckDescription": false //  if true, the description will also be checked
+        },
+        {
+            "name": "12ga", // Identifier
+            "ids": [], // if a weapon is in this list, it will be considered as this category no matter what
+            "whiteListedKeywords": [], //  these will be searched in the weapon name and description
+            "blackListedKeywords": [], //  weapons with name/description containing these will be removed
+            "allowedCalibres": ["Caliber12g"], //  weapons with only these will be added,
+            "alsoCheckDescription": false //  if true, the description will also be checked
+        },
+        {
+            "name": "AK",
+            "ids": [], 
+            "whiteListedKeywords": ["\\b(AK)\\w*"],
+            "blackListedKeywords": [],
+            "allowedCalibres": [], 
+            "alsoCheckDescription": false 
+        },
+        {
+            "name": "AK-74",
+            "ids": [], 
+            "whiteListedKeywords": ["\\b(AK-74|AKS-74|SAG AK-545)\\w*"],
+            "blackListedKeywords": ["\\b(AKS-74U)\\w*"],
+            "allowedCalibres": [], 
+            "alsoCheckDescription": false 
+        },{
+            "name": "AR-15",
+            "ids": [], 
+            "whiteListedKeywords": ["\\b(AR-15|M4A1)\\w*"],
+            "blackListedKeywords": [],
+            "allowedCalibres": [], 
+            "alsoCheckDescription": true 
         }
     ]
 }

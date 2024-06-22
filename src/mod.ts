@@ -1,8 +1,5 @@
 import { DependencyContainer } from "tsyringe";
 import { IPostDBLoadMod } from "@spt-aki/models/external/IPostDBLoadMod";
-import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import { VFS } from "@spt-aki/utils/VFS";
 
 import path from "path";
 import { readJson} from "./util/jsonHelper";
@@ -11,24 +8,23 @@ import { IAddMissingQuestRequirementConfig } from "./models/IAddMissingQuestRequ
 import { WeaponCategorizer } from "./weaponCategorizer";
 import { QuestPatcher } from "./questPatcher";
 import { OverrideReader } from "./overrideReader";
+import { LocaleHelper } from "./util/localeHelper";
 
 
 class Mod implements IPostDBLoadMod 
 {
-    private databaseServer: DatabaseServer;
-    private vfs: VFS;
-    // private logger: ILogger;
-    private config: any;
-    private logger: ILogger;
 
+    
 
     public postDBLoad(container: DependencyContainer): void 
     {
-    // Database will be loaded, this is the fresh state of the DB so NOTHING from the AKI
-    // logic has modified anything yet. This is the DB loaded straight from the JSON files
+
+
+        // Database will be loaded, this is the fresh state of the DB so NOTHING from the AKI
+        // logic has modified anything yet. This is the DB loaded straight from the JSON files
 
         const childContainer = container.createChildContainer();
-        childContainer.register<LogHelper>("LogHelper", LogHelper);
+        
 
 
         // read config and register it
@@ -39,17 +35,23 @@ class Mod implements IPostDBLoadMod
         }
 
         childContainer.registerInstance<IAddMissingQuestRequirementConfig>("AMQRConfig", config);
-        childContainer.register<OverrideReader>("OverrideReader", OverrideReader)
-        childContainer.register<WeaponCategorizer>("WeaponCategorizer", WeaponCategorizer)
-        childContainer.register<QuestPatcher>("QuestPatcher", QuestPatcher)
-        childContainer.registerInstance<string>("modDir", path.resolve(__dirname, "../../"))
+        childContainer.registerSingleton<LocaleHelper>("LocaleHelper", LocaleHelper)
+        const logger = childContainer.registerSingleton<LogHelper>("LogHelper", LogHelper)
+            .resolve<LogHelper>("LogHelper");
 
+        logger.log("Starting mod");
+        
+        childContainer.registerInstance<string>("modDir", path.resolve(__dirname, "../../"))
+        childContainer.registerSingleton<OverrideReader>("OverrideReader", OverrideReader)
+        childContainer.registerSingleton<WeaponCategorizer>("WeaponCategorizer", WeaponCategorizer)
+        childContainer.registerSingleton<QuestPatcher>("QuestPatcher", QuestPatcher)
 
         const run = () => 
         {
-            childContainer.resolve<OverrideReader>("OverrideReader").run();
-            childContainer.resolve<WeaponCategorizer>("WeaponCategorizer").run();   
+            childContainer.resolve<OverrideReader>("OverrideReader").run(childContainer);
+            childContainer.resolve<WeaponCategorizer>("WeaponCategorizer").run(childContainer);   
             childContainer.resolve<QuestPatcher>("QuestPatcher").run()
+            childContainer.dispose();
         }
 
         if (!config.delay || config.delay <= 0)

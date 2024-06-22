@@ -1,7 +1,7 @@
-import { IOverriddenQuest } from "./IOverriddenQuests";
+import { IQuestOverrideSetting } from "./IQuestOverrideSetting";
 
 export interface IQuestOverrides 
 {
     BlackListedQuests: string[],
-    Overrides: IOverriddenQuest[]
+    Overrides: IQuestOverrideSetting[]
 }

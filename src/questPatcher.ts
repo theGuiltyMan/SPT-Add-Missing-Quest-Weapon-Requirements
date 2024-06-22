@@ -1,28 +1,26 @@
 import { inject, injectable } from "tsyringe";
 import { IAddMissingQuestRequirementConfig } from "./models/IAddMissingQuestRequirementConfig";
-import { LogHelper, LogType } from "./util/logHelper";
+import { LogHelper } from "./util/logHelper";
 import { WeaponCategorizer } from "./weaponCategorizer";
 import { IQuest } from "@spt-aki/models/eft/common/tables/IQuest";
-import { ITemplateItem } from "@spt-aki/models/eft/common/tables/ITemplateItem";
-import { LogBackgroundColor } from "@spt-aki/models/spt/logging/LogBackgroundColor";
-import { LogTextColor } from "@spt-aki/models/spt/logging/LogTextColor";
-import path from "path";
-import { stringify } from "querystring";
-import { IOverriddenWeapons } from "./models/IOverriddenWeapons";
-import { IQuestOverride } from "./models/IQuestOverride";
-import { IQuestOverrides } from "./models/IQuestOverrides";
-import { IWeaponCategory } from "./models/IWeaponCategory";
-import { tryReadJson } from "./util/jsonHelper";
 import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { OverridedSettings } from "./models/OverridedSettings";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
+import { pushIfNotExists } from "./util/misc";
+
 
 @injectable()
 export class QuestPatcher
 {
     constructor(
-        @inject("LogHelper") protected logHelper: LogHelper,
+        @inject("LogHelper") protected logger: LogHelper,
         @inject("AMQRConfig") protected config: IAddMissingQuestRequirementConfig,
         @inject("WeaponCategorizer") protected weaponCategorizer: WeaponCategorizer,
-        @inject("DatabaseServer") protected databaseServer: DatabaseServer
+        @inject("DatabaseServer") protected databaseServer: DatabaseServer,
+        @inject("WeaponTypes") protected weaponsTypes: Record<string, string[]>,
+        @inject("WeaponToType") protected weaponToType: Record<string, string[]>,
+        @inject("OverridedSettings") protected overridedSettings: OverridedSettings,
+        @inject("JsonUtil") protected jsonUtil: JsonUtil
     ) 
     {
         
@@ -30,175 +28,30 @@ export class QuestPatcher
 
     
     private quests : Record<string, IQuest> = {};
-    private allItems : Record<string, ITemplateItem> = {};
-    private locale : Record<string, string> = {};
 
     run():void
     {
         try 
         {
-            throw new Error("Not implemented");
+            this.logger.log("######### Patching quests ########");
             const db = this.databaseServer.getTables();
             this.quests = db.templates.quests;
-            this.allItems = db.templates.items;
-            this.locale = db.locales.global["en"]; // we are using shotguns' names for determining the type of shotgun, so we need to use the english locale (for now)
-            // categorize all weapons based on their parent
-            // Read in the json c config content and parse it into json
-            const weaponsTypes = {};
-            const weaponToType: Record<string, string[]> = {};
-
-            // search all mods for MissingQuestWeapons folders
-            // -- MissingQuestWeapons
-            // ---- QuestOverrides.json(c)
-            // ---- OverriddenWeapons.json(c)
-    
-            
-
-            // #region config parsing
-            
-            // #endregion
         
-            this.addToLog("^%%%%%%%%%%%")
-            this.addToLog(`Blacklisted Quests: ${Object.values(questOverrides).filter(q=>q.skip).map(q=>q.id).join(", ")}`);
-            this.addToLog(`Overridden Weapons: ${JSON.stringify(overriddenWeapons, null, 4)}`);
-            this.addToLog(`CanBeUsedAs: ${JSON.stringify(canBeUsedAs)}`);
-            this.addToLog(`CanBeUsedAs: ${stringify(canBeUsedAs)}`);
-            this.addToLog(`Custom Categories: ${JSON.stringify(customCategories)}`);
-            //#region weapon categorization methods
-            const countAsWeapon = (name: string) : number => 
-            {
-                return name == "Weapon" ? 0 :  (name == "ThrowWeap" || name == "Knife" || name == "Launcher") ? 1  : -1;
-            }
-            const getWeaponType = (item: ITemplateItem) : string =>
-            {
-                if (!item._parent)
-                {
-                    return null;
-                }
-                switch (countAsWeapon(this.allItems[item._parent]._name))
-                {
-                    case 1:
-                        return this.allItems[item._parent]._name;
-                    case 0:
-                        return item._name;
-                    case -1:
-                        return getWeaponType(this.allItems[item._parent]);
-                }
-            }
-    
-            const getWeapClass = (item: ITemplateItem) : string  => 
-            {
-    
-                if (item._type !== "Item" || !item._props) 
-                {
-                    return null;
-                }
-    
-                return getWeaponType(item);
-            }
-    
-            const addToWeaponType = (weaponType: string, item: ITemplateItem) => 
-            {
-                const itemId = item._id;
-                if (!weaponType || !itemId || this.config.BlackListedWeaponsTypes.includes(weaponType) || this.config.BlackListedItems.includes(itemId))
-                {
-                    return;
-                }
-    
-                const add = (weaponType : string, itemId: string) => 
-                {
-                    if (!weaponsTypes[weaponType]) 
-                    {
-                        weaponsTypes[weaponType] = [];
-                    }
-            
-                    weaponsTypes[weaponType].push(itemId);
-                    if (!weaponToType[itemId]) 
-                    {
-                        weaponToType[itemId] = [];
-                    }
-                    weaponToType[itemId].push(weaponType);
-                }
-    
-                if (overriddenWeapons[itemId]) 
-                {
-                    overriddenWeapons[itemId].split(",").map(w=>w.trim()).forEach(w=>add(w, itemId));
-                    return;
-                }
-                // check if the weapon is a more restrive type (e.g. bolt action, pump action, etc)
-                switch (weaponType)
-                {
-                    case "Shotgun":
-                        // until i find a better way to categorize shotguns
-                        if (this.locale[`${itemId} Name`].includes("pump"))
-                        {
-                            if (this.config.categorizeWithLessRestrive)
-                            {
-                                add(weaponType, itemId);
-                            }
-                            weaponType = "PumpActionShotgun";
-                        }
-                        break;
-                    case "SniperRifle":
-                        if (item._props.BoltAction)
-                        {
-                            if (this.config.categorizeWithLessRestrive)
-                            {
-                                add(weaponType, itemId);
-                            }
-                            weaponType = "BoltActionSniperRifle";
-                        }
-                        break;
-                    case "Revolver":
-                        if (this.config.categorizeWithLessRestrive)
-                        {
-                            add("Pistol", itemId);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-    
-    
-                add(weaponType, itemId);
-            };
-                //#endregion
-
-            for (const itemId in this.allItems) 
-            {
-                const item = this.allItems[itemId];
-                if (item._type !== "Item" || !item._props) 
-                {
-                    continue;
-                }
-
-                addToWeaponType(getWeapClass(item), item);
-            }
-
-            // debug
-            {
-                const debugJson = {}
-                for (const type in weaponsTypes) 
-                {
-                    debugJson[type] = weaponsTypes[type].map((w: string)=> this.getPrintable(w));
-                }
-
-       
-                this.addToLog(JSON.stringify(debugJson, null, 4));
-            }
-
-            const canCountAs = (weaponId: string, weaponType: string) : boolean => 
-            {
-                return weaponToType[weaponId] && weaponToType[weaponId].includes(weaponType);
-            }
-
+            const questOverrides = this.overridedSettings.questOverrides;
+            const canBeUsedAs = this.overridedSettings.canBeUsedAs;
+           
             // iterate through all quests
             for (const questId in this.quests) 
             {
-                if (questOverrides[questId] && questOverrides[questId].skip)
+                if (questOverrides[questId] && questOverrides[questId].blackListed)
                 {
+                    this.logger.log(`Skipping quest ${questId} due to blacklisted`);
                     continue;
                 }
+                // if (questId !== "Scorpion_10_1_1")
+                // {
+                //     continue;
+                // }
                 const quest = this.quests[questId];
         
                 // iterate through all conditions
@@ -216,160 +69,235 @@ export class QuestPatcher
                             continue;
                         }
 
-                        for (const counterCondition of condition.counter.conditions) 
+                        for (let i = condition.counter.conditions.length - 1; i >= 0; i--) 
                         {
-                            if (!counterCondition.weapon || !counterCondition.weapon.length) 
-                            {
-                                continue;
-                            }
+                            const counterCondition = condition.counter.conditions[i];
+                            const newWeaponCondition = this.jsonUtil.clone(counterCondition.weapon);
+                            const original = this.jsonUtil.clone(counterCondition.weapon);
                             let weaponsChangesLog = "";
-                            if (!(questOverrides[questId] && questOverrides[questId].onlyUseWhiteListedWeapons))
-                                
+                            try 
                             {
-                                let weaponType = null;
-                                // select the most restrictive weapon type if all weapons are of the same type
-                                // for example if all weapons are revolvers, then the type is revolver
-                                // but if there are revolvers and pistols, then the type is pistol
+                                
 
-                                const potentialTypes : Record<string, string[]> = {};
-                                for (const weaponId of counterCondition.weapon) 
+                                if (!counterCondition.weapon || !newWeaponCondition.length) 
                                 {
-                                    if (!weaponToType[weaponId] || weaponToType[weaponId].length === 0) 
-                                    {
-                                        this.logger.error(`Weapon (${this.getPrintable(weaponId)}) not found in weaponToType for quest ${this.getPrintable(questId)}`);
-                                        break;
-                                    }
+                                    continue;
+                                }
 
-                                    for (const w of weaponToType[weaponId]) 
+                                const processBlackListed = (questId:string) :void =>
+                                {
+                                    if (questOverrides[questId] && questOverrides[questId].blackListedWeapons?.length > 0)
                                     {
-                                        if (!potentialTypes[w]) 
+                                        questOverrides[questId].blackListedWeapons.forEach(w=> 
                                         {
-                                            potentialTypes[w] = [];
-                                        }
-                                        potentialTypes[w].push(weaponId);
-                                        if (canBeUsedAs[weaponId])
+                                            const index = newWeaponCondition.indexOf(w);
+                                            if (index !== -1) 
+                                            {
+                                                newWeaponCondition.splice(index, 1);
+                                                weaponsChangesLog += `Removed blacklisted weapon: ${(w)} \n`;
+                                            }
+                                        });
+                                    }
+                                }
+                                const processWhiteListed = (questId:string) :void =>
+                                {
+                                    if (questOverrides[questId] && questOverrides[questId].whiteListedWeapons?.length > 0)
+                                    {
+                                        questOverrides[questId].whiteListedWeapons.forEach(w=> pushIfNotExists(newWeaponCondition,w));
+                                    }
+                                }
+                    
+                                const processCanBeUsedAs = () :void =>
+                                {
+                                    for (let i = newWeaponCondition.length - 1; i >= 0; i--) 
+                                    {
+                                        if (canBeUsedAs[newWeaponCondition[i]])
                                         {
-                                            canBeUsedAs[weaponId].forEach(v=>potentialTypes[w].push(v));
+                                            canBeUsedAs[newWeaponCondition[i]].forEach(v=>pushIfNotExists(newWeaponCondition,v));
                                         }
                                     }
                                 }
+                                if (questOverrides[questId] && questOverrides[questId].skip)
+                                {
+                                // only add weapons that can be used as the weapon
+                                    processCanBeUsedAs();
+                                    processBlackListed(questId);
+
+                                }
+
+                                else 
+                                {
+                                    if (!(questOverrides[questId] && questOverrides[questId].onlyUseWhiteListedWeapons) && newWeaponCondition.length > 1)       
+                                    {
+                                        let weaponType = null;
+                                        // select the most restrictive weapon type if all weapons are of the same type
+                                        // for example if all weapons are revolvers, then the type is revolver
+                                        // but if there are revolvers and pistols, then the type is pistol
+
+                                        const potentialTypes : Record<string, string[]> = {};
+                                        for (const weaponId of newWeaponCondition) 
+                                        {
+                                            if (!this.weaponToType[weaponId] || this.weaponToType[weaponId].length === 0) 
+                                            {
+                                                this.logger.error(`Weapon (${weaponId}) not found in weaponToType for quest ${questId}`);
+                                                break;
+                                            }
+
+                                            for (const w of this.weaponToType[weaponId]) 
+                                            {
+                                                if (!potentialTypes[w]) 
+                                                {
+                                                    potentialTypes[w] = [];
+                                                }
+                                                potentialTypes[w].push(weaponId);
+                                                if (canBeUsedAs[weaponId])
+                                                {
+                                                    canBeUsedAs[weaponId].forEach(v=>potentialTypes[w].push(v));
+                                                }
+                                            }
+                                        }
 
                        
-                                let bestCandidate = null;
-                                // check if there is a weapon type that all weapons are of
-                                for (const w in potentialTypes) 
-                                {
-                                    if (potentialTypes[w].length === counterCondition.weapon.length) 
-                                    {
-                                        if (weaponType == null)
+                                        // this.logger.log(potentialTypes)
+                                        let bestCandidate = null;
+                                        // check if there is a weapon type that all weapons are of
+                                        for (const w in potentialTypes) 
                                         {
-                                            weaponType = w;
-                                        }
-                                        else 
-                                        {
-                                            // if there are multiple types, then select the most restrictive
-                                            if (this.config.kindOf[w] == weaponType)
+                                            if (potentialTypes[w].length === newWeaponCondition.length) 
                                             {
-                                                weaponType = w;
+                                                if (weaponType == null)
+                                                {
+                                                    weaponType = w;
+                                                }
+                                                else 
+                                                {
+                                                    // if there are multiple types, then select the most restrictive
+                                                    if (this.config.kindOf[w] == weaponType || this.weaponsTypes[weaponType].length > this.weaponsTypes[w].length)
+                                                    {
+                                                        weaponType = w;
+                                                    }
+                                                }
+                                            }
+                                            else if (newWeaponCondition.length - potentialTypes[w].length === 1)
+                                            {
+                                                bestCandidate = {
+                                                    type: w,
+                                                    weapons: potentialTypes[w],
+                                                    missing: newWeaponCondition.filter(i=>!potentialTypes[w].includes(i))
+                                                };
+                                            }
+                                        }
+
+                                        this.logger.logDebug(`Quest ${questId} Potential types: `)
+                                        this.logger.plusIndent();
+                                        this.logger.logDebug(potentialTypes)
+                                        this.logger.minusIndent();
+                                        if (weaponType == null && bestCandidate != null)
+                                        {
+                                            this.logger.log(`Quest ${questId} best candidate: \n\tType: ${bestCandidate.type}\n\tWeapons: ${bestCandidate.weapons.join(", ")}\n\tMissing: ${bestCandidate.missing.join(", ")}`);
+                                        }
+                                        const lastEntry = newWeaponCondition.length;
+                                        if (weaponType)
+                                        {
+                                            // add the missing weapons
+                                            for (const w of this.weaponsTypes[weaponType]) 
+                                            {
+                                                // probably just assign the array directly but just to be sure 
+                                                if (newWeaponCondition.indexOf(w) === -1) 
+                                                {
+                                                    newWeaponCondition.push(w);
+                                                }
+                                            }
+                                            if (lastEntry !== newWeaponCondition.length)
+                                            {
+                                                weaponsChangesLog += `Added ${newWeaponCondition.length - lastEntry} weapons of type ${weaponType}:`;
                                             }
                                         }
                                     }
-                                    else if (counterCondition.weapon.length - potentialTypes[w].length === 1)
+                                
+
+                                    if (newWeaponCondition.length === 1)
                                     {
-                                        bestCandidate = {
-                                            type: w,
-                                            weapons: potentialTypes[w],
-                                            missing: counterCondition.weapon.filter(i=>!potentialTypes[w].includes(i))
-                                        };
+                                        this.logger.log(`Quest ${questId} has only one weapon: ${counterCondition.weapon[0]}. Only adding whilelisted or can be used as weapons`);
                                     }
+      
+                                    processWhiteListed(questId);
+                                    processCanBeUsedAs();
+                                    processBlackListed(questId);
                                 }
 
-                                if (weaponType == null && bestCandidate != null)
+
+                                const formatToPrint = (orig: string[], newW: string[]) :string  =>  
                                 {
-                                    this.addToLog(`Quest ${this.logHelper.getPrintable(questId)} best candidate: \n Type: ${bestCandidate.type} \n Weapons: ${bestCandidate.weapons.map((w: string)=> this.getPrintable(w)).join(", ")} \n Missing: ${bestCandidate.missing.map(w=> this.getPrintable(w)).join(", ")}`);
-                                }
-                                const lastEntry = counterCondition.weapon.length;
-                                if (weaponType)
-                                {
-                                    // add the missing weapons
-                                    for (const w of weaponsTypes[weaponType]) 
+                                    let str = "";
+                                    orig.sort();
+
+                                    newW.sort((a,b) => 
                                     {
-                                        // probably just assign the array directly but just to be sure 
-                                        if (counterCondition.weapon.indexOf(w) === -1) 
+                                        const aIndex = orig.indexOf(a);
+                                        const bIndex = orig.indexOf(b);
+                                        if (aIndex === -1 && bIndex === -1)
                                         {
-                                            counterCondition.weapon.push(w);
+                                            return a.localeCompare(b);
                                         }
-                                    }
-                                    if (lastEntry !== counterCondition.weapon.length)
+                                        if (aIndex === -1)
+                                        {
+                                            return 1;
+                                        }
+                                        if (bIndex === -1)
+                                        {
+                                            return -1;
+                                        }
+                                        return aIndex - bIndex;
+                                    });
+
+                                    let i = 0;
+                                    for (; i < orig.length; i++) 
                                     {
-                                        weaponsChangesLog += `Added ${counterCondition.weapon.length - lastEntry} weapons of type ${weaponType}: ${counterCondition.weapon.slice(lastEntry).map(id => this.getPrintable(id)).join(", ")} \n`;
+                                        str += `\t${orig[i]}\n`;
                                     }
-                                }
-                            }
-                            else 
-                            {
-                                {
-                                    this.addToLog(`Only adding whiteListedWeapons to ${this.getPrintable(questId)}`);
-                                    break;
-                                }
-                            }
 
-                            // remove the blacklisted weapons
-
-                            if (questOverrides[questId] && questOverrides[questId].blackListedWeapons?.size > 0)
-                            {
-                                for (const w of questOverrides[questId].blackListedWeapons) 
-                                {
-                                    const index = counterCondition.weapon.indexOf(w);
-                                    if (index !== -1) 
+                                    for (; i < newW.length; i++) 
                                     {
-                                        counterCondition.weapon.splice(index, 1);
-                                        weaponsChangesLog += `Removed blacklisted weapon: ${this.getPrintable(w)} \n`;
+                                        str += `\t\t+++ ${newW[i]}\n`;
                                     }
+                                    return str;
                                 }
-                            }
-
-                            if (questOverrides[questId] && questOverrides[questId].whiteListedWeapons?.size > 0)
-                            {
-                            // add the white listed weapons
-                                for (const w of questOverrides[questId].whiteListedWeapons) 
+                                if (weaponsChangesLog.length > 0)
                                 {
-                                    if (counterCondition.weapon.indexOf(w) === -1) 
-                                    {
-                                        counterCondition.weapon.push(w);
-                                        weaponsChangesLog += `Added whilelisted weapon ${this.getPrintable(w)} \n`;
-                                    }
+                                    // this.logger.log(`Quest: ${questId}\n\tOriginal: ${original.join(", ")}\n\t${weaponsChangesLog}`);
+                                    this.logger.log(`Quest: ${questId} -- ${weaponsChangesLog}\n${formatToPrint(original,newWeaponCondition)}`);
+                                }
+                                else if (newWeaponCondition.length !== newWeaponCondition.length)
+                                {
+                                    this.logger.log(`Quest: ${questId}\n${formatToPrint(original,newWeaponCondition)}}`);
+                                }
+                                else 
+                                {
+                                    this.logger.logDebug(`Quest: ${questId} - No changes\n\tOriginal: ${original.join(", ")} `)
                                 }
                             }
-
-                            if (weaponsChangesLog.length > 0)
+                            finally 
                             {
-                                this.addToLog(`Quest ${this.getPrintable(questId)} \n ${weaponsChangesLog}`);
+                                // this.logger.log(`Quest ${questId} \n Original: ${counterCondition.weapon.join(", ")} \n New: ${newWeaponCondition.join(", ")}`);
+                                condition.counter.conditions[i].weapon = newWeaponCondition;
+                                if (weaponsChangesLog.length > 0)
+                                {
+
+                                    // this.logger.logDebug("\n\n")
+                                    // this.logger.logDebug(quest, LogType.NONE, false)
+                                }
                             }
-                        
                         }
                     }
                 })            
             }    
+
         }
         catch (e)
         {
-            // todo: change name
-            this.logger.error("An error occurred in MissingQuestWeapons mod. Please check the 'log.log' file in the mod directory () for more information.")
-            //todo
-            // replace string
-
-            
-            // this.addToLog(e.stack, LogType.FILE);
-            this.addToLog(`${(e.stack as string).replaceAll("S:\\Games\\SPT\\user\\mods\\addmissingquestrequirements\\src", 
-                "X:\\Projects\\SPT-DEV\\Mods\\AddMissingQuestRequirements\\src")}`, LogType.FILE);
-            // this.logger.logWithColor("ASD", LogTextColor.CYAN, LogBackgroundColor.MAGENTA);
-            this.logger.error(`${(e.stack as string).replaceAll("S:\\Games\\SPT\\user\\mods\\addmissingquestrequirements\\src", 
-                "X:\\Projects\\SPT-DEV\\Mods\\AddMissingQuestRequirements\\src")}`, LogTextColor.CYAN, LogBackgroundColor.MAGENTA);
-            this.logToFile(true);
-            // throw e; //todo
-            return
+            this.logger.error("An error occurred in AddMissingQuestRequirements mod. Please check the 'log.log' file in the mod directory  for more information.")
+            throw e;
         }
-        this.logToFile();
     }
 }
