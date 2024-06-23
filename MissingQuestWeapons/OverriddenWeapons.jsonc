@@ -40,7 +40,8 @@
         "5c46fbd72e2216398b5a8c9c": [ // SVDS 7.62x54R sniper rifle
             "6657bc8faeddd6b0a9b40224",
             "6657bd4d3a4d6e7c33fd2fdc"
-        ]
+        ],
+        "5447a9cd4bdc2dbd208b4567":["M4A1"]
     },
     // for quests that need specific types of weapons
     "CustomCategories": [

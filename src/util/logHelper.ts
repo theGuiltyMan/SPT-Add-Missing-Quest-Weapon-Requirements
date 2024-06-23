@@ -73,7 +73,7 @@ export class LogHelper
         // sanity check to ensure there is one more word than spaces to not blow up the code for i have no idea how regex works
         const addSpaces = words.length === allSpaces.length + 1; 
         let newStr = "";
-        
+        // this.log(str, LogType.FILE, false)
         for (let i = 0; i < words.length; i++) 
         {   
             const word = words[i];
@@ -107,20 +107,26 @@ export class LogHelper
 
         error = error || "Unknown error";
         error = `${this.logModName} ${error}`;
+        this.logger.error("An error occurred in AddMissingQuestRequirements mod. Please check the 'log.log' file in the mod directory  for more information.")
         try 
         {
             this.logger.error(this.convertAllToReadable(error));
-            this.log(this.convertAllToReadable(error), LogType.FILE, false)
+            this.logToFile(this.convertAllToReadable(error))
         }
         catch (e)
         {
             this.logger.error(error);
-            this.log(error, LogType.FILE, false)
+            this.logToFile(error)
         }
     }
 
+    private blackListedIds: string[] = ["weapon"]
     tryToConvertToReadable(potentialId: string) : [string, boolean]
     {
+        if (this.blackListedIds.includes(potentialId))
+        {
+            return [potentialId, false];
+        }
         const name = this.localeHelper.getName(potentialId) || "Unknown";
         return [`${name} (${potentialId})`, name !== "Unknown"];
     }

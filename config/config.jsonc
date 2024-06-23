@@ -31,6 +31,5 @@
     "amountNeededForWeaponType": 4, // the amount of weapons from same type needed to consider it a weapon type requirement
     "delay": 0, // Delay in seconds to wait before starting, in my testings this was not needed,
     "logType": "file", // all, console, file, none
-    "debug": false, // if true, more logs will be more printed 
-    "dummyEnd": true
+    "debug": false // if true, more logs will be more printed 
 }

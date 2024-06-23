@@ -58,6 +58,7 @@ export class OverrideReader
                             }
                             const questOverride = overridedSettings.questOverrides[v.id];
 
+                            questOverride.onlyUseWhiteListedWeapons||= v.onlyUseWhiteListedWeapons || false;
                             this.logger.log(`Processing quest override: ${v.id})}`)
 
                             if (v.whiteListedWeapons)
