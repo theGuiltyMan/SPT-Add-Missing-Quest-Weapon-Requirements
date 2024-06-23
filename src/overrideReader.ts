@@ -38,160 +38,173 @@ export class OverrideReader
                 this.logger.log(`Processing mod: ${path.basename(modDir)}`)
                 this.logger.plusIndent();
             
-                const questOverridesData = tryReadJson<IQuestOverrides>(path.resolve(modDir, "MissingQuestWeapons"), "QuestOverrides");
-                if (questOverridesData) 
+                try 
                 {
-                    questOverridesData.Overrides.forEach((v) => 
+                    const questOverridesData = tryReadJson<IQuestOverrides>(path.resolve(modDir, "MissingQuestWeapons"), "QuestOverrides");
+                    if (questOverridesData) 
                     {
+                        questOverridesData.Overrides.forEach((v) => 
+                        {
 
-                        if (!overridedSettings.questOverrides[v.id])
-                        {
-                            overridedSettings.questOverrides[v.id] =  {
-                                id : v.id,
-                                whiteListedWeapons: [],
-                                blackListedWeapons: [],
-                                skip: false,
-                                onlyUseWhiteListedWeapons: false
-                            }
-                        }
-                        const questOverride = overridedSettings.questOverrides[v.id];
-
-                        this.logger.log(`Processing quest override: ${v.id})}`)
-
-                        if (v.whiteListedWeapons)
-                        {
-                            v.whiteListedWeapons.forEach(w=>pushIfNotExists(questOverride.whiteListedWeapons,w));
-                        }
-                        if (v.blackListedWeapons)
-                        {
-                            v.blackListedWeapons.forEach(w=>pushIfNotExists(questOverride.blackListedWeapons,w));
-                        }
-
-                        if (v.skip)
-                        {
-                            questOverride.skip = true;
-                        }
-                        // check if any weapons conflicted
-                        if (v.whiteListedWeapons )
-                        {
-                            for (const w of v.whiteListedWeapons) 
+                            if (!overridedSettings.questOverrides[v.id])
                             {
-                                if (questOverride.blackListedWeapons.includes(w)) 
-                                {
-                                    this.logger.error(`Weapon ${w} is both blacklisted and whitelisted for quest ${v.id}`);
+                                overridedSettings.questOverrides[v.id] =  {
+                                    id : v.id,
+                                    whiteListedWeapons: [],
+                                    blackListedWeapons: [],
+                                    skip: false,
+                                    onlyUseWhiteListedWeapons: false
                                 }
                             }
-                        }
-                    });
+                            const questOverride = overridedSettings.questOverrides[v.id];
 
-                    questOverridesData.BlackListedQuests.forEach(v=>
-                    {
-                        if (!overridedSettings.questOverrides[v])
-                        {
-                            overridedSettings.questOverrides[v] =  {
-                                id : v,
-                                blackListed: true
+                            this.logger.log(`Processing quest override: ${v.id})}`)
+
+                            if (v.whiteListedWeapons)
+                            {
+                                v.whiteListedWeapons.forEach(w=>pushIfNotExists(questOverride.whiteListedWeapons,w));
                             }
-                        }
-                        else 
+                            if (v.blackListedWeapons)
+                            {
+                                v.blackListedWeapons.forEach(w=>pushIfNotExists(questOverride.blackListedWeapons,w));
+                            }
+
+                            if (v.skip)
+                            {
+                                questOverride.skip = true;
+                            }
+                            // check if any weapons conflicted
+                            if (v.whiteListedWeapons )
+                            {
+                                for (const w of v.whiteListedWeapons) 
+                                {
+                                    if (questOverride.blackListedWeapons.includes(w)) 
+                                    {
+                                        this.logger.error(`Weapon ${w} is both blacklisted and whitelisted for quest ${v.id}`);
+                                    }
+                                }
+                            }
+                        });
+
+                        questOverridesData.BlackListedQuests.forEach(v=>
                         {
-                            this.logger.error(`Quest ${v} is both in blacklisted quests and in quest overrides. Blacklisting will take precedence.`);
-                            overridedSettings.questOverrides[v].skip = true;
-                        }
-                    })
+                            if (!overridedSettings.questOverrides[v])
+                            {
+                                overridedSettings.questOverrides[v] =  {
+                                    id : v,
+                                    blackListed: true
+                                }
+                            }
+                            else 
+                            {
+                                this.logger.error(`Quest ${v} is both in blacklisted quests and in quest overrides. Blacklisting will take precedence.`);
+                                overridedSettings.questOverrides[v].skip = true;
+                            }
+                        })
+                    }
+                }
+                catch (e)
+                {
+                    this.logger.error(`Error reading QuestOverrides in ${modDir}: ${e.message}`);
                 }
 
-                const  overriddenWeaponsData = tryReadJson<IOverriddenWeapons>(path.resolve(modDir, "MissingQuestWeapons"), "OverriddenWeapons");
-                if (overriddenWeaponsData) 
+                try 
                 {
-                    if (overriddenWeaponsData.Override)
+                    const  overriddenWeaponsData = tryReadJson<IOverriddenWeapons>(path.resolve(modDir, "MissingQuestWeapons"), "OverriddenWeapons");
+                    if (overriddenWeaponsData) 
                     {
-                        for (const key in overriddenWeaponsData.Override) 
+                        if (overriddenWeaponsData.Override)
                         {
-                            overridedSettings.overriddenWeapons[key] = overriddenWeaponsData.Override[key];
+                            for (const key in overriddenWeaponsData.Override) 
+                            {
+                                overridedSettings.overriddenWeapons[key] = overriddenWeaponsData.Override[key];
+                            }
                         }
-                    }
 
                     
-                    if (overriddenWeaponsData.CanBeUsedAs)
-                    {
-                        for (const key in overriddenWeaponsData.CanBeUsedAs) 
+                        if (overriddenWeaponsData.CanBeUsedAs)
                         {
-                            if (!overridedSettings.canBeUsedAs[key]) 
+                            for (const key in overriddenWeaponsData.CanBeUsedAs) 
                             {
-                                overridedSettings.canBeUsedAs[key] = [];
-                            }
-                            overriddenWeaponsData.CanBeUsedAs[key].forEach(v=>pushIfNotExists(overridedSettings.canBeUsedAs[key],v));
-                            for (const v of overriddenWeaponsData.CanBeUsedAs[key]) 
-                            {
-                                if (!overridedSettings.canBeUsedAs[v]) 
+                                if (!overridedSettings.canBeUsedAs[key]) 
                                 {
-                                    overridedSettings.canBeUsedAs[v] = [];
+                                    overridedSettings.canBeUsedAs[key] = [];
                                 }
-                                pushIfNotExists(overridedSettings.canBeUsedAs[v],key);
+                                overriddenWeaponsData.CanBeUsedAs[key].forEach(v=>pushIfNotExists(overridedSettings.canBeUsedAs[key],v));
+                                for (const v of overriddenWeaponsData.CanBeUsedAs[key]) 
+                                {
+                                    if (!overridedSettings.canBeUsedAs[v]) 
+                                    {
+                                        overridedSettings.canBeUsedAs[v] = [];
+                                    }
+                                    pushIfNotExists(overridedSettings.canBeUsedAs[v],key);
+                                }
                             }
                         }
-                    }
-                    if (overriddenWeaponsData.CustomCategories)
-                    {
-                        for (const customCategory of overriddenWeaponsData.CustomCategories) 
+                        if (overriddenWeaponsData.CustomCategories)
                         {
-
-                            if (!overridedSettings.customCategories[customCategory.name]) 
+                            for (const customCategory of overriddenWeaponsData.CustomCategories) 
                             {
-                                overridedSettings.customCategories[customCategory.name] = {
-                                    name : customCategory.name,
-                                    ids : [],
-                                    whiteListedKeywords : [],
-                                    blackListedKeywords : [],
-                                    allowedCalibres : [],
-                                    alsoCheckDescription : customCategory.alsoCheckDescription || false
-                                };
-                            }
+
+                                if (!overridedSettings.customCategories[customCategory.name]) 
+                                {
+                                    overridedSettings.customCategories[customCategory.name] = {
+                                        name : customCategory.name,
+                                        ids : [],
+                                        whiteListedKeywords : [],
+                                        blackListedKeywords : [],
+                                        allowedCalibres : [],
+                                        alsoCheckDescription : customCategory.alsoCheckDescription || false
+                                    };
+                                }
                         
 
-                            // merge with existing categories except the name
-                            const category = overridedSettings.customCategories[customCategory.name];
-                            if (customCategory.ids)
-                            {
-                                for (const id of customCategory.ids) 
+                                // merge with existing categories except the name
+                                const category = overridedSettings.customCategories[customCategory.name];
+                                if (customCategory.ids)
                                 {
-                                    pushIfNotExists(category.ids,id);
+                                    for (const id of customCategory.ids) 
+                                    {
+                                        pushIfNotExists(category.ids,id);
+                                    }
                                 }
-                            }
 
-                            if (customCategory.whiteListedKeywords)
-                            {
-                                for (const id of customCategory.whiteListedKeywords) 
+                                if (customCategory.whiteListedKeywords)
                                 {
-                                    pushIfNotExists(category.whiteListedKeywords,id);
+                                    for (const id of customCategory.whiteListedKeywords) 
+                                    {
+                                        pushIfNotExists(category.whiteListedKeywords,id);
+                                    }
                                 }
-                            }
 
-                            if (customCategory.blackListedKeywords)
-                            {
-                                for (const id of customCategory.blackListedKeywords) 
+                                if (customCategory.blackListedKeywords)
                                 {
-                                    pushIfNotExists(category.blackListedKeywords,id);
+                                    for (const id of customCategory.blackListedKeywords) 
+                                    {
+                                        pushIfNotExists(category.blackListedKeywords,id);
                                       
+                                    }
                                 }
-                            }
 
-                            if (customCategory.allowedCalibres)
-                            {
-                                for (const id of customCategory.allowedCalibres) 
+                                if (customCategory.allowedCalibres)
                                 {
-                                    pushIfNotExists(category.allowedCalibres,id);
+                                    for (const id of customCategory.allowedCalibres) 
+                                    {
+                                        pushIfNotExists(category.allowedCalibres,id);
+                                    }
                                 }
-                            }
 
-                            customCategory.alsoCheckDescription ||= category.alsoCheckDescription;
-                            this.logger.log(category)
+                                customCategory.alsoCheckDescription ||= category.alsoCheckDescription;
+                                this.logger.log(category)
+                            }
                         }
                     }
                 }
+                catch (e)
+                {
+                    this.logger.error(`Error reading OverriddenWeapons in ${modDir}: ${e.message}`);
+                }
                 this.logger.minusIndent();
-
                 
             })
 

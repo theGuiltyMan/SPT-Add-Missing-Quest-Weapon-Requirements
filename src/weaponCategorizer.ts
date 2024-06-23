@@ -134,15 +134,23 @@ export  class WeaponCategorizer
     {
         for (const itemId in this.allItems) 
         {
-            const item = this.allItems[itemId];
-            if (item._type !== "Item" || !item._props) 
+            try 
             {
-                continue;
+
+            
+                const item = this.allItems[itemId];
+                if (item._type !== "Item" || !item._props) 
+                {
+                    continue;
+                }
+
+                this.addToWeaponType(this.getWeapClass(item), item);
             }
-
-            this.addToWeaponType(this.getWeapClass(item), item);
+            catch (e)
+            {
+                this.logger.error(`Error processing ${itemId}: ${e}`);
+            }
         }
-
 
         const allWeaponIds = Object.keys(this.weaponToType);
         const matches = (item: ITemplateItem, regexes: string[], alsoDesc: boolean) => 
@@ -161,60 +169,70 @@ export  class WeaponCategorizer
         // process custom categories
         for (const k in this.overridedSettings.customCategories) 
         {
-            this.logger.log("Processing Custom Category");
-            this.logger.log(this.overridedSettings.customCategories[k]);
-            const customCategory = this.overridedSettings.customCategories[k];
-            this.logger.log(`Processing Custom Category:  ${customCategory.name}`);
-            const potentials : ITemplateItem[] = [];
-            this.logger.plusIndent();
-            for (const id of allWeaponIds) 
+
+            try 
             {
-                this.logger.minusIndent();
-                const item = this.allItems[id];
-                this.logger.logDebug(`Processing ${item._id}`,LogType.NONE, true);
+
+                this.logger.log("Processing Custom Category");
+                this.logger.log(this.overridedSettings.customCategories[k]);
+                const customCategory = this.overridedSettings.customCategories[k];
+                this.logger.log(`Processing Custom Category:  ${customCategory.name}`);
+                const potentials : ITemplateItem[] = [];
                 this.logger.plusIndent();
-                if (customCategory?.ids.includes(id))
+                for (const id of allWeaponIds) 
                 {
-                    this.logger.logDebug(`Adding ${item._id} to ${customCategory.name}. Found in ids.`);
+                    this.logger.minusIndent();
+                    const item = this.allItems[id];
+                    this.logger.logDebug(`Processing ${item._id}`,LogType.NONE, true);
+                    this.logger.plusIndent();
+                    if (customCategory?.ids.includes(id))
+                    {
+                        this.logger.logDebug(`Adding ${item._id} to ${customCategory.name}. Found in ids.`);
+                        potentials.push(item);
+                        continue;
+                    }
+
+                    if (customCategory?.blackListedKeywords?.length > 0)
+                    {
+                        if (matches(item, Array.from(customCategory.blackListedKeywords), customCategory.alsoCheckDescription))
+                        {
+                            this.logger.logDebug(`Skipping ${item._id} from ${customCategory.name}. Found in blacklisted keywords.`);
+                            continue;
+                        }
+                    }
+
+                    if (customCategory?.whiteListedKeywords?.length > 0)
+                    {
+                        if (!matches(item, Array.from(customCategory.whiteListedKeywords), customCategory.alsoCheckDescription))
+                        {
+                            this.logger.logDebug(`Skipping ${item._id} from ${customCategory.name}. Not found in whitelisted keywords.`);
+                            continue;
+                        }
+                    }
+
+                    if (customCategory?.allowedCalibres?.length > 0)
+                    {
+                        if (!item._props.ammoCaliber || !customCategory.allowedCalibres.includes(item._props.ammoCaliber))
+                        {
+                            this.logger.logDebug(`Skipping ${item._id} from ${customCategory.name}. Not found in allowed calibres.`);
+                            continue;
+                        }
+                    }
+
                     potentials.push(item);
-                    continue;
                 }
 
-                if (customCategory?.blackListedKeywords?.length > 0)
+                this.logger.minusIndent();
+                for (const item of potentials) 
                 {
-                    if (matches(item, Array.from(customCategory.blackListedKeywords), customCategory.alsoCheckDescription))
-                    {
-                        this.logger.logDebug(`Skipping ${item._id} from ${customCategory.name}. Found in blacklisted keywords.`);
-                        continue;
-                    }
+                    this.logger.log(`Adding ${item._id} to ${customCategory.name}`);
+                    this.addWeaponType(customCategory.name, item._id);
                 }
-
-                if (customCategory?.whiteListedKeywords?.length > 0)
-                {
-                    if (!matches(item, Array.from(customCategory.whiteListedKeywords), customCategory.alsoCheckDescription))
-                    {
-                        this.logger.logDebug(`Skipping ${item._id} from ${customCategory.name}. Not found in whitelisted keywords.`);
-                        continue;
-                    }
-                }
-
-                if (customCategory?.allowedCalibres?.length > 0)
-                {
-                    if (!item._props.ammoCaliber || !customCategory.allowedCalibres.includes(item._props.ammoCaliber))
-                    {
-                        this.logger.logDebug(`Skipping ${item._id} from ${customCategory.name}. Not found in allowed calibres.`);
-                        continue;
-                    }
-                }
-
-                potentials.push(item);
             }
-
-            this.logger.minusIndent();
-            for (const item of potentials) 
+            catch (e)
             {
-                this.logger.log(`Adding ${item._id} to ${customCategory.name}`);
-                this.addWeaponType(customCategory.name, item._id);
+                this.logger.error(`Error processing custom category ${k}: ${e}`);
+        
             }
         }
         this.logger.log("\n\n ###############  Prepared weapon types:  ################\n\n")

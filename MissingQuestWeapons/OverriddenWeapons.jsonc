@@ -90,6 +90,16 @@
             "blackListedKeywords": [],
             "allowedCalibres": [], 
             "alsoCheckDescription": true 
+        },
+        {
+            "name": "M4A1",
+            "ids": [],
+            "whiteListedKeywords": [
+                "\\b(M4A1)\\w*"
+            ],
+            "blackListedKeywords": [],
+            "allowedCalibres": [],
+            "alsoCheckDescription": false
         }
     ]
 }

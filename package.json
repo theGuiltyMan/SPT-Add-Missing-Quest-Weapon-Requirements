@@ -1,5 +1,5 @@
 {
-    "name": "AddMissingQuestRequirements",
+    "name": "add-missing-quest-weapon-requirements",
     "version": "1.0.0",
     "main": "src/mod.js",
     "license": "MIT",

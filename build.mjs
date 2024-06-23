@@ -37,7 +37,6 @@ import { dirname } from "path";
 import ignore from "ignore";
 import archiver from "archiver";
 import winston from "winston";
-import { exec } from "child_process";
 
 // Get the command line arguments to determine whether to use verbose logging.
 const args = process.argv.slice(2);
@@ -118,11 +117,11 @@ async function main()
         await copyFiles(currentDir, projectDir, buildIgnorePatterns);
         logger.log("success", "Files successfully copied to temporary directory.");
 
-        // copy the files into the SPT directory
-        await fs.copy(projectDir, path.join(sptDir, `user/mods/${projectName}`));
-        // run command line code
-        
-
+        // copy the files into the SPT directory for easy testing
+        if (fs.existsSync(sptDir))
+        {
+            await fs.copy(projectDir, path.join(sptDir, `user/mods/${projectName}`));
+        }
 
         // Create a zip archive of the project files.
         logger.log("info", "Beginning folder compression...");
@@ -251,13 +250,14 @@ async function loadPackageJson(currentDir)
 function createProjectName(packageJson) 
 {
     // Remove any non-alphanumeric characters from the author and name.
-    // const author = packageJson.author.replace(/\W/g, "");
-    const name = packageJson.name.replace(/\W/g, "");
-    // const version = packageJson.version;
+    const author = packageJson.author.replace(/\W/g, "");
+    const name =packageJson.name.replace(/\W/g, "");
 
     // Ensure the name is lowercase, as per the package.json specification.
-    return name.toLowerCase();
-    // return `${author}-${name}-${version}`.toLowerCase();
+    // added 'zz' to make it load late in the load order to ensure other quest mods are loaded first
+    // return name.toLowerCase();
+
+    return `zz_${author}-${name}`.toLowerCase();
 }
 
 /**

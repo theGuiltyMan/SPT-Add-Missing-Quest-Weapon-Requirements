@@ -19,6 +19,7 @@ export class LogHelper
     private defaultBackgroundColor : LogBackgroundColor = LogBackgroundColor.MAGENTA
     private logStream : WriteStream
 
+    private logModName : string = "[Add Missing Quest Weapon Requirements]" // would be better to get this from the mod name
 
     constructor(
         @inject("DatabaseServer") private db: DatabaseServer,
@@ -103,7 +104,19 @@ export class LogHelper
 
     error(error: string)  : void
     {
-        this.logger.error(this.convertAllToReadable(error));
+
+        error = error || "Unknown error";
+        error = `${this.logModName} ${error}`;
+        try 
+        {
+            this.logger.error(this.convertAllToReadable(error));
+            this.log(this.convertAllToReadable(error), LogType.FILE, false)
+        }
+        catch (e)
+        {
+            this.logger.error(error);
+            this.log(error, LogType.FILE, false)
+        }
     }
 
     tryToConvertToReadable(potentialId: string) : [string, boolean]
@@ -155,6 +168,7 @@ export class LogHelper
         }
         if ((logType & LogType.CONSOLE) === LogType.CONSOLE)
         {
+            s = `${this.logModName} ${s}`
             this.logger.logWithColor(s, this.defaultTextColor, this.defaultBackgroundColor);
         }
     }
