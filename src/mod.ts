@@ -3,7 +3,7 @@ import { IPostDBLoadMod } from "@spt-aki/models/external/IPostDBLoadMod";
 
 import path from "path";
 import { readJson} from "./util/jsonHelper";
-import {LogHelper} from "./util/logHelper";
+import {LogHelper, LogType} from "./util/logHelper";
 import { IAddMissingQuestRequirementConfig } from "./models/IAddMissingQuestRequirementConfig";
 import { WeaponCategorizer } from "./weaponCategorizer";
 import { QuestPatcher } from "./questPatcher";
@@ -51,7 +51,9 @@ class Mod implements IPostDBLoadMod
             childContainer.resolve<OverrideReader>("OverrideReader").run(childContainer);
             childContainer.resolve<WeaponCategorizer>("WeaponCategorizer").run(childContainer);   
             childContainer.resolve<QuestPatcher>("QuestPatcher").run()
+            logger.log("[AMQWR] Finished Patching", LogType.CONSOLE, false);
             childContainer.dispose();
+
         }
 
         if (!config.delay || config.delay <= 0)

@@ -28,7 +28,6 @@
     "BlackListedItems": [],
     "BlackListedWeaponsTypes": [],
     "categorizeWithLessRestrive": true, // if true, weapons like bolt actions, pump-actions will also be considered as sniper rifles, shotguns. (but semi-autos wont be considered bolt/pump actions)
-    "amountNeededForWeaponType": 4, // the amount of weapons from same type needed to consider it a weapon type requirement
     "delay": 0, // Delay in seconds to wait before starting, in my testings this was not needed,
     "logType": "file", // all, console, file, none
     "debug": false // if true, more logs will be more printed 

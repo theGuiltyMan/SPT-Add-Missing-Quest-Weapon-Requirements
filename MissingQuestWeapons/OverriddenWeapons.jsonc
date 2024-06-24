@@ -36,6 +36,7 @@
         "61f7c9e189e6fb1a5e3ea78d": "BoltActionSniperRifle,SniperRifle,Shotgun,PumpActionShotgun" // MP-18 7.62x54R single-shot rifle (god gives his toughest types to his strongest weapons)
     },
     // the weapons will be added when any other weapons are in the list
+    // can also be a category
     "CanBeUsedAs": {
         "5c46fbd72e2216398b5a8c9c": [ // SVDS 7.62x54R sniper rifle
             "6657bc8faeddd6b0a9b40224",
