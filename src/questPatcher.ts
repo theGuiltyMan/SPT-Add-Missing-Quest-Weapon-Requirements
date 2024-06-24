@@ -174,12 +174,14 @@ export class QuestPatcher
                                             // for example if all weapons are revolvers, then the type is revolver
                                             // but if there are revolvers and pistols, then the type is pistol
 
+                                            let error = false;
                                             const potentialTypes : Record<string, string[]> = {};
                                             for (const weaponId of newWeaponCondition) 
                                             {
                                                 if (!this.weaponToType[weaponId] || this.weaponToType[weaponId].length === 0) 
                                                 {
                                                     this.logger.error(`Weapon (${weaponId}) not found in weaponToType for quest ${questId}`);
+                                                    error = true;
                                                     break;
                                                 }
 
@@ -196,8 +198,10 @@ export class QuestPatcher
                                                     }
                                                 }
                                             }
-
-                       
+                                            if (error) // probably not needed
+                                            {
+                                                break;
+                                            }
                                             // this.logger.log(potentialTypes)
                                             let bestCandidate = null;
                                             // check if there is a weapon type that all weapons are of
