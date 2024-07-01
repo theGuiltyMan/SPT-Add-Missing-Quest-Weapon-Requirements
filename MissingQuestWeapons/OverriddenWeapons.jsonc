@@ -42,22 +42,45 @@
             "6657bc8faeddd6b0a9b40224",
             "6657bd4d3a4d6e7c33fd2fdc"
         ],
-        "5447a9cd4bdc2dbd208b4567":["M4A1"]
+        "5447a9cd4bdc2dbd208b4567": [
+            "M4A1"
+        ]
     },
+    // if any two weapons' short names are the same or differs only by these words, they will be considered the same
+    "CanBeUsedAsShortNameWhitelist": [
+        ".300 Blackout",
+        ".300",
+        "FDE",
+        "furry",
+        "black",
+        ".277",
+        "red",
+        "gold",
+        "multi",
+        "caliber"
+    ],
+    // any weapon with these short names will be skipped from the previous list
+    "CanBeUsedAsShortNameBlacklist" : [],
     // for quests that need specific types of weapons
     "CustomCategories": [
         {
             "name": "AKM", // Identifier
             "ids": [], // if a weapon is in this list, it will be considered as this category no matter what
-            "whiteListedKeywords": ["\\b(AKM|AK-1|VPO)\\w*"], //  these will be searched in the weapon name and description
+            "whiteListedKeywords": [
+                "\\b(AKM|AK-1|VPO)\\w*"
+            ], //  these will be searched in the weapon name and description
             "blackListedKeywords": [], //  weapons with name/description containing these will be removed
-            "allowedCalibres": ["Caliber762x39"], //  weapons with only these will be added,
+            "allowedCalibres": [
+                "Caliber762x39"
+            ], //  weapons with only these will be added,
             "alsoCheckDescription": false //  if true, the description will also be checked
         },
         {
             "name": "AKS-74U", // Identifier
             "ids": [], // if a weapon is in this list, it will be considered as this category no matter what
-            "whiteListedKeywords": ["\\b(AKS-74U|SAG AK-545)\\w*"], //  these will be searched in the weapon name and description
+            "whiteListedKeywords": [
+                "\\b(AKS-74U|SAG AK-545)\\w*"
+            ], //  these will be searched in the weapon name and description
             "blackListedKeywords": [], //  weapons with name/description containing these will be removed
             "allowedCalibres": [], //  weapons with only these will be added,
             "alsoCheckDescription": false //  if true, the description will also be checked
@@ -67,37 +90,58 @@
             "ids": [], // if a weapon is in this list, it will be considered as this category no matter what
             "whiteListedKeywords": [], //  these will be searched in the weapon name and description
             "blackListedKeywords": [], //  weapons with name/description containing these will be removed
-            "allowedCalibres": ["Caliber12g"], //  weapons with only these will be added,
+            "allowedCalibres": [
+                "Caliber12g"
+            ], //  weapons with only these will be added,
             "alsoCheckDescription": false //  if true, the description will also be checked
         },
         {
             "name": "AK",
-            "ids": [], 
-            "whiteListedKeywords": ["\\b(AK)\\w*"],
+            "ids": [],
+            "whiteListedKeywords": [
+                "\\b(AK)\\w*"
+            ],
             "blackListedKeywords": [],
-            "allowedCalibres": [], 
-            "alsoCheckDescription": false 
+            "allowedCalibres": [],
+            "alsoCheckDescription": false
         },
         {
             "name": "AK-74",
-            "ids": [], 
-            "whiteListedKeywords": ["\\b(AK-74|AKS-74|SAG AK-545)\\w*"],
-            "blackListedKeywords": ["\\b(AKS-74U)\\w*"],
-            "allowedCalibres": [], 
-            "alsoCheckDescription": false 
-        },{
+            "ids": [],
+            "whiteListedKeywords": [
+                "\\b(AK-74|AKS-74|SAG AK-545)\\w*"
+            ],
+            "blackListedKeywords": [
+                "\\b(AKS-74U)\\w*"
+            ],
+            "allowedCalibres": [],
+            "alsoCheckDescription": false
+        },
+        {
             "name": "AR-15",
-            "ids": [], 
-            "whiteListedKeywords": ["\\b(AR-15|M4A1)\\w*"],
+            "ids": [],
+            "whiteListedKeywords": [
+                "\\b(AR-15|M4A1)\\w*"
+            ],
             "blackListedKeywords": [],
-            "allowedCalibres": [], 
-            "alsoCheckDescription": true 
+            "allowedCalibres": [],
+            "alsoCheckDescription": true
         },
         {
             "name": "M4A1",
             "ids": [],
             "whiteListedKeywords": [
                 "\\b(M4A1)\\w*"
+            ],
+            "blackListedKeywords": [],
+            "allowedCalibres": [],
+            "alsoCheckDescription": false
+        },
+        {
+            "name": "explosive",
+            "ids": [],
+            "whiteListedKeywords": [
+                "\\b(grenade)\\w*"
             ],
             "blackListedKeywords": [],
             "allowedCalibres": [],

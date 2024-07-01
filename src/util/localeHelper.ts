@@ -24,4 +24,9 @@ export class LocaleHelper
         return this.locale[`${id} description`] || this.locale[`${id} Description`] || "";
 
     }
+
+    public getShortName(id: string) : string
+    {
+        return this.locale[`${id} shortName`] || this.locale[`${id} ShortName`] || "";
+    }
 }

@@ -7,4 +7,6 @@ export class OverridedSettings
     public overriddenWeapons: Record<string, string> = {};
     public canBeUsedAs: Record<string, string[]> = {};
     public customCategories: Record<string, IWeaponCategory> = {};
+    public canBeUsedAsShortNameWhitelist: string[] = [];
+    public canBeUsedAsShortNameBlackList: string[] = [];
 }

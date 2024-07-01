@@ -122,7 +122,7 @@ export class OverrideReader
                             }
                         }
 
-                    
+                
                         if (overriddenWeaponsData.CanBeUsedAs)
                         {
                             for (const key in overriddenWeaponsData.CanBeUsedAs) 
@@ -132,15 +132,17 @@ export class OverrideReader
                                     overridedSettings.canBeUsedAs[key] = [];
                                 }
                                 overriddenWeaponsData.CanBeUsedAs[key].forEach(v=>pushIfNotExists(overridedSettings.canBeUsedAs[key],v));
-                                for (const v of overriddenWeaponsData.CanBeUsedAs[key]) 
-                                {
-                                    if (!overridedSettings.canBeUsedAs[v]) 
-                                    {
-                                        overridedSettings.canBeUsedAs[v] = [];
-                                    }
-                                    pushIfNotExists(overridedSettings.canBeUsedAs[v],key);
-                                }
                             }
+                        }
+
+                        if (overriddenWeaponsData.CanBeUsedAsShortNameWhitelist )
+                        {
+                            overriddenWeaponsData.CanBeUsedAsShortNameWhitelist.forEach(v=>pushIfNotExists(overridedSettings.canBeUsedAsShortNameWhitelist,v));
+                        }
+                        
+                        if (overriddenWeaponsData.CanBeUsedAsShortNameBlacklist )
+                        {
+                            overriddenWeaponsData.CanBeUsedAsShortNameBlacklist.forEach(v=>pushIfNotExists(overridedSettings.canBeUsedAsShortNameBlackList,v));
                         }
                         if (overriddenWeaponsData.CustomCategories)
                         {
