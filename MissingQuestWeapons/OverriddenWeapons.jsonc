@@ -34,7 +34,6 @@
         "6657bc8faeddd6b0a9b40224": "MarksmanRifle", // SVD 7.62x54R Sniper Rifle
         "6657bd4d3a4d6e7c33fd2fdc": "MarksmanRifle", // SVD 7.62x54R Sniper Rifle
         "61f7c9e189e6fb1a5e3ea78d": "BoltActionSniperRifle,SniperRifle,Shotgun,PumpActionShotgun", // MP-18 7.62x54R single-shot rifle (god gives his toughest types to his strongest weapons)
-        "667b693466834848ed0c05a6": "BoltActionSniperRifle,SniperRifle",
         "0101_BLACK_LINES_M4A1": "AssaultCarbine,AssaultRifle",
         "0102_BLACK_LINES_AK103": "AssaultRifle",
         "0103_BLACK_RSASS": "MarksmanRifle",
@@ -98,7 +97,6 @@
         "667b693466834848ed0c05a6": "BoltActionSniperRifle,SniperRifle", // CheyTac M200 Intervention .408 CheyTac
         "6661012d16fbd2fb75408f87": "Pistol", // CZ-75 9x19mm
         "664a5b945636ce820472f225": "AssaultRifle,MarksmanRifle", // HK417 7.62x51mm
-        "6657bc8faeddd6b0a9b40224": "MarksmanRifle", // Dragunov SVD 7.62x54R
         "663cf1da2496a8e7b0b71759": "Pistol", // EDCX9 9x19mm
         "665fe0e865683281eb8e7ed6": "Pistol", // DS Prodigy 9x19mm
         "664274a4d2e5fe0439d545a6": "AssaultRifle,AssaultCarbine", // HK G3 7.62x51mm
