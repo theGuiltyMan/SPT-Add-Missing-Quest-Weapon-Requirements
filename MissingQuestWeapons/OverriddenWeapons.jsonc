@@ -104,7 +104,12 @@
         "czscorpion": "Smg", // CZ Scorpion EVO 3 9x19mm
         "czscorpiongrey": "Smg", // CZ Scorpion Evo 3 Tron Edition 9x19mm
         "6632aab0b450b045b2160db9": "AssaultRifle,AssaultCarbine", // L85A2 5.56x45mm
-        "6632b91ca1a7a5564dad34ac": "AssaultRifle,AssaultCarbine" // FAMAS F1 5.56x45mm
+        "6632b91ca1a7a5564dad34ac": "AssaultRifle,AssaultCarbine", // FAMAS F1 5.56x45mm
+        "sh-pikalo": "Pistol,Smg", // Custom full-auto PL-15 9x19mm
+        "sh-Saiga": "AssaultCarbine,AssaultRifle", // Custom full-auto Saiga 12ga
+        "sh-SaigaSKS": "Shotgun", // Custom full-auto SKS 12ga
+        "sh-SKS": "AssaultCarbine,AssaultRifle", // Custom full-auto SKS 7.62x39mm
+        "shSVastWeapon": "SniperRifle" // Custom full-auto SV-98 7.62x54R
     },
     // the weapons will be added when any other weapons are in the list
     // can also be a category
@@ -162,7 +167,8 @@
                 "61f7c9e189e6fb1a5e3ea78d", // MP-18 7.62x54R single-shot rifle
                 "weapon_striker_12",
                 "weapon_JAK12_12ga_MASSIVESOFT",
-                "weapon_AA12_12ga_MASSIVESOFT" // JAK12 alternative, for those who renamed it.
+                "weapon_AA12_12ga_MASSIVESOFT", // JAK12 alternative, for those who renamed it.
+                "sh-SaigaSKS"
             ], // if a weapon is in this list, it will be considered as this category no matter what
             "whiteListedKeywords": [], //  these will be searched in the weapon name and description
             "blackListedKeywords": [], //  weapons with name/description containing these will be removed
