@@ -79,19 +79,29 @@
         "52ce1b65b13e1035808c4fd2": "AssaultRifle", // Mk47 5.45x39mm
         "96f5c38a676e11e13544dfba": "AssaultRifle", // Mk47 9x39mm
         "8d59d8b10a4c2e85b871c317": "AssaultRifle", // MCX Spear .308
-        "Asset Store knife": "Knife",
-        "weapon_M1911CE_1143x23_MASSIVESOFT": "Pistol",
-        "weapon_M14_762x51_MASSIVESOFT": "AssaultRifle,MarksmanRifle",
-        "weapon_TYPE64_762x25_MASSIVESOFT": "Smg",
-        "weapon_JAK12_12ga_MASSIVESOFT": "Shotgun",
-        "weapon_AA12_12ga_MASSIVESOFT": "Shotgun", // JAK12 alternative, for those who renamed it.
-        "weapon_QBZ03_std_MASSIVESOFT": "AssaultRifle",
-        "66015072e9f84d5680039678": "Pistol", // Plastic toy gun, good luck with that
+        "weapon_JAK12_12ga_MASSIVESOFT": "Shotgun", // Pettan JAK12 port
+        "weapon_AA12_12ga_MASSIVESOFT": "Shotgun", // Pettan JAK12 alternative, for those who renamed it.
+        "023023A12A12A12000000000": "Shotgun", // Massivesoft JAK12
+        "weapon_M14_762x51_MASSIVESOFT": "AssaultRifle,MarksmanRifle", // Pettan M14 port
+        "020020AA14AA140000000000": "AssaultRifle,MarksmanRifle", // Massivesoft M14
+        "weapon_M1911CE_1143x23_MASSIVESOFT": "Pistol", // Pettan M1911CE port
+        "0210211911CE000000000000": "Pistol", // Massivesoft M1911CE
+        "weapon_QBZ03_std_MASSIVESOFT": "AssaultRifle,AssaultCarbine", // Pettan QBZ03 port
+        "020020BBA03BBA0300000000": "AssaultRifle,AssaultCarbine", // Massivesoft QBZ03
+        "020020BBA97BBA9700000000": "AssaultRifle,AssaultCarbine", // Massivesoft QBZ97
+        "020020195195F95556000000": "AssaultRifle,AssaultCarbine", // Massivesoft Tavor X95
+        "020020195195F95545000000": "AssaultRifle,AssaultCarbine", // Massivesoft Tavor X95-R
+        "weapon_TYPE64_762x25_MASSIVESOFT": "Smg", // Pettan Type 64 port
+        "022022C64C64000000000000": "Smg", // Massivesoft Type 64
+        "weapon_v308_762x51_MASSIVESOFT": "AssaultRifle", // Pettan v308 port
+        "020020308308000000000000": "AssaultRifle", // Massivesoft v308
+        "MIRA_weapon_ai_awm_338lm": "BoltActionSniperRifle,SniperRifle",
         "MIRA_weapon_colt_m16a4_556x45": "AssaultRifle",
-        "MIRA_weapon_izhmash_rpk74n_545x39": "AssaultRifle,MachineGun",
         "MIRA_weapon_izhmash_ak_762x39_nodove": "AssaultRifle",
         "MIRA_weapon_izhmash_ak_762x39": "AssaultRifle",
-        "MIRA_weapon_ai_awm_338lm": "BoltActionSniperRifle,SniperRifle",
+        "MIRA_weapon_izhmash_rpk74n_545x39": "AssaultRifle,MachineGun",
+        "Asset Store knife": "Knife",
+        "66015072e9f84d5680039678": "Pistol", // Plastic toy gun, good luck with that
         "663fe6eb47e8baf835124234": "Pistol", // Desert Eagle .357 Magnum
         "6671ebcdd32bd95eb398e920": "AssaultRifle,AssaultCarbine", // Ak5C 5.56x45mm
         "667b693466834848ed0c05a6": "BoltActionSniperRifle,SniperRifle", // CheyTac M200 Intervention .408 CheyTac
@@ -122,7 +132,6 @@
         "MK12 DIY0": "AssaultCarbine", // MK12 5.56x45mm (alternate)
         "QBU-88": "AssaultRifle,AssaultCarbine", // QBU-88 5.8x42mm
         "QBZ-03": "AssaultRifle,AssaultCarbine", // QBZ-03 5.8x42mm
-        "QBZ-191": "AssaultRifle,AssaultCarbine", // QBZ-191 5.8x42mm
         "QBZ-191": "AssaultRifle,AssaultCarbine", // QBZ-191 5.8x42mm
         "QBZ-95": "AssaultRifle,AssaultCarbine", // QBZ-95 5.8x42mm
         "QBZ-97": "AssaultRifle,AssaultCarbine", // QBZ-97 5.8x42mm
