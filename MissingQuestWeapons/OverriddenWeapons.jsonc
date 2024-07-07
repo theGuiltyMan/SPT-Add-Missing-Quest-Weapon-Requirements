@@ -109,7 +109,33 @@
         "sh-Saiga": "AssaultCarbine,AssaultRifle", // Custom full-auto Saiga 12ga
         "sh-SaigaSKS": "Shotgun", // Custom full-auto SKS 12ga
         "sh-SKS": "AssaultCarbine,AssaultRifle", // Custom full-auto SKS 7.62x39mm
-        "shSVastWeapon": "SniperRifle" // Custom full-auto SV-98 7.62x54R
+        "shSVastWeapon": "SniperRifle", // Custom full-auto SV-98 7.62x54R
+        "Beowulf": "AssaultRifle",
+        "C14GN": "BoltActionSniperRifle",
+        "CZ-61": "Smg", // CZ-61 7.65x17mm
+        "Desert Eagle": "Pistol", // Desert Eagle .50 AE
+        "M110": "MarksmanRifle", // M110 7.62x51mm
+        "M16A1": "AssaultRifle", // M16A1 5.56x45mm
+        "M4A1 FDE": "AssaultCarbine,AssaultRifle", // M4A1 5.56x45mm FDE
+        "M76": "MarksmanRifle", // M76 7.92x57mm
+        "MK12 DIY": "AssaultCarbine", // MK12 5.56x45mm
+        "MK12 DIY0": "AssaultCarbine", // MK12 5.56x45mm (alternate)
+        "QBU-88": "AssaultRifle,AssaultCarbine", // QBU-88 5.8x42mm
+        "QBZ-03": "AssaultRifle,AssaultCarbine", // QBZ-03 5.8x42mm
+        "QBZ-191": "AssaultRifle,AssaultCarbine", // QBZ-191 5.8x42mm
+        "QBZ-191": "AssaultRifle,AssaultCarbine", // QBZ-191 5.8x42mm
+        "QBZ-95": "AssaultRifle,AssaultCarbine", // QBZ-95 5.8x42mm
+        "QBZ-97": "AssaultRifle,AssaultCarbine", // QBZ-97 5.8x42mm
+        "RO635": "Smg", // RO635 9x19mm
+        "S-SASS": "MarksmanRifle", // S-SASS 7.62x51mm
+        "ST AR15": "AssaultCarbine,AssaultRifle", // ST AR15 5.56x45mm
+        "suomiG": "Smg", // Suomi KP/-31 9x19mm
+        "super shorty": "Shotgun", // Super Shorty 12ga
+        "Type-56 MOD1": "AssaultRifle,AssaultCarbine", // Type-56 MOD1 7.62x39mm
+        "Type-56 MOD2": "AssaultRifle,AssaultCarbine", // Type-56 MOD2 7.62x39mm
+        "Type-56 MOD3": "AssaultRifle,AssaultCarbine", // Type-56 MOD3 7.62x39mm
+        "ump40": "Smg", // UMP40 .40 S&W
+        "ump9": "Smg" // UMP9 9x19mm
     },
     // the weapons will be added when any other weapons are in the list
     // can also be a category
