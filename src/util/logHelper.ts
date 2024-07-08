@@ -2,7 +2,7 @@ import { LogBackgroundColor } from "@spt-aki/models/spt/logging/LogBackgroundCol
 import { LogTextColor } from "@spt-aki/models/spt/logging/LogTextColor";
 import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
 import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import { IAddMissingQuestRequirementConfig } from "../models/IAddMissingQuestRequirementConfig";
+import { IAddMissingQuestRequirementConfig } from "../models/ConfigFiles/IAddMissingQuestRequirementConfig";
 import { inject, injectable } from "tsyringe";
 import fs, { WriteStream } from "fs";
 import { LocaleHelper } from "./localeHelper";
@@ -119,6 +119,14 @@ export class LogHelper
             this.logToFile(error)
         }
     }
+    
+    warn(warning: string) : void
+    {
+        warning = warning || "Unknown warning";
+        warning = `${this.logModName} ${warning}`;
+        this.logger.warning(warning);
+        this.logToFile(warning);
+    }
 
     private blackListedIds: string[] = ["weapon"]
     tryToConvertToReadable(potentialId: string) : [string, boolean]
@@ -150,6 +158,7 @@ export class LogHelper
         this.logStream.write(s);
     }
 
+    
     log(s: string | object, forceType : LogType = LogType.NONE, asReadable :boolean= true) : void
     {
         const logType = forceType !== LogType.NONE  ? forceType  : this.logType ;
