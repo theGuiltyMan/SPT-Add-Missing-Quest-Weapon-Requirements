@@ -1,4 +1,4 @@
-import { VFS } from "@spt-aki/utils/VFS";
+import { VFS } from "@spt/utils/VFS";
 import path from "path";
 import { DependencyContainer, inject, injectable } from "tsyringe";
 import { IOverriddenWeapons } from "./models/IOverriddenWeapons";

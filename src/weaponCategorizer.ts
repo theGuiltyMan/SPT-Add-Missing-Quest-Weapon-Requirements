@@ -1,9 +1,9 @@
 import { DependencyContainer, inject, injectable } from "tsyringe";
 import { LogHelper, LogType } from "./util/logHelper";
-import { ITemplateItem } from "@spt-aki/models/eft/common/tables/ITemplateItem";
+import { ITemplateItem } from "@spt/models/eft/common/tables/ITemplateItem";
 import { IAddMissingQuestRequirementConfig } from "./models/IAddMissingQuestRequirementConfig";
 import { OverridedSettings } from "./models/OverridedSettings";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { DatabaseServer } from "@spt/servers/DatabaseServer";
 import { LocaleHelper } from "./util/localeHelper";
 import { pushIfNotExists } from "./util/misc";
 

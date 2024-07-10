@@ -1,4 +1,4 @@
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { DatabaseServer } from "@spt/servers/DatabaseServer";
 import { inject, injectable } from "tsyringe";
 
 @injectable()

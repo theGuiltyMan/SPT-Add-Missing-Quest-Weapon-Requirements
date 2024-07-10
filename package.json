@@ -1,10 +1,10 @@
 {
     "name": "add-missing-quest-weapon-requirements",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "main": "src/mod.js",
     "license": "MIT",
     "author": "GuiltyMan",
-    "akiVersion": "~3.8",
+    "sptVersion": "~3.9",
     "loadBefore": [],
     "loadAfter": [
         "Virtuals Custom Quest Loader"
@@ -28,9 +28,7 @@
         "ts-node": "^10.9.2",
         "tsyringe": "4.8.0",
         "typescript": "5.4",
-        "winston": "3.12"
-    },
-    "dependencies": {
+        "winston": "3.12",
         "jsonc": "~2.0"
     }
 }
