@@ -1,12 +1,12 @@
-import { LogBackgroundColor } from "@spt-aki/models/spt/logging/LogBackgroundColor";
-import { LogTextColor } from "@spt-aki/models/spt/logging/LogTextColor";
-import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { LogBackgroundColor } from "@spt/models/spt/logging/LogBackgroundColor";
+import { LogTextColor } from "@spt/models/spt/logging/LogTextColor";
+import { ILogger } from "@spt/models/spt/utils/ILogger";
+import { DatabaseServer } from "@spt/servers/DatabaseServer";
 import { IAddMissingQuestRequirementConfig } from "../models/IAddMissingQuestRequirementConfig";
 import { inject, injectable } from "tsyringe";
 import fs, { WriteStream } from "fs";
 import { LocaleHelper } from "./localeHelper";
-import { VFS } from "@spt-aki/utils/VFS";
+import { VFS } from "@spt/utils/VFS";
 
 @injectable()
 export class LogHelper

@@ -90,7 +90,7 @@ async function main()
 
     // Defining at this scope because we need to use it in the finally block.
     let projectDir;
-    const sptDir = "S:/Games/SPT"
+    const sptDir = "X:/Projects/SPT-DEV/SPT"
     try 
     {
         // Load the .buildignore file to set up an ignore handler for the build process.
