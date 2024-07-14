@@ -1,4 +1,4 @@
-import {ItemOverrides} from "./ItemOverrides";
+import {ItemOverrides} from "../ConfigFiles/ItemOverrides";
 import {QuestOverrides} from "./QuestOverrides";
 
 export interface IOverrides 

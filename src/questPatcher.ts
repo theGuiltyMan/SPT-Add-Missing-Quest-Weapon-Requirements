@@ -1,13 +1,13 @@
 import { inject, injectable } from "tsyringe";
-import { IAddMissingQuestRequirementConfig } from "./models/IAddMissingQuestRequirementConfig";
 import { LogHelper } from "./util/logHelper";
 import { WeaponCategorizer } from "./weaponCategorizer";
 import { IQuest } from "@spt-aki/models/eft/common/tables/IQuest";
 import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import { OverridedSettings } from "./models/OverridedSettings";
 import { JsonUtil } from "@spt-aki/utils/JsonUtil";
 import { pushIfNotExists } from "./util/misc";
 import {LogType} from "./util/logHelper";
+import {IAddMissingQuestRequirementConfig} from "./models/ConfigFiles/IAddMissingQuestRequirementConfig";
+import {IOverrides} from "./models/Overrides/IOverrides";
 
 @injectable()
 export class QuestPatcher
@@ -17,14 +17,10 @@ export class QuestPatcher
         @inject("AMQRConfig") protected config: IAddMissingQuestRequirementConfig,
         @inject("WeaponCategorizer") protected weaponCategorizer: WeaponCategorizer,
         @inject("DatabaseServer") protected databaseServer: DatabaseServer,
-        @inject("WeaponTypes") protected weaponsTypes: Record<string, string[]>,
-        @inject("WeaponToType") protected weaponToType: Record<string, string[]>,
-        @inject("OverridedSettings") protected overridedSettings: OverridedSettings,
+        @inject("OverridedSettings") protected overridedSettings: IOverrides,
         @inject("JsonUtil") protected jsonUtil: JsonUtil
     ) 
-    {
-        
-    }
+    {}
 
     
     private quests : Record<string, IQuest> = {};
@@ -38,7 +34,7 @@ export class QuestPatcher
             this.quests = db.templates.quests;
         
             const questOverrides = this.overridedSettings.questOverrides;
-            const canBeUsedAs = this.overridedSettings.canBeUsedAs;
+            const canBeUsedAs = this.weaponCategorizer.canBeUsedAs;
            
             // iterate through all quests
             for (const questId in this.quests) 
@@ -78,9 +74,9 @@ export class QuestPatcher
 
                             const doForWeaponOrType = (id: string, func: (id: string) => void) :void => 
                             {
-                                if (this.weaponsTypes[id])
+                                if (this.weaponCategorizer.itemTypes[id])
                                 {
-                                    this.weaponsTypes[id].forEach(v=>func(v));
+                                    this.weaponCategorizer.itemTypes[id].forEach(v=>func(v));
                                 }
                                 else 
                                 {
@@ -105,7 +101,7 @@ export class QuestPatcher
                                         {
                                             questOverrides[questId].blackListedWeapons.forEach(w=> 
                                             {
-                                                const attempToRemove = (id : string) :void => 
+                                                const attemptToRemove = (id : string) :void => 
                                                 {
                                                     if (newWeaponCondition.indexOf(id) !== -1)
                                                     {
@@ -114,7 +110,7 @@ export class QuestPatcher
                                                     }
                                                 }
                                                 // check if the a weapon or weapon type
-                                                doForWeaponOrType(w,attempToRemove);
+                                                doForWeaponOrType(w,attemptToRemove);
                                             });
                                         }
                                     }
@@ -184,14 +180,14 @@ export class QuestPatcher
                                                 const weaponId = newWeaponCondition[i];
                                     
                                     
-                                                if (!this.weaponToType[weaponId] || this.weaponToType[weaponId].length === 0) 
+                                                if (!this.weaponCategorizer.itemToType[weaponId] || this.weaponCategorizer.itemToType[weaponId].length === 0) 
                                                 {
                                                     this.logger.error(`Weapon (${weaponId}) not found in weaponToType for quest ${questId}`);
                                                     error = true;
                                                     break;
                                                 }
 
-                                                for (const w of this.weaponToType[weaponId]) 
+                                                for (const w of this.weaponCategorizer.itemToType[weaponId]) 
                                                 {
                                                     if (!potentialTypes[w]) 
                                                     {
@@ -241,8 +237,8 @@ export class QuestPatcher
                                                     {
                                                         
                                                         if (this.config.kindOf[w] == weaponType // take the most restrictive type
-                                                            ||this.weaponsTypes[weaponType].length > this.weaponsTypes[w].length // take the most restrictive type
-                                                            ||this.overridedSettings.customCategories[w] && !this.overridedSettings.customCategories[weaponType] // take the custom category
+                                                            ||this.weaponCategorizer.itemTypes[weaponType].length > this.weaponCategorizer.itemTypes[w].length // take the most restrictive type
+                                                            ||this.weaponCategorizer.customCategories[w] && !this.weaponCategorizer.customCategories[weaponType] // take the custom category
                                                         )
                                                         {
                                                             weaponType = w;
@@ -272,7 +268,7 @@ export class QuestPatcher
                                             if (weaponType)
                                             {
                                             // add the missing weapons
-                                                for (const w of this.weaponsTypes[weaponType]) 
+                                                for (const w of this.weaponCategorizer.itemTypes[weaponType]) 
                                                 {
                                                 // probably just assign the array directly but just to be sure 
                                                     if (pushIfNotExists(newWeaponCondition, w))

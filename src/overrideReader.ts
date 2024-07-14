@@ -1,7 +1,7 @@
 import {VFS} from "@spt-aki/utils/VFS";
 import path from "path";
 import {DependencyContainer, inject, injectable} from "tsyringe";
-import {ItemOverrides} from "./models/Overrides/ItemOverrides";
+import {ItemOverrides} from "./models/ConfigFiles/ItemOverrides";
 import {IQuestOverridesSettings} from "./models/ConfigFiles/IQuestOverridesSettings";
 import {tryReadJson} from "./util/jsonHelper";
 import {LogHelper, LogType} from "./util/logHelper";
@@ -11,7 +11,6 @@ import {QuestOverrides} from "./models/Overrides/QuestOverrides";
 
 abstract class OverrideCombiner<TRead, TSetting> 
 {
-
     protected abstract get fileName(): string;
 
     protected parsedOverride: TRead;

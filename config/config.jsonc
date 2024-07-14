@@ -1,34 +1,49 @@
 {
-    ////////////////////////////////////
-    // #### Weapon Types ####
-    // AssaultCarbine
-    // AssaultRifle-
-    // MachineGun
-    // GrenadeLauncher
-    // MarksmanRifle
-    // Pistol
-    // Revolver
-    // Shotgun
-    // SniperRifle
-    // Smg
-    // ThrowWeap
-    // Knife
-    // Launcher
-    ////////////////////////////////////
-    // #### Restrictive Weapon Types ####
-    // BoltActionSniperRife (SniperRifle)
-    // PumpActionShotgun (Shotgun)
-    // Revolver (Pistol)
-    ////////////////////////////////////
-    "kindOf": {
-        "Revolver": "Pistol",
-        "PumpActionShotgun": "Shotgun",
-        "BoltActionSniperRifle": "SniperRifle"
-    },
-    "BlackListedItems": [],
-    "BlackListedWeaponsTypes": [],
-    "categorizeWithLessRestrive": true, // if true, weapons like bolt actions, pump-actions will also be considered as sniper rifles, shotguns. (but semi-autos wont be considered bolt/pump actions)
-    "delay": 0, // Delay in seconds to wait before starting, in my testings this was not needed,
-    "logType": "file", // all, console, file, none
-    "debug": false // if true, more logs will be more printed 
+  ////////////////////////////////////
+  // #### Weapon Types ####
+  // AssaultCarbine
+  // AssaultRifle
+  // MachineGun
+  // GrenadeLauncher
+  // MarksmanRifle
+  // Pistol
+  // Revolver
+  // Shotgun
+  // SniperRifle
+  // Smg
+  // ThrowWeap
+  // Knife
+  // Launcher
+  ////////////////////////////////////
+  // #### Restrictive Weapon Types ####
+  // BoltActionSniperRife (SniperRifle)
+  // PumpActionShotgun (Shotgun)
+  // Revolver (Pistol)
+  ////////////////////////////////////
+  "kindOf": {
+    "Revolver": "Pistol",
+    "PumpActionShotgun": "Shotgun",
+    "BoltActionSniperRifle": "SniperRifle"
+  },
+  "defaultTypes": {
+    "Weapon": [
+      "(?<=Weapon\/)(.*)(?=\/)",
+      "ThrowWeap",
+      "Knife",
+      "Launcher"
+    ],
+    "Attachment": [
+      "(?<=Mod\\/(?:\\w*\\/){2}).*(?=\\/)"
+    ]
+  },
+  "BlackListedItems": [],
+  "BlackListedWeaponsTypes": [],
+  "categorizeWithLessRestrive": true,
+  // if true, weapons like bolt actions, pump-actions will also be considered as sniper rifles, shotguns. (but semi-autos wont be considered bolt/pump actions)
+  "delay": 0,
+  // Delay in seconds to wait before starting, in my testings this was not needed,
+  "logType": "file",
+  // all, console, file, none
+  "debug": false
+  // if true, more logs will be more printed 
 }

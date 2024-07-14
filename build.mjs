@@ -90,10 +90,10 @@ async function main()
 
     // Defining at this scope because we need to use it in the finally block.
     let projectDir;
-    const sptDir = "S:/Games/SPT"
+    const sptDir = "X:/Games/SPT"
     try 
     {
-        // Load the .buildignore file to set up an ignore handler for the build process.
+        // Load the .buildignore file to set up an ignore handler for the build process.d
         const buildIgnorePatterns = await loadBuildIgnoreFile(currentDir);
 
         // Load the package.json file to get project details.

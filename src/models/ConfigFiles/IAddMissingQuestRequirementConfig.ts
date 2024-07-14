@@ -6,6 +6,7 @@ export interface IAddMissingQuestRequirementConfig
     BlackListedWeaponsTypes: string[]
     categorizeWithLessRestrive: boolean
     amountNeededForWeaponType: number
+    defaultTypes: Record<string, string[]>
     delay: number
     logType: string,
     logPath: string,

@@ -19,7 +19,6 @@
     // PumpActionShotgun (Shotgun)
     // Revolver (Pistol)
     ////////////////////////////////////
-    // no more needed since this can be done using the CustomCategories, but its already working so no need to change it
     "Override": {
         "64748cb8de82c85eaf0a273a": "PumpActionShotgun,Shotgun", // MP-43 12ga sawed-off double-barrel shotgun
         "5580223e4bdc2d1c128b457f": "PumpActionShotgun,Shotgun", // MP-43-1C 12ga double-barrel shotgun

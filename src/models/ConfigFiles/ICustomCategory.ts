@@ -1,4 +1,4 @@
-export interface IWeaponCategory 
+export interface ICustomCategory 
 {
     name : string; // Identifier for the category
     ids? : string[];  // if a weapon is in this list, it will be considered as this category no matter what
