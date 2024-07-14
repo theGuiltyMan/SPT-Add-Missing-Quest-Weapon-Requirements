@@ -1,9 +1,9 @@
 import { inject, injectable } from "tsyringe";
 import { LogHelper } from "./util/logHelper";
 import { WeaponCategorizer } from "./weaponCategorizer";
-import { IQuest } from "@spt-aki/models/eft/common/tables/IQuest";
-import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import { JsonUtil } from "@spt-aki/utils/JsonUtil";
+import { IQuest } from "@spt/models/eft/common/tables/IQuest";
+import { DatabaseServer } from "@spt/servers/DatabaseServer";
+import { JsonUtil } from "@spt/utils/JsonUtil";
 import { pushIfNotExists } from "./util/misc";
 import {LogType} from "./util/logHelper";
 import {IAddMissingQuestRequirementConfig} from "./models/ConfigFiles/IAddMissingQuestRequirementConfig";

@@ -1,5 +1,5 @@
-import {DependencyContainer} from "tsyringe";
-import {IPostDBLoadMod} from "@spt-aki/models/external/IPostDBLoadMod";
+import { DependencyContainer } from "tsyringe";
+import { IPostDBLoadMod } from "@spt/models/external/IPostDBLoadMod";
 
 import path from "path";
 import {readJson} from "./util/jsonHelper";

@@ -1,11 +1,11 @@
-import {DependencyContainer, inject, injectable} from "tsyringe";
-import {LogHelper, LogType} from "./util/logHelper";
-import {ITemplateItem} from "@spt-aki/models/eft/common/tables/ITemplateItem";
+import { DependencyContainer, inject, injectable } from "tsyringe";
+import { LogHelper, LogType } from "./util/logHelper";
+import { ITemplateItem } from "@spt/models/eft/common/tables/ITemplateItem";
+import { DatabaseServer } from "@spt/servers/DatabaseServer";
+import { LocaleHelper } from "./util/localeHelper";
+import { pushIfNotExists } from "./util/misc";
 import {IAddMissingQuestRequirementConfig} from "./models/ConfigFiles/IAddMissingQuestRequirementConfig";
 import {IOverrides} from "./models/Overrides/IOverrides";
-import {DatabaseServer} from "@spt-aki/servers/DatabaseServer";
-import {LocaleHelper} from "./util/localeHelper";
-import {pushIfNotExists} from "./util/misc";
 import {ItemRepository, ItemType} from "./itemRepository";
 import {ItemOverrides} from "./models/ConfigFiles/ItemOverrides";
 
