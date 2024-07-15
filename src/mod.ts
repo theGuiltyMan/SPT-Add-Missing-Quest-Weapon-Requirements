@@ -57,18 +57,17 @@ class Mod implements IPostDBLoadMod
             .resolve<LogHelper>("LogHelper");
 
         logger.log("Starting mod");
-        
         childContainer.registerInstance<string>("modDir", path.resolve(__dirname, "../../"))
         childContainer.registerSingleton<ItemRepository>("ItemRepository", ItemRepository)
         childContainer.registerSingleton<OverrideReader>("OverrideReader", OverrideReader)
         childContainer.registerSingleton<WeaponCategorizer>("WeaponCategorizer", WeaponCategorizer)
         childContainer.registerSingleton<QuestPatcher>("QuestPatcher", QuestPatcher)
-
+        
         const run = () => 
         {
             childContainer.resolve<OverrideReader>("OverrideReader").run(childContainer);
-            // todo
-            // childContainer.resolve<WeaponCategorizer>("WeaponCategorizer").run(childContainer);   
+            childContainer.resolve<ItemRepository>("ItemRepository");
+            childContainer.resolve<WeaponCategorizer>("WeaponCategorizer").run();
             childContainer.resolve<QuestPatcher>("QuestPatcher").run()
             logger.log(`[AMQWR] Finished Patching. Took ${t.ms}`, LogType.CONSOLE, false);
             childContainer.dispose();

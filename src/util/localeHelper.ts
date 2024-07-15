@@ -11,7 +11,7 @@ export class LocaleHelper
         @inject("DatabaseServer") private db: DatabaseServer
     )
     {
-        this.locale = db.getTables().locales.global["en"]; // todo currently hardcoded
+        this.locale = db.getTables().locales.global["en"];
     }
 
 

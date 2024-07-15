@@ -1,17 +1,16 @@
-import { DependencyContainer, inject, injectable } from "tsyringe";
-import { LogHelper, LogType } from "./util/logHelper";
-import { ITemplateItem } from "@spt/models/eft/common/tables/ITemplateItem";
-import { DatabaseServer } from "@spt/servers/DatabaseServer";
-import { LocaleHelper } from "./util/localeHelper";
-import { pushIfNotExists } from "./util/misc";
+import {inject, injectable} from "tsyringe";
+import {LogHelper, LogType} from "./util/logHelper";
+import {ITemplateItem} from "@spt/models/eft/common/tables/ITemplateItem";
+import {DatabaseServer} from "@spt/servers/DatabaseServer";
+import {LocaleHelper} from "./util/localeHelper";
+import {pushIfNotExists} from "./util/misc";
 import {IAddMissingQuestRequirementConfig} from "./models/ConfigFiles/IAddMissingQuestRequirementConfig";
 import {IOverrides} from "./models/Overrides/IOverrides";
 import {ItemRepository, ItemType} from "./itemRepository";
 import {ItemOverrides} from "./models/ConfigFiles/ItemOverrides";
 
 
-
-abstract class ItemCategorizer
+abstract class ItemCategorizer 
 {
     public readonly canBeUsedAs: Record<string, string[]> = {};
     public readonly customCategories: Set<string> = new Set<string>();
@@ -28,13 +27,16 @@ abstract class ItemCategorizer
         // @inject("ItemRepository") protected itemRepository: ItemRepository
     ) 
     {
+    }
+
+    public run(): void 
+    {
         this.prepare();
         this.process();
         this.finalize();
     }
 
-
-    protected abstract  finalize(): void;
+    protected abstract finalize(): void;
 
     protected abstract process(): void;
 
@@ -59,13 +61,13 @@ export class WeaponCategorizer extends ItemCategorizer
         super();
     }
 
-    protected prepare() : void
+    protected prepare(): void 
     {
         this.overrides = this.overridedSettings.weaponOverrides;
         this.logger.log("WeaponCategorizer created");
     }
 
-    protected process() : void
+    protected process(): void 
     {
         const allItems = this.itemRepository.allItems;
         for (const id in allItems) 
@@ -73,6 +75,7 @@ export class WeaponCategorizer extends ItemCategorizer
             const item = allItems[id];
             this.processItem(item)
         }
+        this.logger.log(`Found ${this._weaponIds.length} weapons`);
         this.processShortNames()
         this.processCategories();
         this.finalizeCanBeUsedAs();
@@ -93,6 +96,8 @@ export class WeaponCategorizer extends ItemCategorizer
     {
         const [b, itemType] = this.itemRepository.tryGetType(item)
 
+        // this.logger.log(`Processing ${item._id}: isItem:${b} - ${itemType?.base} \\ ${itemType?.type}` );
+        
         if (!b || !this.countAsWeapon(itemType)) 
         {
             return;

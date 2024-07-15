@@ -1,6 +1,6 @@
 ﻿import {inject, injectable} from "tsyringe";
-import {ITemplateItem} from "@spt-aki/models/eft/common/tables/ITemplateItem";
-import {DatabaseServer} from "@spt-aki/servers/DatabaseServer";
+import {ITemplateItem} from "@spt/models/eft/common/tables/ITemplateItem";
+import {DatabaseServer} from "@spt/servers/DatabaseServer";
 import {IOverrides} from "./models/Overrides/IOverrides";
 import {LocaleHelper} from "./util/localeHelper";
 import {LogHelper} from "./util/logHelper";
@@ -9,9 +9,7 @@ import {IAddMissingQuestRequirementConfig} from "./models/ConfigFiles/IAddMissin
 interface ItemTypeDefinition 
 {
     base: string;
-    subType: string;
     regex: RegExp;
-
 }
 
 export interface ItemType 
@@ -33,17 +31,16 @@ export class ItemRepository
         @inject("OverridedSettings") protected overridedSettings: IOverrides,
         @inject("LocaleHelper") protected localeHelper: LocaleHelper,
         @inject("LogHelper") protected logger: LogHelper,
-        @inject("AMQRConfig") protected config: IAddMissingQuestRequirementConfig,
-        @inject("ItemRepository") protected itemRepository: ItemRepository
+        @inject("AMQRConfig") protected config: IAddMissingQuestRequirementConfig
     ) 
     {
         this._allItems = Object.freeze({...this.databaseServer.getTables().templates.items});
         for (const key in config.defaultTypes) 
         {
 
-            for (const subType of config.defaultTypes[key]) 
+            for (const matchString of config.defaultTypes[key]) 
             {
-                this._typeDefinitions.push({base: key, subType: subType, regex: new RegExp(subType, "i")});
+                this._typeDefinitions.push({base: key, regex: new RegExp(matchString, "i")});
             }
         }
     }
@@ -109,12 +106,15 @@ export class ItemRepository
             return [false, null];
         }
 
-        //todo optimize
         for (const typeDef of this._typeDefinitions) 
         {
-            if (path.match(typeDef.regex)) 
+            const match = typeDef.regex.exec(path);
+            if (match) 
             {
-                return [true, {base: typeDef.base, type: typeDef.subType}];
+                const t = {base: typeDef.base, type: match[0]};
+                this._typeCache[item._id] = t;
+                this.logger.logDebug(`Item: ${item._id} - ${item._name} - ${t.type}`);
+                return [true, t];
             }
         }
         this._typeCache[item._id] = null;
@@ -142,8 +142,7 @@ export class ItemRepository
         }
 
         path.reverse()
-        const pathAsStrings = path.map(p => `${this.localeHelper.getName(p._id)}`).join("\\");
-
+        const pathAsStrings = path.map(p => `${p._name || p._props.Name}`).join("/");
         this._pathCache[item._id] = [pathAsStrings, path];
         return this._pathCache[item._id];
     }

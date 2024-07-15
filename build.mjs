@@ -121,6 +121,7 @@ async function main()
         if (fs.existsSync(sptDir))
         {
             await fs.copy(projectDir, path.join(sptDir, `user/mods/${projectName}`));
+            logger.log("success", "Files successfully copied to SPT directory.");
         }
 
         // Create a zip archive of the project files.

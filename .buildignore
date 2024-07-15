@@ -10,12 +10,15 @@
 /.nvmrc
 /.prettierrc
 /.vscode
+/.idea
+/.run
 /build.mjs
 /dist
 /images
 /mod.code-workspace
-/node_modules
+/node_modules/*
 /package-lock.json
 /tsconfig.json
 /types
 /scratchboard
+!/node_modules/lodash

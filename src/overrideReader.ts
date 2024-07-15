@@ -4,9 +4,9 @@ import {DependencyContainer, inject, injectable} from "tsyringe";
 import {ItemOverrides} from "./models/ConfigFiles/ItemOverrides";
 import {IQuestOverridesSettings} from "./models/ConfigFiles/IQuestOverridesSettings";
 import {tryReadJson} from "./util/jsonHelper";
-import {LogHelper, LogType} from "./util/logHelper";
+import {LogHelper} from "./util/logHelper";
 import {IOverrides} from "./models/Overrides/IOverrides";
-import {isArray, mergeWith, uniq} from "lodash";
+import {isArray, mergeWith, uniq} from "./../node_modules/lodash";
 import {QuestOverrides} from "./models/Overrides/QuestOverrides";
 
 abstract class OverrideCombiner<TRead, TSetting> 
@@ -34,10 +34,10 @@ abstract class OverrideCombiner<TRead, TSetting>
             return;
         }
         mergeWith(this.parsedOverride, data, this.customCombine.bind(this));
-        this.logger.log("AAA");
         // this.logger.log(JSON.stringify(this.parsedOverride));
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected customCombine(objValue: any, srcValue: any, key: string, object: any, source: any, stack: any): any 
     {
         if (isArray(objValue) && srcValue) 
@@ -62,7 +62,7 @@ abstract class OverrideCombiner<TRead, TSetting>
 class WeaponOverrideCombiner extends OverrideCombiner<ItemOverrides, ItemOverrides> 
 {
 
-    // TODO:currently the anything but array and objects are overwritten by the last mod
+    // TODO:currently anything but array and objects are overwritten by the last mod
     //  low priority since high effort and low impact 
     
     // protected customCombine(objValue: any, srcValue: any, key: string, object: any, source: any, stack: any): any 
@@ -196,6 +196,7 @@ export class OverrideReader
 
     public run(childContainer: DependencyContainer): void 
     {
+        this.logger.log("Running OverrideReader");
         childContainer.registerInstance<IOverrides>("OverridedSettings", this.readOverrides());
     }
 
@@ -240,19 +241,19 @@ export class OverrideReader
         };
 
 
-        this.logger.log("##### Quest Overrides #####");
+        this.logger.logDebug("##### Quest Overrides #####");
         this.logger.plusIndent();
         for (const key in overrides.questOverrides) 
         {
-            this.logger.log(overrides.questOverrides[key]);
+            this.logger.logDebug(overrides.questOverrides[key]);
         }
         this.logger.minusIndent();
 
-        this.logger.log("##### #####");
+        this.logger.logDebug("##### #####");
 
-        this.logger.log("##### Overridden Weapons #####");
+        this.logger.logDebug("##### Overridden Weapons #####");
         this.logger.plusIndent();
-        this.logger.log(overrides.weaponOverrides);
+        this.logger.logDebug(overrides.weaponOverrides);
         this.logger.minusIndent();
         return overrides;
     }
