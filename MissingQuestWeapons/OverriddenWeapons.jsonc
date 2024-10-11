@@ -66,6 +66,30 @@
         "weapon_93_raffica": "Pistol,Smg",
         "weapon_striker_12": "Shotgun",
         "weapon_imi_uzi": "Smg",
+        "020020DF056DF05600000000": "AssaultCarbine,AssaultRifle", // DG-56 5.56x45mm
+        "020020F15FF15F0000000000": "AssaultCarbine,AssaultRifle", // ISO Hemlok 5.56x45mm
+        "020020F15DF15D0000000000": "AssaultCarbine,AssaultRifle", // ISO Hemlok 7.62x51mm
+        "020020F15EF15E0000000000": "AssaultCarbine,AssaultRifle", // ISO Hemlok .300 BLK
+        "020020F150F1500000000000": "Smg", // ISO 9x19mm
+        "020020F154F1540000000000": "Smg", // ISO 9x19mm
+        "020020F151F1510000000000": "Smg", // ISO 9x19mm
+        "020020F152F1520000000000": "Smg", // ISO .45 ACP
+        "020020F153F1530000000000": "Smg", // ISO .45 ACP
+        "023023A12A12A12000000000": "Shotgun", // JAK-12 (AA-12) 12ga
+        "02002010AB10AB0000000000": "BoltActionSniperRifle", // Longbow (Bolt-action AK-103) 7.62x39mm
+        "020020AA14AA140000000000": "MarksmanRifle", // M14 7.62x51mm
+        "0210211911CE000000000000": "Pistol", // M1911 CE .45 ACP
+        "020020AACBBB1C0000000000": "AssaultRifle", // MCW (ACR) 5.56x45mm
+        "020020AACBBFDE0000000000": "AssaultRifle", // MCW (ACR) FDE 5.56x45mm
+        "020020AACBB3000000000000": "AssaultRifle", // MCW (ACR) .300 BLK
+        "020020AACBBA1A0000000000": "AssaultRifle", // MCW (ACR) (not sure which caliber)
+        "020020AACBBCFB0000000000": "AssaultRifle", // MCW (ACR) (not sure which caliber)
+        "020020BBA03BBA0300000000": "AssaultCarbine,AssaultRifle", // QBZ-03 5.56x45mm
+        "020020BBA97BBA9700000000": "AssaultCarbine,AssaultRifle", // QBZ-97 5.56x45mm
+        "020020195195F95556000000": "AssaultCarbine,AssaultRifle", // TAR x95 5.56x45mm
+        "020020195195F95545000000": "AssaultCarbine,AssaultRifle", // TAR x95 5.45x39mm
+        "022022C64C64000000000000": "Smg", // Type 64 7.62x25mm
+        "020020308308000000000000": "AssaultRifle", // V308 7.62x51mm
         "d672109946fe88b803449054": "AssaultRifle", // AK-101 .300 BLK
         "939c742f7dad852286188029": "AssaultCarbine,AssaultRifle", // AKS-74UB .300 BLK
         "627c4fe34b0a558e8a3642a1": "AssaultCarbine,AssaultRifle", // AKS-74UN .300 BLK
@@ -79,27 +103,6 @@
         "52ce1b65b13e1035808c4fd2": "AssaultRifle", // Mk47 5.45x39mm
         "96f5c38a676e11e13544dfba": "AssaultRifle", // Mk47 9x39mm
         "8d59d8b10a4c2e85b871c317": "AssaultRifle", // MCX Spear .308
-        "weapon_JAK12_12ga_MASSIVESOFT": "Shotgun", // Pettan JAK12 port
-        "weapon_AA12_12ga_MASSIVESOFT": "Shotgun", // Pettan JAK12 alternative, for those who renamed it.
-        "023023A12A12A12000000000": "Shotgun", // Massivesoft JAK12
-        "weapon_M14_762x51_MASSIVESOFT": "AssaultRifle,MarksmanRifle", // Pettan M14 port
-        "020020AA14AA140000000000": "AssaultRifle,MarksmanRifle", // Massivesoft M14
-        "weapon_M1911CE_1143x23_MASSIVESOFT": "Pistol", // Pettan M1911CE port
-        "0210211911CE000000000000": "Pistol", // Massivesoft M1911CE
-        "weapon_QBZ03_std_MASSIVESOFT": "AssaultRifle,AssaultCarbine", // Pettan QBZ03 port
-        "020020BBA03BBA0300000000": "AssaultRifle,AssaultCarbine", // Massivesoft QBZ03
-        "020020BBA97BBA9700000000": "AssaultRifle,AssaultCarbine", // Massivesoft QBZ97
-        "020020195195F95556000000": "AssaultRifle,AssaultCarbine", // Massivesoft Tavor X95
-        "020020195195F95545000000": "AssaultRifle,AssaultCarbine", // Massivesoft Tavor X95-R
-        "weapon_TYPE64_762x25_MASSIVESOFT": "Smg", // Pettan Type 64 port
-        "022022C64C64000000000000": "Smg", // Massivesoft Type 64
-        "weapon_v308_762x51_MASSIVESOFT": "AssaultRifle", // Pettan v308 port
-        "020020308308000000000000": "AssaultRifle", // Massivesoft v308
-        "MIRA_weapon_ai_awm_338lm": "BoltActionSniperRifle,SniperRifle",
-        "MIRA_weapon_colt_m16a4_556x45": "AssaultRifle",
-        "MIRA_weapon_izhmash_ak_762x39_nodove": "AssaultRifle",
-        "MIRA_weapon_izhmash_ak_762x39": "AssaultRifle",
-        "MIRA_weapon_izhmash_rpk74n_545x39": "AssaultRifle,MachineGun",
         "Asset Store knife": "Knife",
         "66015072e9f84d5680039678": "Pistol", // Plastic toy gun, good luck with that
         "663fe6eb47e8baf835124234": "Pistol", // Desert Eagle .357 Magnum
