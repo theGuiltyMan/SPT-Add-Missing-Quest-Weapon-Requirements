@@ -55,7 +55,11 @@
         "SC_01010_M4A1_SAND_2": "AssaultCarbine,AssaultRifle",
         "wc_010421_WHITE_M4A1": "AssaultCarbine,AssaultRifle",
         "weapon_tactikal_gladius": "Knife",
-        "WEAPON_AR-54_SIUL": "MarksmanRifle",
+        // SiulSC weapons
+        "WEAPON_AR-54_SIUL": "MarksmanRifle", // AR-54 (7.62x54R version of AR-10)
+        "WEAPON_MK-12_SIUL": "Shotgun", // MK-12 (12ga version of AR-15)
+        "WEAPON_DVL-50_SIUL": "BoltActionSniperRifle", // DVL-50 (12.7x108mm version of DVL Saboteur)
+        //
         "weapon_arblackout_300blk": "AssaultCarbine,AssaultRifle",
         "Atlas ATL-15 .300 BLK Precision Rifle": "AssaultCarbine,AssaultRifle,MarksmanRifle",
         "Atlas ATL-15 5.56x45 Precision Rifle": "AssaultCarbine,AssaultRifle,MarksmanRifle",
@@ -89,44 +93,11 @@
         "020020195195F95545000000": "AssaultCarbine,AssaultRifle", // TAR x95 5.45x39mm
         "022022C64C64000000000000": "Smg", // Type 64 7.62x25mm
         "020020308308000000000000": "AssaultRifle", // V308 7.62x51mm
-        // WTT weapons
-        "6671ebcdd32bd95eb398e920": "AssaultRifle,AssaultCarbine", // Ak5C 5.56x45mm
-        "668c45bf9069178d4b1f225c": "BoltActionSniperRifle,SniperRifle", // Arisaka Type 99 7.7x58mm
-        "66c01f332770caf084f35480": "SniperRifle", // Barrett M107A1 .50 BMG
-        "66c13c53999e17f0702c2e70": "SniperRifle", // Barrett M107A1 FDE .50 BMG
-        "66945f346fd04c33d4f9bc35": "AssaultRifle,AssaultCarbine", // Beretta ARX160 5.56x45mm
-        "6696b5e6ed3ac659cc619eff": "AssaultRifle,AssaultCarbine", // Beretta ARX160 FDE 5.56x45mm
-        "6696b5f5520265c38b644920": "AssaultRifle,AssaultCarbine", // Beretta ARX160 OD 5.56x45mm
-        "6696b60855a9454cbc033d4e": "AssaultRifle,AssaultCarbine", // Beretta ARX160 WHITE 5.56x45mm
-        "6681810d4f568d3cb0c7187c": "Pistol", // Rexana Blicky
-        "669fca7f9ed4916116c76d5e": "Shotgun", // Browning Auto-5 12ga
-        "667b693466834848ed0c05a6": "BoltActionSniperRifle,SniperRifle", // CheyTac M200 Intervention .408 CheyTac
-        "6661012d16fbd2fb75408f87": "Pistol", // CZ-75 9x19mm
-        "66b7d231babb635f70257534": "Pistol", // Desert Eagle Gold .50 AE
-        "664a5b945636ce820472f225": "AssaultRifle,MarksmanRifle", // HK417 7.62x51mm
-        "66e5b5e16c48ad4b4735cfbc": "AssaultRifle,MarksmanRifle", // Hoshizora SCAR 17 7.62x51mm
-        "66ba249b102a9dd6040a6e7e": "AssaultRifle,AssaultCarbine", // IWI Carmel 5.56x45mm
-        "66ba26a6925f9921573224c9": "AssaultRifle,AssaultCarbine", // IWI Carmel FDE 5.56x45mm
-        "66a2d15b2500a672aa10d9ff": "AssaultRifle", // IWI Tavor TAR-21 5.56x45mm
-        "66a37082da8293dc5e0a377d": "AssaultRifle", // IWI Tavor TAR-21 FDE 5.56x45mm
-        "66a47e98c486ec9d1af3a4da": "AssaultRifle,AssaultCarbine", // IWI Tavor x95 5.56x45mm
-        "66a544c956621d3364f6085e": "AssaultRifle,AssaultCarbine", // IWI Tavor x95 FDE 5.56x45mm
-        "66a545898022784400d6c836": "AssaultRifle,AssaultCarbine", // IWI Tavor x95 OD 5.56x45mm
-        "66e718dc498d978477e0ba75": "MachineGun", // M249 SAW 5.56x45mm
+        // WTT Armory
+        // - Epic Range Time
         "deee28079e76d537f532021c": "BoltActionSniperRifle,SniperRifle", // M700 .338 Lapua Magnum
         "1bf618e47cce6d69bec01e9f": "BoltActionSniperRifle,SniperRifle", // M700 .338 Norma Mag
-        "66839591f4d0cba7b041b2af": "AssaultRifle,AssaultCarbine", // Patriot 1776 (M4A1) 5.56x45mm
-        "66ca50aacb9b900a4c8a5545": "AssaultRifle", // Remington ACR 5.56x45mm
-        "66cbc1d13919ac843e616d84": "BoltActionSniperRifle,SniperRifle", // Remington MSR 7.62x51mm
-        "66b9de8cf34d11aa91b5f20c": "AssaultRifle", // Remington R5 5.56x45mm
-        "665fe0e865683281eb8e7ed6": "Pistol", // Springfield Prodigy 9x19mm
-        "6657bc8faeddd6b0a9b40224": "MarksmanRifle, SniperRifle", // SVD 7.62x54R Sniper Rifle (wood)
-        "6657bd4d3a4d6e7c33fd2fdc": "MarksmanRifle, SniperRifle", // SVD 7.62x54R Sniper Rifle (camo)
-        "6668df22e6b592f28024be10": "AssaultRifle,AssaultCarbine", // WoS AR-15 5.56x45mm
-        "6668ddd37b793f48deb730d4": "AssaultRifle,AssaultCarbine", // WoS AR-15 Red 5.56x45mm
-        "663cf1da2496a8e7b0b71759": "Pistol", // WC EDC X9 9x19mm
-        "66e88596febdcf9daade16a8": "MarksmanRifle, SniperRifle", // Zastava M76 7.92x57mm
-        //
+        "4b81488c78c8a8ac7d37f9b9": "AssaultCarbine,AssaultRifle", // M4A1 .300 BLK
         "d672109946fe88b803449054": "AssaultRifle", // AK-101 .300 BLK
         "939c742f7dad852286188029": "AssaultCarbine,AssaultRifle", // AKS-74UB .300 BLK
         "627c4fe34b0a558e8a3642a1": "AssaultCarbine,AssaultRifle", // AKS-74UN .300 BLK
@@ -136,19 +107,133 @@
         "57f28a7ffb22e277b0234219": "AssaultRifle", // Saiga SGL31 5.45x39mm
         "e895575bcd1fa1de36d301b6": "AssaultRifle", // Saiga MK Ver. 030 5.45x39mm
         "3dc691f607ffed3228bf6ca2": "AssaultRifle", // AK-15 7.62x39mm
-        "4b81488c78c8a8ac7d37f9b9": "AssaultCarbine,AssaultRifle", // M4A1 .300 BLK
+        "0af5f6a5aa9712e11c733fb9": "BoltActionSniperRifle,SniperRifle", // M700 .277 Fury
         "52ce1b65b13e1035808c4fd2": "AssaultRifle", // Mk47 5.45x39mm
         "96f5c38a676e11e13544dfba": "AssaultRifle", // Mk47 9x39mm
         "8d59d8b10a4c2e85b871c317": "AssaultRifle", // MCX Spear .308
+        "72bbf927bf5b1d4a0837485b": "AssaultRifle,AssaultCarbine", // Gen 1 SIG MCX 5.56x45mm
+        // - Rexana
+        "66e5b5e16c48ad4b4735cfbc": "AssaultRifle,MarksmanRifle", // Hoshizora SCAR 17 7.62x51mm
+        "66b7d231babb635f70257534": "Pistol", // Desert Eagle Gold .50 AE
+        "6681810d4f568d3cb0c7187c": "Pistol", // Rexana Blicky
+        "66c01f332770caf084f35480": "SniperRifle", // Barrett M107A1 .50 BMG
+        "66c13c53999e17f0702c2e70": "SniperRifle", // Barrett M107A1 FDE .50 BMG
+        "66945f346fd04c33d4f9bc35": "AssaultRifle,AssaultCarbine", // Beretta ARX160 5.56x45mm
+        "6696b5e6ed3ac659cc619eff": "AssaultRifle,AssaultCarbine", // Beretta ARX160 FDE 5.56x45mm
+        "6696b5f5520265c38b644920": "AssaultRifle,AssaultCarbine", // Beretta ARX160 OD 5.56x45mm
+        "6696b60855a9454cbc033d4e": "AssaultRifle,AssaultCarbine", // Beretta ARX160 WHITE 5.56x45mm
+        "667b693466834848ed0c05a6": "BoltActionSniperRifle,SniperRifle", // CheyTac M200 Intervention .408 CheyTac
+        "66a2d15b2500a672aa10d9ff": "AssaultRifle", // IWI Tavor TAR-21 5.56x45mm
+        "66a37082da8293dc5e0a377d": "AssaultRifle", // IWI Tavor TAR-21 FDE 5.56x45mm
+        "66a47e98c486ec9d1af3a4da": "AssaultRifle,AssaultCarbine", // IWI Tavor x95 5.56x45mm
+        "66a544c956621d3364f6085e": "AssaultRifle,AssaultCarbine", // IWI Tavor x95 FDE 5.56x45mm
+        "66a545898022784400d6c836": "AssaultRifle,AssaultCarbine", // IWI Tavor x95 OD 5.56x45mm
+        "66ca50aacb9b900a4c8a5545": "AssaultRifle", // Remington ACR 5.56x45mm
+        "66cbc1d13919ac843e616d84": "BoltActionSniperRifle,SniperRifle", // Remington MSR 7.62x51mm
+        "66b9de8cf34d11aa91b5f20c": "AssaultRifle", // Remington R5 5.56x45mm
+        "6668df22e6b592f28024be10": "AssaultRifle,AssaultCarbine", // WoS AR-15 5.56x45mm
+        "6668ddd37b793f48deb730d4": "AssaultRifle,AssaultCarbine", // WoS AR-15 Red 5.56x45mm
+        "665fe0e865683281eb8e7ed6": "Pistol", // Springfield Prodigy 9x19mm
+        "668c45bf9069178d4b1f225c": "BoltActionSniperRifle,SniperRifle", // Arisaka Type 99 7.7x58mm
+        "66e88596febdcf9daade16a8": "MarksmanRifle, SniperRifle", // Zastava M76 7.92x57mm
+        // - Tron
+        "6671ebcdd32bd95eb398e920": "AssaultRifle,AssaultCarbine", // Ak5C 5.56x45mm
+        "669fca7f9ed4916116c76d5e": "Shotgun", // Browning Auto-5 12ga
+        "6661012d16fbd2fb75408f87": "Pistol", // CZ-75 9x19mm
+        "664a5b945636ce820472f225": "AssaultRifle,MarksmanRifle", // HK417 7.62x51mm
+        "66ba249b102a9dd6040a6e7e": "AssaultRifle,AssaultCarbine", // IWI Carmel 5.56x45mm
+        "66ba26a6925f9921573224c9": "AssaultRifle,AssaultCarbine", // IWI Carmel FDE 5.56x45mm
+        "66e718dc498d978477e0ba75": "MachineGun", // M249 SAW 5.56x45mm
+        "66839591f4d0cba7b041b2af": "AssaultRifle,AssaultCarbine", // Patriot 1776 (M4A1) 5.56x45mm
+        "6657bc8faeddd6b0a9b40224": "MarksmanRifle, SniperRifle", // SVD 7.62x54R Sniper Rifle (wood)
+        "6657bd4d3a4d6e7c33fd2fdc": "MarksmanRifle, SniperRifle", // SVD 7.62x54R Sniper Rifle (camo)
+        "663cf1da2496a8e7b0b71759": "Pistol", // WC EDC X9 9x19mm
+        // - Sianyde
+        "czscorpion": "Smg", // CZ Scorpion EVO 3 9x19mm
+        "czscorpiongrey": "Smg", // CZ Scorpion Evo 3 Tron Edition 9x19mm
+        "664274a4d2e5fe0439d545a6": "AssaultRifle", // HK G3 7.62x51mm
+        "664274afd9fe3879695d90e9": "AssaultRifle,MachineGun", // HK G3 11E 7.62x51mm
+        "acr": "AssaultRifle", // Remington ACR (5.56x45mm / 7.62x39mm)
+        "acrfde": "AssaultRifle", // Remington ACR (5.56x45mm / 7.62x39mm) FDE
+        // - Gamma
+        "66b1770c5f8b2271bb5887dc": "AssaultRifle", // HK XM8 FDE 5.56x45mm
+        "66b177141a00c9af1fd50b2d": "AssaultRifle", // HK XM8 OD 5.56x45mm
+        "66b17d6cbb296d01b4684944": "AssaultRifle", // HK XM8 5.56x45mm
+        // 
         "Asset Store knife": "Knife",
         "66015072e9f84d5680039678": "Pistol", // Plastic toy gun, good luck with that
         "663fe6eb47e8baf835124234": "Pistol", // Desert Eagle .357 Magnum
-        "664274a4d2e5fe0439d545a6": "AssaultRifle,AssaultCarbine", // HK G3 7.62x51mm
-        "664274afd9fe3879695d90e9": "AssaultRifle,MachineGun", // HK G3 11E 7.62x51mm
-        "czscorpion": "Smg", // CZ Scorpion EVO 3 9x19mm
-        "czscorpiongrey": "Smg", // CZ Scorpion Evo 3 Tron Edition 9x19mm
+        // SamSWAT weapons
         "6632aab0b450b045b2160db9": "AssaultRifle,AssaultCarbine", // L85A2 5.56x45mm
         "6632b91ca1a7a5564dad34ac": "AssaultRifle,AssaultCarbine", // FAMAS F1 5.56x45mm
+        // Viper weapons
+        "MIRA_weapon_izhmash_rpk74n_545x39": "AssaultRifle,MachineGun", // RPK-74N 5.45x39mm
+        "MIRA_weapon_izhmash_akm_762x39_gold": "AssaultRifle", // AKM 7.62x39mm Gold
+        "MIRA_weapon_izhmash_akmn_762x39_gold": "AssaultRifle", // AKMN 7.62x39mm Gold
+        "MIRA_weapon_izhmash_akms_762x39_gold": "AssaultRifle", // AKMS 7.62x39mm Gold
+        "MIRA_weapon_izhmash_akmsn_762x39_gold": "AssaultRifle", // AKMSN 7.62x39mm Gold
+        "MIRA_weapon_izhmash_ak_762x39_nodove": "AssaultRifle", // Type 1 AK 7.62x39mm (without the dovetail mount)
+        "MIRA_weapon_izhmash_ak_762x39": "AssaultRifle", // Type 1 AK 7.62x39mm
+        "MIRA_weapon_colt_m16a4_556x45": "AssaultRifle", // M16A4 5.56x45mm
+        "MIRA_weapon_ai_awm_338lm": "BoltActionSniperRifle,SniperRifle", // AWM .338 Lapua Magnum
+        "MIRA_weapon_izhmash_svd_762x54": "MarksmanRifle,SniperRifle", // SVD 7.62x54R
+        "weapon_tt_pit_viper_9x19": "Pistol", // Pit Viper 9x19mm
+        "weapon_tt_pit_viper_9x19_fde": "Pistol", // Pit Viper 9x19mm FDE
+        "weapon_tt_pit_viper_9x19_pink": "Pistol", // Pit Viper 9x19mm Pink
+        "88f81ce14f67a9ae53b2dfc0": "AssaultRifle", // AK-74M 5.45x39mm Black and White
+        "88f84ac6a8fef6c3683ddfc0": "AssaultRifle,AssaultCarbine", // AL-24 7.62x39mm
+        "88f8ce9eb764edc8a2e5dfc0": "AssaultRifle,AssaultCarbine", // ASH-12 12.7x55mm
+        "88f8d5ceb7fcac5d9c17dfc0": "AssaultRifle", // Steyr AUG 5.56x45mm
+        "88f8dd740adebb044701dfc0": "Pistol", // Battle Flare Gun
+        "88f91bf4bcc22a04b1d6dfc0": "Pistol,Smg", // FA 1911 .45 ACP
+        "88f98372dd4acd0bbf7fdfc0": "MarksmanRifle,SniperRifle", // G28 Space Rider 7.62x51mm
+        "88f9cc4dcdada9ccc0f5dfc0": "Pistol", // Glock 18C 9x19mm Carbine
+        "88f9cca04f309ce9d35edfc0": "Pistol", // Glock 18C 9x19mm Experimental
+        "88f9f41eb3f6d927ae3edfc0": "AssaultRifle", // HK416 5.56x45mm Black Ice
+        "88f9f5f9955dffe97e3edfc0": "AssaultRifle", // HK416 5.56x45mm Black Ice X
+        "88fa6bb68e30e3112f58dfc0": "AssaultCarbine,AssaultRifle", // M4A1 5.56x45mm High Alert
+        "88fa6be6bbbc7e299ebbdfc0": "AssaultCarbine,AssaultRifle", // M4A1 5.56x45mm Blue Crystal
+        "88fa99dead62024c56d1dfc0": "BoltActionSniperRifle,SniperRifle", // Remington Model 700 Monologue 7.62x51mm
+        "88fa9eae69cdafd7dc68dfc0": "AssaultRifle", // SIG MCX Psychedelic Teal 7.62x35mm
+        "88fab3241c8e1198c4f5dfc0": "AssaultCarbine,AssaultRifle", // DT MDR Perfect Plan 5.56x45mm
+        "88fab849fbead4ab37a2dfc0": "AssaultCarbine,AssaultRifle", // DT MDR Perfect Plan 7.62x51mm
+        "88fabde73e750a7a675edfc0": "MarksmanRifle,SniperRifle", // Mk14 EBR 7.62x51mm
+        "88faeb5bd0e015b7bdbfdfc0": "AssaultRifle", // CMMG Mk47 Pink 7.62x39mm
+        "88fac0dcac8db92702f2dfc0": "AssaultRifle", // CMMG Mk47 WZ 7.62x39mm
+        "88faedc4b9dc1af63dcbdfc0": "MarksmanRifle,SniperRifle", // Mosin Infantry 7.62x54R Automatic
+        "88faf0c37f7d0bcfb3b6dfc0": "BoltActionSniperRifle,SniperRifle", // Mosin Infantry 7.62x54R M91
+        "88fafc4a3c1a9a3ba02ddfc0": "Shotgun", // MR-133 Aftermath 12ga
+        "88fafc6d3f714571deafdfc0": "BoltActionSniperRifle,SniperRifle", // Custom MP18
+        "88fb0cdb9d5efeb3fb55dfc0": "Smg", // MP5SD Red Crystal 9x19mm
+        "88fb0ddf90dad4dcea67dfc0": "Smg", // HK MP7A2 4.6x30mm Unyielding Frost
+        "88fb40fb02fa540fccecdfc0": "Smg", // BT MP9N Mint 9x19mm
+        "88fb50aa009d16f5572cdfc0": "Smg", // BT MP9N Awakening 9x19mm
+        "88fb58f7ca8d5a59daafdfc0": "Shotgun", // MPA 203 12ga
+        "88fb5c6eb1fdacf32eebdfc0": "MachineGun", // MPA 971 (Caliber unsure)
+        "88fb6cfe3240f97d1ccfdfc0": "Smg", // P90 Rainy Day Vanguard PDW 5.7x28mm
+        "88fb89782fa037aa4253dfc0": "Smg", // P90 Rainy Day Vanguard 5.7x28mm
+        "88fbaa5ba1ab49a8acfddfc0": "Smg", // PP-91 9x18mm
+        "88fbc22adbea16f7dfc4dfc0": "AssaultRifle", // RFB Ambush 7.62x51mm
+        "88fbcc2007de6151addddfc0": "Pistol", // RSh-12 Skyfire 12.7x55mm
+        "88fccfcc12a2f6cf49fbdfc0": "AssaultRifle", // SA58 Galaxy 7.62x51mm
+        "88fbe3e9f9efb26e887bdfc0": "AssaultRifle", // MK16 Neko 5.56x45mm
+        "88fbf9cdcac07fdcdec0dfc0": "AssaultRifle", // SCI-FI 12.7x55mm
+        "88fbfbd0fec3ef1fdd91dfc0": "Shotgun", // Double Barrel Destruction 12ga
+        "88fbfee8d8bee33b03bddfc0": "Shotgun", // Revolver Shotgun Pursuit 12ga
+        "88fc1efb96d31efe8bafdfc0": "Shotgun", // Super Shorty 12ga
+        "88fc25c843c1dbb408f5dfc0": "Shotgun", // Super Shorty S 12ga
+        "88fc2c570dcb8ba3f501dfc0": "SniperRifle", // SV-98 Transcendence 7.62x54R
+        "88fc3c4fbad055eed42fdfc0": "BoltActionSniperRifle,SniperRifle", // DVL-10 Mk2 12.7x108mm
+        "88fc3f0d56b2b3b63c8ddfc0": "BoltActionSniperRifle,SniperRifle", // DVL-10 Mk1 12.7x55mm
+        "88fc787dbc740d88a1b7dfc0": "Shotgun", // TOZ-106 Automatic 20ga
+        "88fc6cc686e864d7c41ddfc0": "Shotgun", // TOZ-106 Advanced 20ga
+        "88fc920a70615f9f3c85dfc0": "Pistol", // TT Gold 7.62x25mm
+        "88fcabfca15a5d44e79cdfc0": "Smg", // UMP .45 ACP
+        "88fc9fa93b6a1c197747dfc0": "Smg", // Vector Extended
+        "88fca322be2afcfabbcedfc0": "Smg", // Vector Dagger
+        "88fcaf04bebd4cda2b30dfc0": "BoltActionSniperRifle,SniperRifle", // VPO-215 Red Crystal 7.62x39mm
+        "88fcbee6a6efe18ac4e5dfc0": "AssaultRifle,AssaultCarbine", // VSS Blizzard 9x39mm
+        //
         "sh-pikalo": "Pistol,Smg", // Custom full-auto PL-15 9x19mm
         "sh-Saiga": "AssaultCarbine,AssaultRifle", // Custom full-auto Saiga 12ga
         "sh-SaigaSKS": "Shotgun", // Custom full-auto SKS 12ga
@@ -185,7 +270,8 @@
     "CanBeUsedAs": {
         "5c46fbd72e2216398b5a8c9c": [ // SVDS 7.62x54R sniper rifle
             "6657bc8faeddd6b0a9b40224",
-            "6657bd4d3a4d6e7c33fd2fdc"
+            "6657bd4d3a4d6e7c33fd2fdc",
+            "MIRA_weapon_izhmash_svd_762x54"
         ],
         "5447a9cd4bdc2dbd208b4567": [
             "M4A1"
