@@ -2,22 +2,16 @@
 
 This mod dynamically reads and applies overrides to the game's quest conditions' weapon requirements based on override files. Normally, the conditions' weapons need to be manually updated for every added gun. This mod aims to automate this process.
 
-# <font color="red">Important
+## Important
 
-## Make sure this loads after any mod that registers quests; otherwise, they will not be processed. As far as I know, currently there is only one mod that does this:  [Virtual's Custom Quest Loader](https://hub.sp-tarkov.com/files/file/885-virtual-s-custom-quest-loader/)
+**Make sure this mod loads after any mod that registers quests; otherwise, they will not be processed.** As far as I know, currently there is only one mod that does this: [Virtual's Custom Quest Loader](https://hub.sp-tarkov.com/files/file/885-virtual-s-custom-quest-loader/)
 
-</font>
+## Features
 
 - **Dynamic Override Reading**: The mod scans the game's mod directory for any overrides specified by the user or other mods in the `MissingQuestWeapons` folder. The mod's files are commented, so you can check them to see how it works.
-
-### Other mods can also add their overrides by adding a **MissingQuestWeapons** folder to their root. (Anyone can also create a new folder in user/mods to add/save their custom overrides instead of adding them to this mod's. This way, they won't be overridden when the mod updates.)
-
-```
--- user/mods/<yourfolder>/
-                        -- MissingQuestWeapons/
-                            -- OverriddenWeapons.jsonc
-                            -- QuestOverrides.jsonc
-```
+- **Custom Categories**: Allows defining custom weapon categories based on keywords, calibers, and specific weapon IDs.
+- **Whitelist and Blacklist**: Supports whitelisting and blacklisting specific weapons or categories for quests.
+- **Logging**: Detailed logging to help understand how weapons are categorized and quests are updated.
 
 ## How It Works
 
@@ -29,4 +23,16 @@ As with any other server mod, unzip to your SPT root folder.
 
 ## Logging
 
-By default, logging is only done to a file inside its directory called "log.log". ou can check this file to see how weapons are categorized and quests are updated. In the config, you can set _debug_ to increase the details that are logged. If there is a problem with the mod, be sure to send this file.
+By default, logging is only done to a file inside its directory called "log.log". You can check this file to see how weapons are categorized and quests are updated. In the config, you can set _debug_ to increase the details that are logged. If there is a problem with the mod, be sure to send this file.
+
+## Adding Overrides
+
+Other mods can also add their overrides by adding a **MissingQuestWeapons** folder to their root. (Anyone can also create a new folder in user/mods to add/save their custom overrides instead of adding them to this mod's. This way, they won't be overridden when the mod updates.)
+
+```
+-- user/mods/<yourfolder>/
+                        -- MissingQuestWeapons/
+                            -- OverriddenWeapons.jsonc
+                            -- QuestOverrides.jsonc
+```
+
