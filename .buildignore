@@ -10,6 +10,8 @@
 /.nvmrc
 /.prettierrc
 /.vscode
+/.idea
+/.run
 /build.mjs
 /dist
 /images

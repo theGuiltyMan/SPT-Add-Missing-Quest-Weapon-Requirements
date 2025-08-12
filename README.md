@@ -1,38 +1,116 @@
-# Add Missing Quest Weapon Requirements
+# Add Missing Quest Requirements
 
-This mod dynamically reads and applies overrides to the game's quest conditions' weapon requirements based on override files. Normally, the conditions' weapons need to be manually updated for every added gun. This mod aims to automate this process.
-
-## Important
-
-**Make sure this mod loads after any mod that registers quests; otherwise, they will not be processed.** As far as I know, currently there is only one mod that does this: [Virtual's Custom Quest Loader](https://hub.sp-tarkov.com/files/file/885-virtual-s-custom-quest-loader/)
+This mod automatically detects weapons from other mods and adds them to the appropriate quest requirements. It categorizes weapons based on their properties and allows for extensive customization through configuration files.
 
 ## Features
 
-- **Dynamic Override Reading**: The mod scans the game's mod directory for any overrides specified by the user or other mods in the `MissingQuestWeapons` folder. The mod's files are commented, so you can check them to see how it works.
-- **Custom Categories**: Allows defining custom weapon categories based on keywords, calibers, and specific weapon IDs.
-- **Whitelist and Blacklist**: Supports whitelisting and blacklisting specific weapons or categories for quests.
-- **Logging**: Detailed logging to help understand how weapons are categorized and quests are updated.
+- **Automatic Weapon Detection**: Scans through all installed mods to find weapons and categorizes them.
+- **Flexible Categorization**: Categorizes weapons into types like `Pistol`, `Shotgun`, `AssaultRifle`, etc. It also handles more specific types like `BoltActionSniperRifle` and `PumpActionShotgun`.
+- **Highly Customizable**: Use configuration files to override weapon types, create custom categories, blacklist items, and fine-tune quest requirements.
+- **Mod Integration**: Other mod authors can easily make their weapons compatible by adding a `MissingQuestWeapons` folder with configuration files to their own mod.
 
-## How It Works
+## Configuration
 
-Upon the game's database loading, the mod initializes and reads its configuration. It then scans every folder inside the user/mods directory for overrides, processes and combines them (if the same weapon/category exists multiple times), and applies them to the quests. Each weapon condition of a quest is matched with the best-matched weapon type, and missing ones are added.
+### Main Config (`config/config.jsonc`)
 
-## Installation
+This file contains the main settings for the mod.
 
-As with any other server mod, unzip to your SPT root folder.
-
-## Logging
-
-By default, logging is only done to a file inside its directory called "log.log". You can check this file to see how weapons are categorized and quests are updated. In the config, you can set _debug_ to increase the details that are logged. If there is a problem with the mod, be sure to send this file.
-
-## Adding Overrides
-
-Other mods can also add their overrides by adding a **MissingQuestWeapons** folder to their root. (Anyone can also create a new folder in user/mods to add/save their custom overrides instead of adding them to this mod's. This way, they won't be overridden when the mod updates.)
-
+```jsonc
+{
+    // Defines inheritance for weapon types. For example, a Revolver is also a Pistol.
+    "kindOf": {
+        "Revolver": "Pistol",
+        "PumpActionShotgun": "Shotgun",
+        "BoltActionSniperRifle": "SniperRifle"
+    },
+    // A list of item IDs to be completely ignored by the mod.
+    "BlackListedItems": [],
+    // A list of weapon types to be ignored.
+    "BlackListedWeaponsTypes": [],
+    // If true, restrictive types (e.g., BoltActionSniperRifle) will also be added to their parent category (e.g., SniperRifle).
+    "categorizeWithLessRestrive": true,
+    // Delay in seconds before the mod starts processing.
+    "delay": 0,
+    // Logging preference: "all", "console", "file", "none".
+    "logType": "file",
+    // Enable extra logs for debugging.
+    "debug": false
+}
 ```
--- user/mods/<yourfolder>/
-                        -- MissingQuestWeapons/
-                            -- OverriddenWeapons.jsonc
-                            -- QuestOverrides.jsonc
+
+### Overriding Weapon Categories (`MissingQuestWeapons/OverriddenWeapons.jsonc`)
+
+This file allows you to manually adjust how weapons are categorized. You can place this file in this mod's directory or in your own mod's `MissingQuestWeapons` folder for compatibility.
+
+```jsonc
+{
+    // Manually assign one or more categories to a weapon using its ID.
+    "Override": {
+        "57c44b372459772d2b39b8ce": "AssaultCarbine,AssaultRifle" // AS VAL
+    },
+    // Define aliases. If a quest requires the key weapon, weapons in the value array will also be allowed.
+    "CanBeUsedAs": {
+        "5c46fbd72e2216398b5a8c9c": [ // SVDS
+            "MIRA_weapon_izhmash_svd_762x54"
+        ]
+    },
+    // Words to ignore when comparing weapon short names to find aliases.
+    "CanBeUsedAsShortNameWhitelist": [
+        ".300 Blackout",
+        "FDE"
+    ],
+    // Weapon short names to exclude from the alias-finding logic.
+    "CanBeUsedAsShortNameBlacklist" : [],
+    // Define completely new weapon categories based on keywords, calibers, and item IDs.
+    "CustomCategories": [
+        {
+            "name": "AKM",
+            "ids": [],
+            "whiteListedKeywords": [
+                "\b(AKM|AK-1|VPO|Draco)\w*"
+            ],
+            "blackListedKeywords": [],
+            "allowedCalibres": [
+                "Caliber762x39"
+            ],
+            "alsoCheckDescription": false
+        }
+    ]
+}
 ```
 
+### Customizing Quests (`MissingQuestWeapons/QuestOverrides.jsonc`)
+
+This file allows you to modify the weapon requirements for specific quests. You can place this file in this mod's directory or in your own mod's `MissingQuestWeapons` folder.
+
+```jsonc
+{
+    // A list of quest IDs to be completely ignored by this mod.
+    "BlackListedQuests": [
+        "5c1234c286f77406fa13baeb" // Setup
+    ],
+    // Fine-tune individual quests.
+    "Overrides": [
+        {
+            "id": "5a27bb8386f7741c770d2d0a", // Wet Job - Part 1
+            // if true, the mod will not add any weapons to this quest automatically.
+            "skip": true,
+            // if true, only weapons from whiteListedWeapons will be considered for this quest.
+            "onlyUseWhiteListedWeapons": false,
+            // A list of weapon IDs or categories to always add to this quest's requirements.
+            "whiteListedWeapons": [],
+            // A list of weapon IDs or categories to always remove from this quest's requirements.
+            "blackListedWeapons": []
+        }
+    ]
+}
+```
+
+## For Mod Authors
+
+To ensure your mod's weapons are correctly handled for quest requirements, you can create a `MissingQuestWeapons` directory inside your mod's root folder. Inside it, you can add:
+
+1.  **`OverriddenWeapons.jsonc`**: To provide correct categories for your weapons if the automatic categorization is not sufficient.
+2.  **`QuestOverrides.jsonc`**: If your mod adds or alters quests and you need to specify weapon requirements.
+
+This mod will automatically detect and load these files.
