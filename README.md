@@ -67,7 +67,7 @@ This file allows you to manually adjust how weapons are categorized. You can pla
             "name": "AKM",
             "ids": [],
             "whiteListedKeywords": [
-                "\b(AKM|AK-1|VPO|Draco)\w*"
+                "\\b(AKM|AK-1|VPO|Draco)\\w*"
             ],
             "blackListedKeywords": [],
             "allowedCalibres": [
