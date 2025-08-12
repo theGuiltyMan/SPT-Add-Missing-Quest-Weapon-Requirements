@@ -1,4 +1,4 @@
-import { VFS } from "@spt/utils/VFS";
+import { FileSystemSync } from "@spt/utils/FileSystemSync";
 import path from "path";
 import { DependencyContainer, inject, injectable } from "tsyringe";
 import { IOverriddenWeapons } from "./models/IOverriddenWeapons";
@@ -15,7 +15,7 @@ export class OverrideReader
 {
     constructor(
         @inject("LogHelper") protected logger: LogHelper,
-        @inject("VFS") protected vfs: VFS,
+        @inject("FileSystemSync") protected vfs: FileSystemSync,
         @inject("modDir") protected modsDirectory: string
     )
     {
@@ -31,8 +31,8 @@ export class OverrideReader
     {   
         const overridedSettings = new OverridedSettings();
         this.logger.log("Reading overrides");
-        this.vfs.getDirs(this.modsDirectory).map(m=>path.resolve(this.modsDirectory, m))
-            .filter(modDir => this.vfs.exists(path.resolve(modDir, "MissingQuestWeapons")))
+        this.vfs.getDirectories(this.modsDirectory).map(m=>path.join(this.modsDirectory, m))
+            .filter(modDir => this.vfs.exists(path.join(modDir, "MissingQuestWeapons")))
             .forEach(modDir => 
             {
                 this.logger.log(`Processing mod: ${path.basename(modDir)}`)
@@ -40,7 +40,7 @@ export class OverrideReader
             
                 try 
                 {
-                    const questOverridesData = tryReadJson<IQuestOverrides>(path.resolve(modDir, "MissingQuestWeapons"), "QuestOverrides");
+                    const questOverridesData = tryReadJson<IQuestOverrides>(path.join(modDir, "MissingQuestWeapons"), "QuestOverrides");
                     if (questOverridesData) 
                     {
                         questOverridesData.Overrides.forEach((v) => 
@@ -111,7 +111,7 @@ export class OverrideReader
 
                 try 
                 {
-                    const  overriddenWeaponsData = tryReadJson<IOverriddenWeapons>(path.resolve(modDir, "MissingQuestWeapons"), "OverriddenWeapons");
+                    const  overriddenWeaponsData = tryReadJson<IOverriddenWeapons>(path.join(modDir, "MissingQuestWeapons"), "OverriddenWeapons");
                     if (overriddenWeaponsData) 
                     {
                         if (overriddenWeaponsData.Override)
@@ -146,6 +146,7 @@ export class OverrideReader
                         }
                         if (overriddenWeaponsData.CustomCategories)
                         {
+                            this.logger.log("Custom Categories found");
                             for (const customCategory of overriddenWeaponsData.CustomCategories) 
                             {
 

@@ -186,6 +186,12 @@ export class QuestPatcher
                                     
                                                 if (!this.weaponToType[weaponId] || this.weaponToType[weaponId].length === 0) 
                                                 {
+                                                    if (weaponId === "67609c44204d813ae30e07f7")
+                                                    {
+                                                        // this a weapon listed as a condition in quest laughterhouse (63a9b36cc31b00242d28a99f)
+                                                        // but i could not find any such weapon with this id in the database. so skip it.
+                                                        continue;
+                                                    }
                                                     this.logger.error(`Weapon (${weaponId}) not found in weaponToType for quest ${questId}`);
                                                     error = true;
                                                     break;

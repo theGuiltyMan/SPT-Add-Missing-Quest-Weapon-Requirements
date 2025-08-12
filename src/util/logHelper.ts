@@ -6,7 +6,7 @@ import { IAddMissingQuestRequirementConfig } from "../models/IAddMissingQuestReq
 import { inject, injectable } from "tsyringe";
 import fs, { WriteStream } from "fs";
 import { LocaleHelper } from "./localeHelper";
-import { VFS } from "@spt/utils/VFS";
+import { FileSystemSync } from "@spt/utils/FileSystemSync";
 
 @injectable()
 export class LogHelper
@@ -26,7 +26,7 @@ export class LogHelper
         @inject("WinstonLogger") private winstonLogger: ILogger,
         @inject("AMQRConfig") private config: IAddMissingQuestRequirementConfig,
         @inject("LocaleHelper") private localeHelper: LocaleHelper,
-        @inject("VFS") private vfs: VFS
+        @inject("FileSystemSync") private vfs: FileSystemSync
     )
     {
         this.logger = winstonLogger;
