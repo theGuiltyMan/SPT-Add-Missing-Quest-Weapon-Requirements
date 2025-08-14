@@ -40,7 +40,7 @@ export class OverrideReader
             
                 try 
                 {
-                    const questOverridesData = tryReadJson<IQuestOverrides>(path.join(modDir, "MissingQuestWeapons"), "QuestOverrides");
+                    const questOverridesData = tryReadJson<IQuestOverrides>(path.join(modDir, "MissingQuestWeapons"), "QuestOverrides", this.logger);
                     if (questOverridesData) 
                     {
                         questOverridesData.Overrides.forEach((v) => 
@@ -111,7 +111,7 @@ export class OverrideReader
 
                 try 
                 {
-                    const  overriddenWeaponsData = tryReadJson<IOverriddenWeapons>(path.join(modDir, "MissingQuestWeapons"), "OverriddenWeapons");
+                    const  overriddenWeaponsData = tryReadJson<IOverriddenWeapons>(path.join(modDir, "MissingQuestWeapons"), "OverriddenWeapons", this.logger);
                     if (overriddenWeaponsData) 
                     {
                         if (overriddenWeaponsData.Override)

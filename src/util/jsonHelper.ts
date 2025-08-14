@@ -11,7 +11,9 @@ import path from "path";
  * @returns {T} - The parsed JSON object.
  * @throws {Error} - If the file is not found.
  */
-export function tryReadJson<T>(filePath: string, fileName: string): T
+import { LogHelper } from "./logHelper";
+
+export function tryReadJson<T>(filePath: string, fileName: string, logger: LogHelper): T
 {
     let [err, obj] = safejsonc.readSync( path.resolve(filePath, `${fileName}.jsonc`));
 
@@ -20,10 +22,20 @@ export function tryReadJson<T>(filePath: string, fileName: string): T
         return obj as T;
     }
 
+    if (err.name !== "ENOENT") 
+    {
+        logger.error(`Error reading ${fileName}.jsonc: ${err.message}`);
+    }
+
     [err, obj] = safejsonc.readSync( path.resolve(filePath, `${fileName}.json`));
     if (!err) 
     {
         return obj as T;
+    }
+
+    if (err.name !== "ENOENT") 
+    {
+        logger.error(`Error reading ${fileName}.json: ${err.message}`);
     }
 
     return null;
