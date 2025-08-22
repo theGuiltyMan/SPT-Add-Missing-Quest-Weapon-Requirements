@@ -22,7 +22,7 @@ export function tryReadJson<T>(filePath: string, fileName: string, logger: LogHe
         return obj as T;
     }
 
-    if (err.name !== "ENOENT") 
+    if (err.code !== "ENOENT") 
     {
         logger.error(`Error reading ${fileName}.jsonc: ${err.message}`);
     }
@@ -33,9 +33,13 @@ export function tryReadJson<T>(filePath: string, fileName: string, logger: LogHe
         return obj as T;
     }
 
-    if (err.name !== "ENOENT") 
+    if (err.code !== "ENOENT") 
     {
         logger.error(`Error reading ${fileName}.json: ${err.message}`);
+    }
+    else 
+    {
+        logger.log(`File ${fileName} not found in ${filePath}. Skipping...`);
     }
 
     return null;
