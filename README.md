@@ -106,6 +106,96 @@ This file allows you to modify the weapon requirements for specific quests. You 
 }
 ```
 
+### Advanced: Override Behaviours
+
+When multiple mods provide `QuestOverrides.jsonc` or `OverriddenWeapons.jsonc` files, there needs to be a way to resolve conflicts. This is handled by the `OverrideBehaviour` property. It allows you to control how your configuration merges with configurations from other mods.
+
+The `OverrideBehaviour` can be set in two places:
+1.  At the top level of a configuration file (`QuestOverrides.jsonc` or `OverriddenWeapons.jsonc`), which sets the default behavior for all entries in that file.
+2.  On a specific entry (e.g., a single quest override in `Overrides` or a single item in `CustomCategories`), which applies only to that entry.
+
+If no behaviour is specified, the default is `IGNORE`.
+
+There are four possible behaviours:
+
+- **`IGNORE` (Default)**: If an entry with the same identifier (like a quest ID or weapon ID) has already been processed from another mod's file, this entry will be skipped. This is the safest option and prevents accidental overwrites.
+
+- **`MERGE`**: Combines the new entry with an existing one. For lists like `whiteListedWeapons`, new items are added. For boolean flags like `skip`, the value is set if `true` in the new entry.
+
+- **`REPLACE`**: Completely overwrites an existing entry with the new one. All old values are discarded.
+
+- **`DELETE`**: Removes an existing entry entirely. This can be used to nullify a setting from another mod.
+
+#### How to use `OverrideBehaviour`
+
+**1. File/Entry Level**
+
+You can set a default behaviour for an entire file. This is useful if your mod is intended to be a "base" or an "overwriter" for other settings.
+
+*Example: A `QuestOverrides.jsonc` that merges its settings with others.*
+```jsonc
+{
+    "OverrideBehaviour": "MERGE", // Can be "MERGE", "REPLACE", "IGNORE", "DELETE"
+    "BlackListedQuests": [],
+    "Overrides": [
+        {
+            "id": "5a27bb8386f7741c770d2d0a", // Wet Job - Part 1
+            "whiteListedWeapons": ["some_new_sv98_mod"]
+        }
+    ]
+}
+```
+
+You can also set it on a single entry to be more specific.
+
+*Example: Replacing a single quest override while ignoring others.*
+```jsonc
+{
+    // Default behaviour is IGNORE
+    "Overrides": [
+        {
+            "id": "5a27bb8386f7741c770d2d0a", // Wet Job - Part 1
+            "OverrideBehaviour": "REPLACE",
+            "onlyUseWhiteListedWeapons": true,
+            "whiteListedWeapons": ["my_special_m4"]
+        }
+    ]
+}
+```
+
+**2. Value Level**
+
+For some properties that are arrays (like `CustomCategories`, `CanBeUsedAs`, `CanBeUsedAsShortNameWhitelist`, `CanBeUsedAsShortNameBlacklist`), you can control the behavior of individual items within the array. This is done by replacing the simple value (e.g., a string) with an object containing `value` and `behaviour`.
+
+*Example: Deleting a specific weapon from a `CanBeUsedAs` alias list defined by another mod.*
+This `OverriddenWeapons.jsonc` assumes another mod has already defined that `weapon_A` can be used as `weapon_B`. We want to remove that alias, but keep other potential aliases for `weapon_A`.
+
+```jsonc
+{
+    "OverrideBehaviour": "MERGE", // Merge with existing CanBeUsedAs
+    "CanBeUsedAs": {
+        "weapon_A": [
+            {
+                "value": "weapon_B",
+                "behaviour": "DELETE"
+            }
+        ]
+    }
+}
+```
+
+*Example: Deleting a custom category defined by another mod.*
+```jsonc
+{
+    "CustomCategories": [
+        {
+            "value": { "name": "AKM" }, // Only name is needed for deletion
+            "behaviour": "DELETE"
+        }
+    ]
+}
+```
+
 ## For Mod Authors
 
 To ensure your mod's weapons are correctly handled for quest requirements, you can create a `MissingQuestWeapons` directory inside your mod's root folder. Inside it, you can add:
