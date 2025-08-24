@@ -81,7 +81,7 @@ export  class WeaponCategorizer
     private addToWeaponType = (weaponType: string, item: ITemplateItem) => 
     {
         const itemId = item._id;
-        if (!weaponType || !itemId || this.config.BlackListedWeaponsTypes.includes(weaponType) || this.config.BlackListedItems.includes(itemId))
+        if (!weaponType || !itemId || this.config.BlackListedWeaponsTypes?.includes(weaponType) || this.config.BlackListedItems?.includes(itemId))
         {
             return;
         }
@@ -98,7 +98,7 @@ export  class WeaponCategorizer
         {
             case "Shotgun":
                 // until i find a better way to categorize shotguns
-                if (this.locale[`${itemId} Name`].includes("pump"))
+                if (this.locale[`${itemId} Name`]?.includes("pump"))
                 {
                     if (this.config.categorizeWithLessRestrive)
                     {
@@ -259,7 +259,7 @@ export  class WeaponCategorizer
                     const item = this.allItems[id];
                     this.logger.logDebug(`Processing ${item._id}`,LogType.NONE, true);
                     this.logger.plusIndent();
-                    if (customCategory?.ids.includes(id))
+                    if (customCategory?.ids?.length > 0 && customCategory?.ids.includes(id))
                     {
                         this.logger.logDebug(`Adding ${item._id} to ${customCategory.name}. Found in ids.`);
                         potentials.push(item);
@@ -308,7 +308,6 @@ export  class WeaponCategorizer
             catch (e)
             {
                 this.logger.error(`Error processing custom category ${k}: ${e}`);
-        
             }
         }
         // process can be used as once more 

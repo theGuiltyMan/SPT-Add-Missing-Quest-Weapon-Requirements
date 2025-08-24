@@ -408,7 +408,7 @@ export class QuestPatcher
                                     }
                                     else 
                                     {
-                                        this.logger.logDebug(`Quest: ${questId} - No changes\n\tOriginal: ${original.join(", ")} `)
+                                        this.logger.logDebug(`Quest: ${questId} - Chosen Weapon Type: ${weaponType} (No changes)\n\tOriginal: ${original.join(", ")} `)
                                     }
                                 }
                                 catch (e) 

@@ -1,7 +1,8 @@
 import fs from "fs";
-import { safe as safejsonc, jsonc } from "jsonc";
+import { jsonc } from "jsonc";
 import path from "path";
 
+const safejsonc = jsonc.safe;
 /**
  * Reads and parses a JSON or JSONC file from the specified file path.
  * 
@@ -22,7 +23,8 @@ export function tryReadJson<T>(filePath: string, fileName: string, logger: LogHe
         return obj as T;
     }
 
-    if (err.code !== "ENOENT") 
+    // (err as any) to shut incorrect error
+    if ((err as any).code !== "ENOENT") 
     {
         logger.error(`Error reading ${fileName}.jsonc: ${err.message}`);
     }
@@ -33,7 +35,7 @@ export function tryReadJson<T>(filePath: string, fileName: string, logger: LogHe
         return obj as T;
     }
 
-    if (err.code !== "ENOENT") 
+    if ((err as any).code !== "ENOENT") 
     {
         logger.error(`Error reading ${fileName}.json: ${err.message}`);
     }

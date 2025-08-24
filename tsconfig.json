@@ -17,6 +17,8 @@
     },
     "include": [
         "src/*",
-        "src/**/*"
+        "src/**/*",
+        "tests/*",
+        "tests/**/*"
     ]
 }
