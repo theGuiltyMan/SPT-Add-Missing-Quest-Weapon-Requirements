@@ -83,6 +83,8 @@ This file allows you to manually adjust how weapons are categorized. You can pla
 
 This file allows you to modify the weapon requirements for specific quests. You can place this file in this mod's directory or in your own mod's `MissingQuestWeapons` folder.
 
+You can also apply overrides to specific conditions (objectives) within a quest. This is useful for quests with multiple weapon-related objectives. If an override has a `conditions` array, it will only apply to those specific conditions. An override without a `conditions` field acts as a generic fallback for any condition within that quest that doesn't have a more specific override.
+
 ```jsonc
 {
     // A list of quest IDs to be completely ignored by this mod.
@@ -93,6 +95,8 @@ This file allows you to modify the weapon requirements for specific quests. You 
     "Overrides": [
         {
             "id": "5a27bb8386f7741c770d2d0a", // Wet Job - Part 1
+            // A list of condition IDs to apply this override to. If omitted, it's a generic override for the quest.
+            "conditions": ["5a27bb8386f7741c770d2d0b"],
             // if true, the mod will not add any weapons to this quest automatically.
             "skip": true,
             // if true, only weapons from whiteListedWeapons will be considered for this quest.

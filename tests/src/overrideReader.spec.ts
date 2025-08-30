@@ -97,12 +97,13 @@ describe("OverrideReader", () =>
                 .mockReturnValueOnce(questOverrides)
                 .mockReturnValueOnce(null);
 
-            const result = (overrideReader as any).readOverrides();
+            const result = (overrideReader as any).readOverrides() as OverridedSettings;
 
-            expect(result.questOverrides["quest1"]).toBeDefined();
-            expect(result.questOverrides["quest1"].whiteListedWeapons).toContain("weapon1");
-            expect(result.questOverrides["quest_blacklist_1"]).toBeDefined();
-            expect(result.questOverrides["quest_blacklist_1"].blackListed).toBe(true);
+
+            expect(result.getOverrideForQuest("quest1")).toBeDefined();
+            expect(result.getOverrideForQuest("quest1").whiteListedWeapons).toContain("weapon1");
+            expect(result.getOverrideForQuest("quest_blacklist_1")).toBeDefined();
+            expect(result.getOverrideForQuest("quest_blacklist_1").blackListed).toBe(true);
             expect(tryReadJsonSpy).toHaveBeenCalledWith(expect.stringContaining(path.join("mod1", "MissingQuestWeapons")), "QuestOverrides", mockLogger as any);
         });
 
@@ -123,7 +124,7 @@ describe("OverrideReader", () =>
                 .mockReturnValueOnce(null)
                 .mockReturnValueOnce(weaponOverrides);
 
-            const result = (overrideReader as any).readOverrides();
+            const result = (overrideReader as any).readOverrides() as OverridedSettings;
 
             expect(result.overriddenWeapons["weapon1"]).toBe("new_type");
             expect(result.canBeUsedAs["weapon2"]).toContain("weapon3");
@@ -181,18 +182,126 @@ describe("OverrideReader", () =>
                     return null;
                 });
 
-            const result = (overrideReader as any).readOverrides();
+            const result = (overrideReader as any).readOverrides() as OverridedSettings;
 
             // Quest overrides merging
-            expect(result.questOverrides["quest1"]).toBeDefined();
-            expect(result.questOverrides["quest1"].whiteListedWeapons).toEqual(["weapon1", "weapon2"]);
-            expect(result.questOverrides["quest1"].blackListedWeapons).toEqual(["weapon3"]);
+            expect(result.getOverrideForQuest("quest1")).toBeDefined();
+            expect(result.getOverrideForQuest("quest1").whiteListedWeapons).toEqual(["weapon1", "weapon2"]);
+            expect(result.getOverrideForQuest("quest1").blackListedWeapons).toEqual(["weapon3"]);
 
             // Weapon overrides merging
             expect(result.overriddenWeapons["weapon1"]).toBe("type1"); // From mod1, default behaviour is IGNORE
             expect(result.overriddenWeapons["weapon4"]).toBe("type2"); // From mod2
         });
 
+        describe("Condition-based Overrides", () =>
+        {
+            it("should handle overrides per condition",()=> 
+            {
+                (mockVfs.getDirectories as jest.Mock).mockReturnValue(["mod1"]);
+                (mockVfs.exists as jest.Mock).mockReturnValue(true);
+                const questOverrides1: IQuestOverrides = {
+                    BlackListedQuests: [],
+                    Overrides: [
+                        { id: "quest1", whiteListedWeapons: ["weapon1"], conditions: ["cond1", "cond3"] },
+                        { id: "quest1", whiteListedWeapons: ["weapon2", "weapon6"], conditions: ["cond2"] },
+                        { id: "quest1", whiteListedWeapons: ["weapon3"], blackListedWeapons: ["weapon4"] } // generic
+                    ]
+                };
+
+                jest.spyOn(jsonHelper, "tryReadJson")
+                    .mockReturnValueOnce(questOverrides1)
+                    .mockReturnValueOnce({})
+
+                const result = (overrideReader as any).readOverrides() as OverridedSettings;
+
+                const questResult1 = result.getOverrideForQuest("quest1", "cond1");
+                expect(questResult1).toBeDefined();
+                expect(questResult1.whiteListedWeapons).toEqual(["weapon1"]);
+
+                const questResult2 = result.getOverrideForQuest("quest1", "cond2");
+                expect(questResult2).toBeDefined();
+                expect(questResult2.whiteListedWeapons).toEqual(["weapon2", "weapon6"]);
+
+                const questResult3 = result.getOverrideForQuest("quest1", "cond3");
+                expect(questResult3).toBeDefined();
+                expect(questResult3.whiteListedWeapons).toEqual(["weapon1"]);
+
+                const questResult4 = result.getOverrideForQuest("quest1", "cond4");
+                expect(questResult4).toBeDefined();
+                expect(questResult4.whiteListedWeapons).toEqual(["weapon3"]);
+                expect(questResult4.blackListedWeapons).toEqual(["weapon4"]);
+
+                const questResultGeneric = result.getOverrideForQuest("quest1");
+                expect(questResultGeneric).toBeDefined();
+                expect(questResultGeneric.whiteListedWeapons).toEqual(["weapon3"]);
+                expect(questResultGeneric.blackListedWeapons).toEqual(["weapon4"]);
+            });
+            it("should handle overhauls per condition",()=>
+            {
+                (mockVfs.getDirectories as jest.Mock).mockReturnValue(["mod1", "mod2"]);
+                (mockVfs.exists as jest.Mock).mockReturnValue(true);
+
+                const questOverrides1: IQuestOverrides = {
+                    BlackListedQuests: [],
+                    Overrides: [
+                        { id: "quest1", whiteListedWeapons: ["weapon1"], conditions: ["cond1", "cond3"] },
+                        { id: "quest1", whiteListedWeapons: ["weapon2", "weapon6"], conditions: ["cond2"] },
+                        { id: "quest1", whiteListedWeapons: ["weapon1", "weapon2"], conditions: ["cond4"] },
+                        { id: "quest1", whiteListedWeapons: ["weapon1", "weapon2"], conditions: ["cond_del"] },
+                        { id: "quest1", whiteListedWeapons: ["weapon3"], blackListedWeapons: ["weapon4"] } // generic
+                    ]
+                };
+                const questOverrides2: IQuestOverrides = {
+                    BlackListedQuests: [],
+                    Overrides: [
+                        { id: "quest1", whiteListedWeapons: ["weapon5"], conditions: ["cond1"], OverrideBehaviour: OverrideBehaviour.MERGE },
+                        { id: "quest1", whiteListedWeapons: ["weapon2"], conditions: ["cond2"], OverrideBehaviour: OverrideBehaviour.DELETE },
+                        { id: "quest1", whiteListedWeapons: ["weapon2"], conditions: ["cond_del"], OverrideBehaviour: OverrideBehaviour.DELETE },
+                        { id: "quest1", whiteListedWeapons: ["weapon7"], conditions: ["cond2"], OverrideBehaviour: OverrideBehaviour.MERGE },
+                        { id: "quest1", whiteListedWeapons: [{value: "weapon1", behaviour: OverrideBehaviour.DELETE}, "weapon3"], conditions: ["cond4"], OverrideBehaviour: OverrideBehaviour.MERGE },
+                        { id: "quest1", whiteListedWeapons: ["weapon3"] } // generic
+                    ]
+                };
+                jest.spyOn(jsonHelper, "tryReadJson")
+                    .mockReturnValueOnce(questOverrides1)
+                    .mockReturnValueOnce({})
+                    .mockReturnValueOnce(questOverrides2)
+                    .mockReturnValueOnce({})
+
+                const result = (overrideReader as any).readOverrides() as OverridedSettings;
+
+                const questResult1 = result.getOverrideForQuest("quest1", "cond1");
+                expect(questResult1).toBeDefined();
+                expect(questResult1.whiteListedWeapons).toEqual(["weapon1", "weapon5"]);
+
+                const questResult2 = result.getOverrideForQuest("quest1", "cond2");
+                expect(questResult2).toBeDefined();
+                expect(questResult2.whiteListedWeapons).toEqual(["weapon7"]);
+
+                const questResult3 = result.getOverrideForQuest("quest1", "cond3");
+                expect(questResult3).toBeDefined();
+                expect(questResult3.whiteListedWeapons).toEqual(["weapon1"]);
+
+                const questResult4 = result.getOverrideForQuest("quest1", "cond4");
+                expect(questResult4).toBeDefined();
+                expect(questResult4.whiteListedWeapons).toEqual(["weapon2", "weapon3"]);
+
+                // Generic override (no condition)
+
+                const questResultGeneric = result.getOverrideForQuest("quest1");
+                expect(questResultGeneric).toBeDefined();
+                expect(questResultGeneric.whiteListedWeapons).toEqual(["weapon3"]);
+
+                const questResultGeneric2 = result.getOverrideForQuest("quest1","not_existing_condition");
+                expect(questResultGeneric2).toBeDefined();
+                expect(questResultGeneric2.whiteListedWeapons).toEqual(["weapon3"]);
+
+                const questResultDel = result.getOverrideForQuest("quest1", "cond_del");
+                expect(questResultDel).toBeDefined();
+                expect(questResultDel).toEqual(result.getOverrideForQuest("quest1")); // generic
+            })
+        })
         it("should handle IGNORE override behaviour for quests", () => 
         {
             (mockVfs.getDirectories as jest.Mock).mockReturnValue(["mod1", "mod2"]);
@@ -217,11 +326,11 @@ describe("OverrideReader", () =>
                     return null;
                 });
 
-            const result = (overrideReader as any).readOverrides();
+            const result = (overrideReader as any).readOverrides() as OverridedSettings;
 
-            expect(result.questOverrides["quest1"]).toBeDefined();
-            expect(result.questOverrides["quest1"].whiteListedWeapons).toEqual(["weapon1"]);
-            expect(result.questOverrides["quest1"].whiteListedWeapons).not.toContain("weapon2");
+            expect(result.getOverrideForQuest("quest1")).toBeDefined();
+            expect(result.getOverrideForQuest("quest1").whiteListedWeapons).toEqual(["weapon1"]);
+            expect(result.getOverrideForQuest("quest1").whiteListedWeapons).not.toContain("weapon2");
         });
 
         it("should handle REPLACE override behaviour for quests", () => 
@@ -247,12 +356,12 @@ describe("OverrideReader", () =>
                     return null;
                 });
 
-            const result = (overrideReader as any).readOverrides();
+            const result = (overrideReader as any).readOverrides() as OverridedSettings;
 
-            expect(result.questOverrides["quest1"]).toBeDefined();
-            expect(result.questOverrides["quest1"].whiteListedWeapons).toEqual(["weapon2"]);
-            expect(result.questOverrides["quest1"].whiteListedWeapons).not.toContain("weapon1");
-            expect(result.questOverrides["quest1"].skip).toBe(true);
+            expect(result.getOverrideForQuest("quest1")).toBeDefined();
+            expect(result.getOverrideForQuest("quest1").whiteListedWeapons).toEqual(["weapon2"]);
+            expect(result.getOverrideForQuest("quest1").whiteListedWeapons).not.toContain("weapon1");
+            expect(result.getOverrideForQuest("quest1").skip).toBe(true);
         });
 
         it("should handle DELETE override behaviour for quests", () => 
@@ -280,7 +389,7 @@ describe("OverrideReader", () =>
 
             const result = (overrideReader as any).readOverrides();
 
-            expect(result.questOverrides["quest1"]).toBeUndefined();
+            expect(result.questOverrides["quest1"]).toStrictEqual([]);
         });
 
         it("should handle DELETE override behaviour for custom categories", () => 
@@ -306,7 +415,7 @@ describe("OverrideReader", () =>
                     return null;
                 });
 
-            const result = (overrideReader as any).readOverrides();
+            const result = (overrideReader as any).readOverrides() as OverridedSettings;
 
             expect(result.customCategories["custom_cat"]).toBeUndefined();
         });
@@ -335,7 +444,7 @@ describe("OverrideReader", () =>
                     return null;
                 });
 
-            const result = (overrideReader as any).readOverrides();
+            const result = (overrideReader as any).readOverrides() as OverridedSettings;
 
             expect(result.customCategories["custom_cat"]).toBeDefined();
             expect(result.customCategories["custom_cat"].ids).toEqual(["weapon2"]);

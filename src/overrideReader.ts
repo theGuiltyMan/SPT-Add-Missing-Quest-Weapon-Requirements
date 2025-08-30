@@ -10,6 +10,8 @@ import { pushIfNotExists } from "./util/misc";
 import { OverrideBehaviour } from "./models/OverrideBehaviour";
 import { Overridable } from "./models/Overridable";
 import { IWeaponCategory } from "./models/IWeaponCategory";
+import { IQuestOverride } from "./models/IQuestOverride";
+import { IQuestOverrideSetting } from "./models/IQuestOverrideSetting";
 
 
 @injectable()
@@ -102,80 +104,215 @@ export class OverrideReader
                         const defaultOverrideBehaviour = questOverridesData.OverrideBehaviour ?? OverrideBehaviour.IGNORE;
                         questOverridesData.Overrides.forEach((v) => 
                         {
-                            this.logger.log(`Processing quest override: ${v.id})}`)
+                            this.logger.log(`Processing quest override: ${v.id} ${v.conditions?.length ? `with conditions ${v.conditions.join(", ")}` : ""}`);
                             const overrideBehaviour = v.OverrideBehaviour ?? defaultOverrideBehaviour;
-                            const hasValue = overridedSettings.questOverrides[v.id] !== undefined;
+                            let hasOverrides = overridedSettings.questOverrides[v.id] !== undefined && overridedSettings.questOverrides[v.id].length > 0;
 
-                            if (!hasValue) 
+                            const existingOverrides: IQuestOverride[] = [];
+                            if (hasOverrides) 
                             {
-                                overridedSettings.questOverrides[v.id] = {
-                                    id: v.id,
-                                    whiteListedWeapons: [],
-                                    blackListedWeapons: [],
-                                    skip: false,
-                                    onlyUseWhiteListedWeapons: false
+                                // try and find matching conditions
+                                for (const existingOverride of overridedSettings.questOverrides[v.id]) 
+                                {
+                                    if ((!v.conditions || v.conditions.length === 0) && (!existingOverride.condition)) 
+                                    {
+                                        existingOverrides.push(existingOverride);
+                                    }
+                                    else if (v.conditions && existingOverride.condition) 
+                                    {
+                                        if (v.conditions.includes(existingOverride.condition)) 
+                                        {
+                                            existingOverrides.push(existingOverride);
+                                            break;
+                                        }
+                                    }
                                 }
                             }
 
-                            switch (overrideBehaviour) 
+                            hasOverrides = existingOverrides.length > 0;
+
+
+                            const deleteFromExisting = () => 
                             {
-                                case OverrideBehaviour.IGNORE:
-                                    if (hasValue) 
+                                for (const existingOverride of existingOverrides) 
+                                {
+                                    const index = overridedSettings.questOverrides[v.id].indexOf(existingOverride);
+                                    if (index > -1) 
                                     {
-                                        this.logger.log(`Ignoring override for quest ${v.id} as it already exists`);
-                                        return;
+                                        overridedSettings.questOverrides[v.id].splice(index, 1);
                                     }
-                                    break;
-                                case OverrideBehaviour.DELETE:
-                                    this.logger.log(`Deleting override for quest ${v.id}`);
-                                    delete overridedSettings.questOverrides[v.id];
-                                    return;
-                                case OverrideBehaviour.REPLACE:
-                                    if (hasValue) 
+                                }
+                            }
+
+
+                            const createOverride=(questOverrideSettings: IQuestOverrideSetting, condition?: string): IQuestOverride=> 
+                            {
+
+
+                                const created = {
+                                    id: questOverrideSettings.id,
+                                    skip: questOverrideSettings.skip,
+                                    onlyUseWhiteListedWeapons: questOverrideSettings.onlyUseWhiteListedWeapons,
+                                    whiteListedWeapons: questOverrideSettings.whiteListedWeapons?.map(w => (w as any).value ?? w) ?? [],
+                                    blackListedWeapons: questOverrideSettings.blackListedWeapons?.map(w => (w as any).value ?? w) ?? [],
+                                    condition: condition
+                                }
+
+                                for (const w of created.whiteListedWeapons) 
+                                {
+                                    if (created.blackListedWeapons?.includes(w)) 
                                     {
-                                        this.logger.log(`Replacing override for quest ${v.id}`);
-                                        overridedSettings.questOverrides[v.id] = {
-                                            id: v.id,
-                                            whiteListedWeapons: [],
-                                            blackListedWeapons: [],
-                                            skip: false,
-                                            onlyUseWhiteListedWeapons: false
+                                        this.logger.error(`Weapon ${w} is both blacklisted and whitelisted for quest ${v.id} condition ${condition}`);
+                                        created.blackListedWeapons = created.blackListedWeapons?.filter(bw => bw !== w);
+                                    }
+                                }
+
+                                return created;
+                            }
+                            const createNewOverrides = () : IQuestOverride[] => 
+                            {
+                                const toAdd : IQuestOverride[] = [];
+                                if (v.conditions)
+                                {
+                                    for (const condition of v.conditions) 
+                                    {
+
+                                        toAdd.push(createOverride(v, condition));
+                                    }
+                                }
+                                else 
+                                {
+                                    toAdd.push(createOverride(v));
+                                }
+
+                                return toAdd;
+                            }
+
+                            const addNewOverride = (newOverride) => 
+                            {
+                                if (overridedSettings.questOverrides[v.id] === undefined) 
+                                {
+                                    overridedSettings.questOverrides[v.id] = [];
+                                }
+                                overridedSettings.questOverrides[v.id].push(newOverride);
+                            }
+
+                            const addNewOverrides = () => 
+                            {
+                                if (overridedSettings.questOverrides[v.id] === undefined) 
+                                {
+                                    overridedSettings.questOverrides[v.id] = [];
+                                }
+
+                                const toAdd = createNewOverrides();
+                                
+                                for (const questOverride of toAdd) 
+                                {
+                                    overridedSettings.questOverrides[v.id].push(questOverride);
+                                }
+                            }
+
+                            const replaceExisting = () => 
+                            {
+                                deleteFromExisting();
+                                addNewOverrides();
+                            }
+
+                            const mergeWithExisting = () => 
+                            {
+                                const toMerge = [];
+                                if (v.conditions)
+                                {
+                                    for (const condition of v.conditions) 
+                                    {
+                                        toMerge.push({
+                                            ...v, condition
+                                        })
+                                    }
+                                }
+                                else 
+                                {
+                                    toMerge.push(v);
+                                }
+
+                                for (const newOverride of toMerge) 
+                                {
+                                    const index = existingOverrides.findIndex(o => o.condition === newOverride.condition);
+                                    if ( index === -1)
+                                    {
+                                        addNewOverride(newOverride);
+                                    }
+                                    else 
+                                    {
+                                        const existingOverride = existingOverrides[index];
+                                        if (newOverride.skip !== undefined) existingOverride.skip = newOverride.skip;
+                                        if (newOverride.onlyUseWhiteListedWeapons !== undefined) existingOverride.onlyUseWhiteListedWeapons = newOverride.onlyUseWhiteListedWeapons;
+                                        if (newOverride.whiteListedWeapons) 
+                                        {
+                                            this.processOverridableArray(existingOverride.whiteListedWeapons, newOverride.whiteListedWeapons, OverrideBehaviour.MERGE);
+                                        }
+                                        if (newOverride.blackListedWeapons) 
+                                        {
+                                            this.processOverridableArray(existingOverride.blackListedWeapons, newOverride.blackListedWeapons, OverrideBehaviour.MERGE);
+                                        }
+
+                                        for (const w of existingOverride.whiteListedWeapons) 
+                                        {
+                                            if (existingOverride.blackListedWeapons?.includes(w)) 
+                                            {
+                                                this.logger.error(`Weapon ${w} is both blacklisted and whitelisted for quest ${v.id} condition ${existingOverride.condition}`);
+                                                existingOverride.blackListedWeapons = existingOverride.blackListedWeapons?.filter(bw => bw !== w);
+                                            }
                                         }
                                     }
-                                    break;
-                                case OverrideBehaviour.MERGE:
-                                    // nothing to do here, just merge the values
-                                    break;
-                                default:
-                                    this.logger.error(`Unknown OverrideBehaviour ${overrideBehaviour} for quest ${v.id}`);
-                                    return;
+                                }
+                                
                             }
-                            const questOverride = overridedSettings.questOverrides[v.id];
+                            if (!hasOverrides) 
+                            {
+                                this.logger.log(`No existing overrides found for quest ${v.id} with conditions ${v.conditions}`);
 
-                            questOverride.onlyUseWhiteListedWeapons ||= v.onlyUseWhiteListedWeapons || false;
-
-                            if (v.whiteListedWeapons) 
-                            {
-                                v.whiteListedWeapons.forEach(w => pushIfNotExists(questOverride.whiteListedWeapons, w));
-                            }
-                            if (v.blackListedWeapons) 
-                            {
-                                v.blackListedWeapons.forEach(w => pushIfNotExists(questOverride.blackListedWeapons, w));
-                            }
-
-                            if (v.skip) 
-                            {
-                                questOverride.skip = true;
-                            }
-                            // check if any weapons conflicted
-                            if (v.whiteListedWeapons) 
-                            {
-                                for (const w of v.whiteListedWeapons) 
+                                if (overrideBehaviour === OverrideBehaviour.DELETE) 
                                 {
-                                    if (questOverride.blackListedWeapons.includes(w)) 
-                                    {
-                                        this.logger.error(`Weapon ${w} is both blacklisted and whitelisted for quest ${v.id}`);
-                                    }
+                                    // nothing to do
+                                    return
+                                }
+                                else 
+                                {
+                                    // create new
+                                    addNewOverrides();
+                                    return;
+                                }
+
+                            }
+                            else 
+                            {
+                                this.logger.log(`Found ${existingOverrides.length} existing overrides for quest ${v.id} with conditions ${v.conditions}`);
+                                switch (overrideBehaviour) 
+                                {
+                                    case OverrideBehaviour.IGNORE:
+                                        {
+                                            const toAdd = createNewOverrides();
+                                            for (const newOverride of toAdd) 
+                                            {
+                                                if (!existingOverrides.find(o => o.condition === newOverride.condition)) 
+                                                {
+                                                    addNewOverride(newOverride);
+                                                }
+                                            }}
+                                        break;
+                                    case OverrideBehaviour.DELETE:
+                                        deleteFromExisting();
+                                        break;
+                                    case OverrideBehaviour.REPLACE:
+                                        replaceExisting();
+                                        break;
+                                    case OverrideBehaviour.MERGE:
+                                        mergeWithExisting();
+                                        break;
+                                    default:
+                                        this.logger.error(`Unknown OverrideBehaviour ${overrideBehaviour} for quest ${v.id}`);
+                                        break;
                                 }
                             }
                         });
@@ -184,16 +321,14 @@ export class OverrideReader
                         {
                             if (!overridedSettings.questOverrides[v]) 
                             {
-                                overridedSettings.questOverrides[v] = {
-                                    id: v,
-                                    blackListed: true
-                                }
+                                overridedSettings.questOverrides[v] = [];
                             }
-                            else 
-                            {
-                                this.logger.error(`Quest ${v} is both in blacklisted quests and in quest overrides. Blacklisting will take precedence.`);
-                                overridedSettings.questOverrides[v].skip = true;
-                            }
+
+                            // Add a blacklist override. It will be picked up by getOverrideForQuest.
+                            overridedSettings.questOverrides[v].push({
+                                id: v,
+                                blackListed: true
+                            });
                         })
                     }
                 }

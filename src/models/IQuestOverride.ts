@@ -8,5 +8,6 @@ export interface IQuestOverride
     onlyUseWhiteListedWeapons?: boolean, // if true, only weapons in whiteListedWeapons will be used
     whiteListedWeapons?: string[], // these weapons will be added to the quest no matter what
     blackListedWeapons?: string[],  // these weapons will be removed from the quest no matter what
-    blackListed?: boolean // if true, this quest will not be processed
+    blackListed?: boolean, // if true, this quest will not be processed
+    condition?: string // if exists, the conditions this override will be applied to
 }

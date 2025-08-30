@@ -8,6 +8,7 @@ import { OverridedSettings } from "./models/OverridedSettings";
 import { JsonUtil } from "@spt/utils/JsonUtil";
 import { pushIfNotExists } from "./util/misc";
 import { LogType } from "./util/logHelper";
+import { IQuestOverride } from "./models/IQuestOverride";
 
 @injectable()
 export class QuestPatcher 
@@ -37,22 +38,11 @@ export class QuestPatcher
             const db = this.databaseServer.getTables();
             this.quests = db.templates.quests;
 
-            const questOverrides = this.overridedSettings.questOverrides;
             const canBeUsedAs = this.overridedSettings.canBeUsedAs;
 
             // iterate through all quests
             for (const questId in this.quests) 
             {
-                if (questOverrides[questId] && questOverrides[questId].blackListed) 
-                {
-                    this.logger.logDebug(`Skipping quest ${questId} due to blacklisted`);
-                    continue;
-                }
-                // if (questId !== "5bc4776586f774512d07cf05")
-                // {
-                //     continue;
-                // }
-
                 this.logger.log(`Patching quest ${questId}`);
                 const quest = this.quests[questId];
 
@@ -65,8 +55,17 @@ export class QuestPatcher
                         return;
                     }
 
+                    
                     for (const condition of conditions) 
                     {
+                        const questOverride = this.overridedSettings.getOverrideForQuest(questId, condition.id);
+
+                        if (questOverride && questOverride.blackListed)
+                        {
+                            this.logger.logDebug(`Skipping condition ${condition.id} for quest ${questId} due to blacklist override.`);
+                            continue;
+                        }
+
                         try 
                         {
                             if (!condition.counter) 
@@ -99,18 +98,18 @@ export class QuestPatcher
                                 try 
                                 {
                                     //#region process white/black listed weapons
-                                    const processBlackListed = (questId: string): void => 
+                                    const processBlackListed = (override: IQuestOverride): void => 
                                     {
-                                        if (questOverrides[questId] && questOverrides[questId].blackListedWeapons?.length > 0) 
+                                        if (override && override.blackListedWeapons?.length > 0) 
                                         {
-                                            questOverrides[questId].blackListedWeapons.forEach(w => 
+                                            override.blackListedWeapons.forEach((w: string) => 
                                             {
                                                 const attempToRemove = (id: string): void => 
                                                 {
                                                     if (newWeaponCondition.indexOf(id) !== -1) 
                                                     {
                                                         newWeaponCondition.splice(newWeaponCondition.indexOf(id), 1);
-                                                        this.logger.logDebug(`Removed blacklisted weapon: ${id} \n`);
+                                                        this.logger.logDebug(`Removed blacklisted weapon: ${id}\\n`);
                                                     }
                                                 }
                                                 // check if the a weapon or weapon type
@@ -118,11 +117,11 @@ export class QuestPatcher
                                             });
                                         }
                                     }
-                                    const processWhiteListed = (questId: string): void => 
+                                    const processWhiteListed = (override: IQuestOverride): void => 
                                     {
-                                        if (questOverrides[questId] && questOverrides[questId].whiteListedWeapons?.length > 0) 
+                                        if (override && override.whiteListedWeapons?.length > 0) 
                                         {
-                                            for (const w of questOverrides[questId].whiteListedWeapons) 
+                                            for (const w of override.whiteListedWeapons) 
                                             {
                                                 doForWeaponOrType(w, (id) => 
                                                 {
@@ -160,16 +159,16 @@ export class QuestPatcher
                                     let weaponType = null;
 
                                     //#endregion
-                                    if (questOverrides[questId] && questOverrides[questId].skip) 
+                                    if (questOverride && questOverride.skip) 
                                     {
                                         // only add weapons that can be used as the weapon
                                         weaponType = "Skipped";
                                         processCanBeUsedAs();
-                                        processBlackListed(questId);
+                                        processBlackListed(questOverride);
                                     }
                                     else 
                                     {
-                                        if (!(questOverrides[questId] && questOverrides[questId].onlyUseWhiteListedWeapons) && newWeaponCondition.length > 1) 
+                                        if (!(questOverride && questOverride.onlyUseWhiteListedWeapons) && newWeaponCondition.length > 1) 
                                         {
                                             //#region finding the weapon type
                                             // select the most restrictive weapon type if all weapons are of the same type
@@ -303,9 +302,9 @@ export class QuestPatcher
                                             this.logger.log(`Quest ${questId} has only one weapon: ${condition.counter.conditions[cI].weapon[0]}. Only adding/processing white/black listed weapons`);
                                         }
 
-                                        processWhiteListed(questId);
+                                        processWhiteListed(questOverride);
                                         processCanBeUsedAs();
-                                        processBlackListed(questId);
+                                        processBlackListed(questOverride);
                                     }
 
 
@@ -360,7 +359,7 @@ export class QuestPatcher
                                         let iD = 0;
 
                                         let k = 0
-                                        for (; iO < orig.length && iD < newW.length;) 
+                                        for (; iO < orig.length && iD < newW.length;)
                                         {
                                             if (orig[iO] === newW[iD]) 
                                             {

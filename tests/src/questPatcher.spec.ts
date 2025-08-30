@@ -166,11 +166,11 @@ describe("QuestPatcher", () =>
             _id: "quest_1",
             conditions: { AvailableForStart: [createWeaponCondition(["pistol_pm", "revolver_rhino"])] }
         } as IQuest;
-        mockOverridedSettings.questOverrides["quest_1"] = {
+        mockOverridedSettings.questOverrides["quest_1"] = [{
             id: "quest_1",
             whiteListedWeapons: ["whitelisted_gun"],
             blackListedWeapons: ["pistol_pm"]
-        };
+        }];
 
         questPatcher.run();
 
@@ -186,14 +186,14 @@ describe("QuestPatcher", () =>
             _id: "quest_1",
             conditions: { AvailableForStart: [createWeaponCondition(["pistol_pm"])] }
         } as IQuest;
-        mockOverridedSettings.questOverrides["quest_1"] = { id: "quest_1", blackListed: true };
+        mockOverridedSettings.questOverrides["quest_1"] = [{ id: "quest_1", blackListed: true }];
 
         questPatcher.run();
 
         // No changes should be made, so the weapon list is original
         const patchedWeapons = mockQuests["quest_1"].conditions.AvailableForStart[0].counter.conditions[0].weapon;
         expect(patchedWeapons).toEqual(["pistol_pm"]);
-        expect(mockLogger.logDebug).toHaveBeenCalledWith("Skipping quest quest_1 due to blacklisted");
+        expect(mockLogger.logDebug).toHaveBeenCalledWith(expect.stringContaining("Skipping"));
     });
 
     it("should only use whitelisted weapons if 'onlyUseWhiteListedWeapons' is true", () => 
@@ -202,11 +202,11 @@ describe("QuestPatcher", () =>
             _id: "quest_1",
             conditions: { AvailableForStart: [createWeaponCondition(["pistol_pm"])] }
         } as IQuest;
-        mockOverridedSettings.questOverrides["quest_1"] = {
+        mockOverridedSettings.questOverrides["quest_1"] = [{
             id: "quest_1",
             onlyUseWhiteListedWeapons: true,
             whiteListedWeapons: ["god_gun_1", "god_gun_2"]
-        };
+        }];
 
         questPatcher.run();
 
