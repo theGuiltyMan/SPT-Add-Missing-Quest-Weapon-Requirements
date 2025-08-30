@@ -74,7 +74,6 @@ export class QuestPatcher
                             }
 
                             this.logger.logDebug(`Patching quest ${questId} - Condition: ${condition.id}`);
-                            const questOverride = this.overridedSettings.getOverrideForQuest(questId, condition.id);
 
                             const doForWeaponOrType = (id: string, func: (id: string) => void): void => 
                             {
@@ -364,14 +363,14 @@ export class QuestPatcher
                                         {
                                             if (orig[iO] === newW[iD]) 
                                             {
-                                                str += `	${orig[iO]}\n`;
+                                                str += `\t${orig[iO]}\n`;
                                                 iO++;
                                                 iD++;
                                                 k = iO;
                                             }
                                             else if (k === 0) 
                                             {
-                                                str += `		--- ${orig[iO]}\n`;
+                                                str += `\t\t--- ${orig[iO]}\n`;
                                                 iO++;
                                             }
                                             else 
@@ -388,12 +387,12 @@ export class QuestPatcher
                                         // loggically this should never happen
                                         for (; iO < orig.length; iO++) 
                                         {
-                                            str += `		--- ${orig[iO]}\n`;
+                                            str += `\t\t--- ${orig[iO]}\n`;
                                         }
 
                                         for (; iD < newW.length; iD++) 
                                         {
-                                            str += `		+++ ${newW[iD]}\n`;
+                                            str += `\t\t+++ ${newW[iD]}\n`;
                                         }
 
                                         return [isSame, str];
