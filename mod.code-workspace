@@ -24,6 +24,8 @@
 			"**/.DS_Store": true,
 			"**/Thumbs.db": true,
 			"**/dist/**": true
-		}
+		},
+		"powershell.cwd": "AddMissingQuestRequirements",
+		"powershell.pester.codeLens": false
 	}
 }
