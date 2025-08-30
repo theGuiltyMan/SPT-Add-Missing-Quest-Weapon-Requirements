@@ -7,7 +7,6 @@ import { OverridedSettings } from "../../src/models/OverridedSettings";
 import { JsonUtil } from "@spt/utils/JsonUtil";
 import { IQuest, IQuestCondition } from "@spt/models/eft/common/tables/IQuest";
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
-import exp from "constants";
 
 const createWeaponCondition = (weapons: string[]): IQuestCondition => ({
     id: "weapon_cond_id",

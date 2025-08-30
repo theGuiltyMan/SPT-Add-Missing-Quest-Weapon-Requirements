@@ -238,7 +238,7 @@ export class OverrideReader
                                 for (const newOverride of toMerge) 
                                 {
                                     const index = existingOverrides.findIndex(o => o.condition === newOverride.condition);
-                                    if ( index == -1)
+                                    if ( index === -1)
                                     {
                                         addNewOverride(newOverride);
                                     }

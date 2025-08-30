@@ -194,9 +194,9 @@ describe("OverrideReader", () =>
             expect(result.overriddenWeapons["weapon4"]).toBe("type2"); // From mod2
         });
 
-        describe("Condition-based Overhauls", () =>
+        describe("Condition-based Overrides", () =>
         {
-            it("should handle overhauls per condition",()=> 
+            it("should handle overrides per condition",()=> 
             {
                 (mockVfs.getDirectories as jest.Mock).mockReturnValue(["mod1"]);
                 (mockVfs.exists as jest.Mock).mockReturnValue(true);

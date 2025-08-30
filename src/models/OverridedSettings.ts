@@ -21,7 +21,7 @@ export class OverridedSettings
         // Look for a specific override for the given conditionId
         if (conditionId) 
         {
-            const specificOverride = overrides.find(o => o.condition?.includes(conditionId));
+            const specificOverride = overrides.find(o => o.condition === conditionId);
             if (specificOverride) 
             {
                 return specificOverride;

@@ -110,8 +110,7 @@ export class QuestPatcher
                                                     if (newWeaponCondition.indexOf(id) !== -1) 
                                                     {
                                                         newWeaponCondition.splice(newWeaponCondition.indexOf(id), 1);
-                                                        this.logger.logDebug(`Removed blacklisted weapon: ${id} 
-`);
+                                                        this.logger.logDebug(`Removed blacklisted weapon: ${id}\\n`);
                                                     }
                                                 }
                                                 // check if the a weapon or weapon type
