@@ -41,7 +41,7 @@ export class OverrideReader
             switch (behaviour) 
             {
                 case OverrideBehaviour.IGNORE:
-                    if (target.includes(value)) return;
+                    if (target.includes(value)) break;
                     pushIfNotExists(target, value);
                     break;
                 case OverrideBehaviour.MERGE:
@@ -52,6 +52,7 @@ export class OverrideReader
                     const index = target.indexOf(value);
                     if (index > -1) 
                     {
+                        this.logger.logDebug(`Deleting ${value} from array`);
                         target.splice(index, 1);
                     }
                 }
@@ -72,14 +73,16 @@ export class OverrideReader
             switch (behaviour) 
             {
                 case OverrideBehaviour.IGNORE:
-                    if (target[key] !== undefined) return;
+                    if (target[key] !== undefined) break;
                     target[key] = value;
                     break;
                 case OverrideBehaviour.MERGE:
                 case OverrideBehaviour.REPLACE:
+                    this.logger.logDebug(`Overriding ${key} with ${value}`);
                     target[key] = value;
                     break;
                 case OverrideBehaviour.DELETE:
+                    this.logger.logDebug(`Deleting ${key}`);
                     delete target[key];
                     break;
             }
@@ -288,6 +291,8 @@ export class OverrideReader
                             else 
                             {
                                 this.logger.log(`Found ${existingOverrides.length} existing overrides for quest ${v.id} with conditions ${v.conditions}`);
+                                this.logger.logDebug(`Existing overrides for quest ${v.id}:`);
+                                this.logger.logDebug(overridedSettings.questOverrides[v.id]);
                                 switch (overrideBehaviour) 
                                 {
                                     case OverrideBehaviour.IGNORE:
@@ -314,6 +319,8 @@ export class OverrideReader
                                         this.logger.error(`Unknown OverrideBehaviour ${overrideBehaviour} for quest ${v.id}`);
                                         break;
                                 }
+                                this.logger.logDebug(`Quest overrides after processing for quest ${v.id}:`);
+                                this.logger.logDebug(overridedSettings.questOverrides[v.id]);
                             }
                         });
 
@@ -345,30 +352,66 @@ export class OverrideReader
                         const defaultBehaviour = overriddenWeaponsData.OverrideBehaviour ?? OverrideBehaviour.IGNORE;
                         if (overriddenWeaponsData.Override) 
                         {
+                            this.logger.logDebug("Processing overridden weapons");
+                            this.logger.logDebug("Existing overridden weapons:");
+                            this.logger.logDebug(overridedSettings.overriddenWeapons);
+                            this.logger.logDebug("Overrides to process:");
+                            this.logger.logDebug(overriddenWeaponsData.Override);
                             this.processOverridableRecord(overridedSettings.overriddenWeapons, overriddenWeaponsData.Override, defaultBehaviour);
+                            this.logger.logDebug("Overridden weapons after processing:");
+                            this.logger.logDebug(overridedSettings.overriddenWeapons);
                         }
 
 
                         if (overriddenWeaponsData.CanBeUsedAs) 
                         {
+                            this.logger.logDebug("Processing canBeUsedAs weapons");
                             for (const key in overriddenWeaponsData.CanBeUsedAs) 
                             {
                                 if (!overridedSettings.canBeUsedAs[key]) 
                                 {
                                     overridedSettings.canBeUsedAs[key] = [];
                                 }
+                                this.logger.logDebug(`Existing canBeUsedAs weapons for ${key}:`);
+                                this.logger.logDebug(overridedSettings.canBeUsedAs[key]);
+                                this.logger.logDebug("canBeUsedAs to process:");
+                                this.logger.logDebug(overriddenWeaponsData.CanBeUsedAs[key]);
                                 this.processOverridableArray(overridedSettings.canBeUsedAs[key], overriddenWeaponsData.CanBeUsedAs[key], defaultBehaviour);
+                                this.logger.logDebug(`canBeUsedAs for ${key} after processing:`);
+                                this.logger.logDebug(overridedSettings.canBeUsedAs[key]);
                             }
                         }
 
                         if (overriddenWeaponsData.CanBeUsedAsShortNameWhitelist) 
                         {
+                            this.logger.logDebug("Processing canBeUsedAsShortNameWhitelist weapons");
+                            if (!overridedSettings.canBeUsedAsShortNameWhitelist) 
+                            {
+                                overridedSettings.canBeUsedAsShortNameWhitelist = [];
+                            }
+                            this.logger.logDebug("Existing canBeUsedAsShortNameWhitelist weapons:");
+                            this.logger.logDebug(overridedSettings.canBeUsedAsShortNameWhitelist);
+                            this.logger.logDebug("canBeUsedAsShortNameWhitelist to process:");
+                            this.logger.logDebug(overriddenWeaponsData.CanBeUsedAsShortNameWhitelist);
                             this.processOverridableArray(overridedSettings.canBeUsedAsShortNameWhitelist, overriddenWeaponsData.CanBeUsedAsShortNameWhitelist, defaultBehaviour);
+                            this.logger.logDebug("canBeUsedAsShortNameWhitelist after processing:");
+                            this.logger.logDebug(overridedSettings.canBeUsedAsShortNameWhitelist);
                         }
 
                         if (overriddenWeaponsData.CanBeUsedAsShortNameBlacklist) 
                         {
+                            this.logger.logDebug("Processing canBeUsedAsShortNameBlacklist weapons");
+                            if (!overridedSettings.canBeUsedAsShortNameBlackList) 
+                            {
+                                overridedSettings.canBeUsedAsShortNameBlackList = [];
+                            }
+                            this.logger.logDebug("Existing canBeUsedAsShortNameBlacklist weapons:");
+                            this.logger.logDebug(overridedSettings.canBeUsedAsShortNameBlackList);
+                            this.logger.logDebug("canBeUsedAsShortNameBlacklist to process:");
+                            this.logger.logDebug(overriddenWeaponsData.CanBeUsedAsShortNameBlacklist);
                             this.processOverridableArray(overridedSettings.canBeUsedAsShortNameBlackList, overriddenWeaponsData.CanBeUsedAsShortNameBlacklist, defaultBehaviour);
+                            this.logger.logDebug("canBeUsedAsShortNameBlacklist after processing:");
+                            this.logger.logDebug(overridedSettings.canBeUsedAsShortNameBlackList);
                         }
                         if (overriddenWeaponsData.CustomCategories) 
                         {
@@ -392,6 +435,7 @@ export class OverrideReader
                                     this.logger.log(`Ignoring custom category: ${customCategory.name}`);
                                     continue;
                                 }
+                                const alreadyExists = overridedSettings.customCategories[customCategory.name] !== undefined;
                                 if (!overridedSettings.customCategories[customCategory.name]) 
                                 {
                                     overridedSettings.customCategories[customCategory.name] = {
@@ -411,6 +455,11 @@ export class OverrideReader
                                 if (behaviour === OverrideBehaviour.REPLACE) 
                                 {
                                     this.logger.log(`Replacing custom category: ${customCategory.name}`);
+                                    if (alreadyExists)
+                                    {
+                                        this.logger.logDebug("Existing category:");
+                                        this.logger.logDebug(category);
+                                    }
                                     category.ids = customCategory.ids ?? [];
                                     category.whiteListedKeywords = customCategory.whiteListedKeywords ?? [];
                                     category.blackListedKeywords = customCategory.blackListedKeywords ?? [];
@@ -419,6 +468,16 @@ export class OverrideReader
                                 }
                                 else // MERGE
                                 {
+                                    if (alreadyExists)
+                                    {
+                                        this.logger.log(`Merging custom category: ${customCategory.name}`);
+                                        this.logger.logDebug("Existing category:");
+                                        this.logger.logDebug(category);
+                                    }
+                                    else 
+                                    {
+                                        this.logger.logDebug(`Adding new custom category: ${customCategory.name}`);
+                                    }
                                     if (customCategory.ids) 
                                     {
                                         for (const id of customCategory.ids) 
@@ -453,8 +512,11 @@ export class OverrideReader
                                     }
 
                                     customCategory.alsoCheckDescription ||= category.alsoCheckDescription;
+                                    // this.logger.logDebug("Merged category:");
+                                    // this.logger.logDebug(category);
                                 }
-                                this.logger.log(category)
+                                this.logger.log(`Final category ${customCategory.name}:`);
+                                this.logger.log(category);
                             }
                         }
                     }
@@ -468,6 +530,19 @@ export class OverrideReader
             })
 
 
+        // finalize
+        this.logger.logDebug("Finalizing read overrides");
+        for (const id of overridedSettings.canBeUsedAsShortNameBlackList)
+        {
+            this.logger.logDebug(`Finalizing canBeUsedAsShortNameBlackList item: ${id}`);
+            const index = overridedSettings.canBeUsedAsShortNameWhitelist.indexOf(id);
+            if (index > -1) 
+            {
+                this.logger.log(`Removing ${id} from canBeUsedAsShortNameWhitelist because it is also in canBeUsedAsShortNameBlackList`);
+                overridedSettings.canBeUsedAsShortNameWhitelist.splice(index, 1);
+            }
+        }
+        
         this.logger.log("##### Quest Overrides #####");
         this.logger.plusIndent();
         for (const key in overridedSettings.questOverrides) 
@@ -478,7 +553,38 @@ export class OverrideReader
 
         this.logger.log("##### #####");
 
-        this.logger.log("##### Overridden Weapons #####");
+        this.logger.logDebug("##### Overridden Weapons #####");
+        this.logger.plusIndent();
+        this.logger.logDebug("Overridden weapons:");
+        this.logger.logDebug(overridedSettings.overriddenWeapons);
+        this.logger.logDebug("##### #####");
+        this.logger.logDebug("##### canBeUsedAs #####");
+        this.logger.plusIndent();
+        for (const key in overridedSettings.canBeUsedAs)
+        {
+            this.logger.logDebug(`${key}: ${overridedSettings.canBeUsedAs[key]}`);
+        }
+        this.logger.minusIndent();
+        this.logger.logDebug("##### #####");
+        this.logger.logDebug("##### canBeUsedAsShortNameWhitelist #####");
+        this.logger.plusIndent();
+        this.logger.logDebug(overridedSettings.canBeUsedAsShortNameWhitelist);
+        this.logger.minusIndent();
+        this.logger.logDebug("##### #####");
+        this.logger.logDebug("##### canBeUsedAsShortNameBlackList #####");
+        this.logger.plusIndent();
+        this.logger.logDebug(overridedSettings.canBeUsedAsShortNameBlackList);
+        this.logger.minusIndent();
+        this.logger.logDebug("##### #####");
+        this.logger.logDebug("##### Custom Categories #####");
+        this.logger.plusIndent();
+        for (const key in overridedSettings.customCategories)
+        {
+            this.logger.logDebug(overridedSettings.customCategories[key]);
+        }
+        this.logger.minusIndent();
+        this.logger.minusIndent();
+        
         return overridedSettings;
     }
 }

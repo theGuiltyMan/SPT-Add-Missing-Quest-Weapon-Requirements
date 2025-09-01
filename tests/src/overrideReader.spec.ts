@@ -487,5 +487,49 @@ describe("OverrideReader", () =>
             expect(result.canBeUsedAs["weapon1"]).toBeDefined();
             expect(result.canBeUsedAs["weapon1"]).toEqual(["weapon3"]);
         });
+
+        it("should handle different override behaviours for Override", () => 
+        {
+            (mockVfs.getDirectories as jest.Mock).mockReturnValue(["mod1", "mod2", "mod3"]);
+            (mockVfs.exists as jest.Mock).mockReturnValue(true);
+            const weaponOverrides1: IOverriddenWeapons = {
+                Override: {"weapon1": "type1", "weapon2": "type2", "weapon3": "type3,type4", "weapon6": "type6"},
+                CanBeUsedAs: {},
+                CustomCategories: [],
+                CanBeUsedAsShortNameBlacklist: [],
+                CanBeUsedAsShortNameWhitelist: []
+            }
+            const weaponOverrides2: IOverriddenWeapons = {
+                Override: {"weapon1": "type2", "weapon2": {"behaviour": OverrideBehaviour.REPLACE, "value": "type5"}, "weapon4": "type4"},
+                CanBeUsedAs: {},
+                CustomCategories: [],
+                CanBeUsedAsShortNameBlacklist: [],
+                CanBeUsedAsShortNameWhitelist: []
+            }
+            const weaponOverrides3: IOverriddenWeapons = {
+                Override: {"weapon1": "type3", "weapon3": {"behaviour": OverrideBehaviour.REPLACE, "value": "type6"}, "weapon6": {"behaviour": OverrideBehaviour.DELETE, "value": ""}},
+                CanBeUsedAs: {},
+                CustomCategories: [],
+                CanBeUsedAsShortNameBlacklist: [],
+                CanBeUsedAsShortNameWhitelist: []
+            }
+            jest.spyOn(jsonHelper, "tryReadJson")
+                .mockImplementation((filePath, fileName) => 
+                {
+                    if (fileName !== "OverriddenWeapons") return null;
+                    if (filePath.includes("mod1")) return weaponOverrides1;
+                    if (filePath.includes("mod2")) return weaponOverrides2;
+                    if (filePath.includes("mod3")) return weaponOverrides3;
+                    return null;
+                });
+
+            const result = (overrideReader as any).readOverrides();
+
+            expect(result.overriddenWeapons["weapon1"]).toBe("type1");
+            expect(result.overriddenWeapons["weapon2"]).toBe("type5");
+            expect(result.overriddenWeapons["weapon3"]).toBe("type6");
+            expect(result.overriddenWeapons["weapon4"]).toBe("type4");
+            expect(result.overriddenWeapons["weapon6"]).toBeUndefined();
+        })
     });
 });
