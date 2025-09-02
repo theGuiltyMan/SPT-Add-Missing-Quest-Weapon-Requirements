@@ -1,7 +1,7 @@
 export enum OverrideBehaviour 
     {
-    REPLACE,
-    MERGE,
-    DELETE,
-    IGNORE
+    REPLACE = "Replace",
+    MERGE = "Merge",
+    DELETE = "Delete",
+    IGNORE = "Ignore"
 }

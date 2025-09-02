@@ -43,7 +43,7 @@ export class QuestPatcher
             // iterate through all quests
             for (const questId in this.quests) 
             {
-                this.logger.log(`Patching quest ${questId}`);
+                this.logger.log(`Started Patching quest ${questId}`);
                 const quest = this.quests[questId];
 
                 // iterate through all conditions
@@ -73,7 +73,7 @@ export class QuestPatcher
                                 continue;
                             }
 
-                            this.logger.logDebug(`Patching quest ${questId} - Condition: ${condition.id}`);
+                            this.logger.log(`Patching quest ${questId} - Condition: ${condition.id}`);
 
                             const doForWeaponOrType = (id: string, func: (id: string) => void): void => 
                             {

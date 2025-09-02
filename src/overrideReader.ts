@@ -30,14 +30,25 @@ export class OverrideReader
     {
         childContainer.registerInstance<OverridedSettings>("OverridedSettings", this.readOverrides());
     }
+
+    private toOverrideBehaviour(behaviour: string | OverrideBehaviour): OverrideBehaviour 
+    {
+        if (typeof behaviour === "string") 
+        {
+            return OverrideBehaviour[behaviour.toUpperCase() as keyof typeof OverrideBehaviour];
+        }
+        return behaviour;
+    }
+
     private processOverridableArray<T>(target: T[], source: Overridable<T>[], defaultBehaviour: OverrideBehaviour) 
     {
         if (!source) return;
         source.forEach(item => 
         {
             const value = (item as any).value ?? item;
-            const behaviour = (item as any).behaviour ?? defaultBehaviour;
+            const behaviour = this.toOverrideBehaviour((item as any).behaviour ?? defaultBehaviour);
 
+            this.logger.logDebug(`Processing array item: ${value} with behaviour: ${behaviour}`);
             switch (behaviour) 
             {
                 case OverrideBehaviour.IGNORE:
@@ -47,6 +58,7 @@ export class OverrideReader
                 case OverrideBehaviour.MERGE:
                 case OverrideBehaviour.REPLACE:
                     pushIfNotExists(target, value);
+                    this.logger.logDebug(`Added ${value} to array`);
                     break;
                 case OverrideBehaviour.DELETE: {
                     const index = target.indexOf(value);
@@ -68,7 +80,7 @@ export class OverrideReader
         {
             const item = source[key];
             const value = (item as any).value ?? item;
-            const behaviour = (item as any).behaviour ?? defaultBehaviour;
+            const behaviour = this.toOverrideBehaviour((item as any).behaviour ?? defaultBehaviour);
 
             switch (behaviour) 
             {
@@ -102,13 +114,16 @@ export class OverrideReader
                 try 
                 {
                     const questOverridesData = tryReadJson<IQuestOverrides>(path.join(modDir, "MissingQuestWeapons"), "QuestOverrides", this.logger);
+                    this.logger.logDebug("Read questOverridesData file:")
+                    this.logger.logDebug(questOverridesData);
                     if (questOverridesData) 
                     {
-                        const defaultOverrideBehaviour = questOverridesData.OverrideBehaviour ?? OverrideBehaviour.IGNORE;
+                        const defaultOverrideBehaviour = this.toOverrideBehaviour(questOverridesData.OverrideBehaviour ?? OverrideBehaviour.IGNORE);
+                        this.logger.logDebug(`Default OverrideBehaviour: ${defaultOverrideBehaviour}`);
                         questOverridesData.Overrides.forEach((v) => 
                         {
                             this.logger.log(`Processing quest override: ${v.id} ${v.conditions?.length ? `with conditions ${v.conditions.join(", ")}` : ""}`);
-                            const overrideBehaviour = v.OverrideBehaviour ?? defaultOverrideBehaviour;
+                            const overrideBehaviour = this.toOverrideBehaviour(v.OverrideBehaviour ?? defaultOverrideBehaviour);
                             let hasOverrides = overridedSettings.questOverrides[v.id] !== undefined && overridedSettings.questOverrides[v.id].length > 0;
 
                             const existingOverrides: IQuestOverride[] = [];
@@ -347,9 +362,12 @@ export class OverrideReader
                 try 
                 {
                     const overriddenWeaponsData = tryReadJson<IOverriddenWeapons>(path.join(modDir, "MissingQuestWeapons"), "OverriddenWeapons", this.logger);
+                    this.logger.logDebug("Read overriddenWeaponsData file:")
+                    this.logger.logDebug(overriddenWeaponsData);
                     if (overriddenWeaponsData) 
                     {
-                        const defaultBehaviour = overriddenWeaponsData.OverrideBehaviour ?? OverrideBehaviour.IGNORE;
+                        const defaultBehaviour = this.toOverrideBehaviour(overriddenWeaponsData.OverrideBehaviour ?? OverrideBehaviour.IGNORE);
+                        this.logger.logDebug(`Default OverrideBehaviour: ${defaultBehaviour}`);
                         if (overriddenWeaponsData.Override) 
                         {
                             this.logger.logDebug("Processing overridden weapons");
@@ -419,7 +437,7 @@ export class OverrideReader
                             for (const item of overriddenWeaponsData.CustomCategories) 
                             {
                                 const customCategory: IWeaponCategory = (item as any).value ?? item;
-                                const behaviour = (item as any).behaviour ?? defaultBehaviour;
+                                const behaviour = this.toOverrideBehaviour((item as any).behaviour ?? defaultBehaviour);
                                 if (behaviour === OverrideBehaviour.DELETE) 
                                 {
                                     if (overridedSettings.customCategories[customCategory.name]) 
