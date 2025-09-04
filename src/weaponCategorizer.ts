@@ -266,6 +266,26 @@ export  class WeaponCategorizer
                         continue;
                     }
 
+
+                    if (customCategory?.blackListedCalibres?.length > 0)
+                    {
+                        if (item._props.ammoCaliber && customCategory.blackListedCalibres.includes(item._props.ammoCaliber))
+                        {
+                            this.logger.logDebug(`Skipping ${item._id} from ${customCategory.name}. Found in blacklisted calibres.`);
+                            continue;
+                        }
+                    }
+
+                    if (customCategory?.blackListedWeaponTypes?.length > 0)
+                    {
+                        const weapClass = this.getWeapClass(item);
+                        if (weapClass && customCategory.blackListedWeaponTypes.includes(weapClass))
+                        {
+                            this.logger.logDebug(`Skipping ${item._id} from ${customCategory.name}. Found in blacklisted weapon types.`);
+                            continue;
+                        }
+                    }
+
                     if (customCategory?.blackListedKeywords?.length > 0)
                     {
                         if (matches(item, Array.from(customCategory.blackListedKeywords), customCategory.alsoCheckDescription))
@@ -289,6 +309,16 @@ export  class WeaponCategorizer
                         if (!item._props.ammoCaliber || !customCategory.allowedCalibres.includes(item._props.ammoCaliber))
                         {
                             this.logger.logDebug(`Skipping ${item._id} from ${customCategory.name}. Not found in allowed calibres.`);
+                            continue;
+                        }
+                    }
+
+                    if (customCategory?.weaponTypes?.length > 0)
+                    {
+                        const weapClass = this.getWeapClass(item);
+                        if (!weapClass || !customCategory.weaponTypes.includes(weapClass))
+                        {
+                            this.logger.logDebug(`Skipping ${item._id} from ${customCategory.name}. Not found in allowed weapon types.`);
                             continue;
                         }
                     }

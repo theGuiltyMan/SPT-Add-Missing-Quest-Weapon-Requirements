@@ -462,7 +462,10 @@ export class OverrideReader
                                         whiteListedKeywords: [],
                                         blackListedKeywords: [],
                                         allowedCalibres: [],
-                                        alsoCheckDescription: false
+                                        blackListedCalibres: [],
+                                        alsoCheckDescription: false,
+                                        weaponTypes: [],
+                                        blackListedWeaponTypes: []
                                     };
                                 }
 
@@ -483,6 +486,9 @@ export class OverrideReader
                                     category.blackListedKeywords = customCategory.blackListedKeywords ?? [];
                                     category.allowedCalibres = customCategory.allowedCalibres ?? [];
                                     category.alsoCheckDescription = customCategory.alsoCheckDescription || false;
+                                    category.blackListedCalibres = customCategory.blackListedCalibres ?? [];
+                                    category.weaponTypes = customCategory.weaponTypes ?? [];
+                                    category.blackListedWeaponTypes = customCategory.blackListedWeaponTypes ?? [];
                                 }
                                 else // MERGE
                                 {
@@ -496,40 +502,25 @@ export class OverrideReader
                                     {
                                         this.logger.logDebug(`Adding new custom category: ${customCategory.name}`);
                                     }
-                                    if (customCategory.ids) 
+
+                                    const addIfNotExists = (target: string[], source: string[] | undefined) =>
                                     {
-                                        for (const id of customCategory.ids) 
+                                        if (!source) return;
+                                        for (const id of source) 
                                         {
-                                            pushIfNotExists(category.ids, id);
+                                            pushIfNotExists(target, id);
                                         }
                                     }
+                                    addIfNotExists(category.ids, customCategory.ids);
+                                    addIfNotExists(category.whiteListedKeywords, customCategory.whiteListedKeywords);
+                                    addIfNotExists(category.blackListedKeywords, customCategory.blackListedKeywords);
+                                    addIfNotExists(category.allowedCalibres, customCategory.allowedCalibres);
+                                    addIfNotExists(category.blackListedCalibres, customCategory.blackListedCalibres);
+                                    addIfNotExists(category.weaponTypes, customCategory.weaponTypes);
+                                    addIfNotExists(category.blackListedWeaponTypes, customCategory.blackListedWeaponTypes);
 
-                                    if (customCategory.whiteListedKeywords) 
-                                    {
-                                        for (const id of customCategory.whiteListedKeywords) 
-                                        {
-                                            pushIfNotExists(category.whiteListedKeywords, id);
-                                        }
-                                    }
 
-                                    if (customCategory.blackListedKeywords) 
-                                    {
-                                        for (const id of customCategory.blackListedKeywords) 
-                                        {
-                                            pushIfNotExists(category.blackListedKeywords, id);
-
-                                        }
-                                    }
-
-                                    if (customCategory.allowedCalibres) 
-                                    {
-                                        for (const id of customCategory.allowedCalibres) 
-                                        {
-                                            pushIfNotExists(category.allowedCalibres, id);
-                                        }
-                                    }
-
-                                    customCategory.alsoCheckDescription ||= category.alsoCheckDescription;
+                                    category.alsoCheckDescription ||= customCategory.alsoCheckDescription;
                                     // this.logger.logDebug("Merged category:");
                                     // this.logger.logDebug(category);
                                 }
@@ -558,6 +549,19 @@ export class OverrideReader
             {
                 this.logger.log(`Removing ${id} from canBeUsedAsShortNameWhitelist because it is also in canBeUsedAsShortNameBlackList`);
                 overridedSettings.canBeUsedAsShortNameWhitelist.splice(index, 1);
+            }
+        }
+
+        for (const key in overridedSettings.customCategories)
+        {
+            const category = overridedSettings.customCategories[key];
+            if (category.allowedCalibres && category.blackListedCalibres) 
+            {
+                category.allowedCalibres = category.allowedCalibres.filter(c => !category.blackListedCalibres?.includes(c));
+            }
+            if (category.weaponTypes && category.blackListedWeaponTypes) 
+            {
+                category.weaponTypes = category.weaponTypes.filter(c => !category.blackListedWeaponTypes?.includes(c));
             }
         }
         
