@@ -61,7 +61,7 @@ This file allows you to manually adjust how weapons are categorized. You can pla
     ],
     // Weapon short names to exclude from the alias-finding logic.
     "CanBeUsedAsShortNameBlacklist" : [],
-    // Define completely new weapon categories based on keywords, calibers, and item IDs.
+    // Define completely new weapon categories based on keywords, calibers, weapon types, and item IDs.
     "CustomCategories": [
         {
             "name": "AKM",
@@ -73,6 +73,11 @@ This file allows you to manually adjust how weapons are categorized. You can pla
             "allowedCalibres": [
                 "Caliber762x39"
             ],
+            "blackListedCalibres": [],
+            "weaponTypes": [
+                "AssaultRifle"
+            ],
+            "blackListedWeaponTypes": [],
             "alsoCheckDescription": false
         }
     ]

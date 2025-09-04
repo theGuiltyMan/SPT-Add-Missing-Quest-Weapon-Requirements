@@ -452,6 +452,57 @@ describe("OverrideReader", () =>
             expect(result.customCategories["custom_cat"].blackListedKeywords).toEqual(["keyword2"]);
         });
 
+        it("should handle MERGE override behaviour for custom categories", () => 
+        {
+            (mockVfs.getDirectories as jest.Mock).mockReturnValue(["mod1", "mod2"]);
+            (mockVfs.exists as jest.Mock).mockReturnValue(true);
+
+            const weaponOverrides1: IOverriddenWeapons = {
+                CustomCategories: [{
+                    name: "custom_cat",
+                    ids: ["weapon1"],
+                    whiteListedKeywords: ["keyword1"],
+                    allowedCalibres: ["calibre1"],
+                    weaponTypes: ["type1"]
+                }],
+                Override: {}, CanBeUsedAs: {}, CanBeUsedAsShortNameBlacklist: [], CanBeUsedAsShortNameWhitelist: []
+            };
+            const weaponOverrides2: IOverriddenWeapons = {
+                OverrideBehaviour: OverrideBehaviour.MERGE,
+                CustomCategories: [{
+                    name: "custom_cat",
+                    ids: ["weapon2"],
+                    blackListedKeywords: ["keyword2"],
+                    blackListedCalibres: ["calibre2"],
+                    blackListedWeaponTypes: ["type2"],
+                    alsoCheckDescription: true
+                }],
+                Override: {}, CanBeUsedAs: {}, CanBeUsedAsShortNameBlacklist: [], CanBeUsedAsShortNameWhitelist: []
+            };
+
+            jest.spyOn(jsonHelper, "tryReadJson")
+                .mockImplementation((filePath, fileName) => 
+                {
+                    if (fileName !== "OverriddenWeapons") return null;
+                    if (filePath.includes("mod1")) return weaponOverrides1;
+                    if (filePath.includes("mod2")) return weaponOverrides2;
+                    return null;
+                });
+
+            const result = (overrideReader as any).readOverrides() as OverridedSettings;
+
+            expect(result.customCategories["custom_cat"]).toBeDefined();
+            const category = result.customCategories["custom_cat"];
+            expect(category.ids).toEqual(["weapon1", "weapon2"]);
+            expect(category.whiteListedKeywords).toEqual(["keyword1"]);
+            expect(category.blackListedKeywords).toEqual(["keyword2"]);
+            expect(category.allowedCalibres).toEqual(["calibre1"]); // it will be filtered later
+            expect(category.blackListedCalibres).toEqual(["calibre2"]);
+            expect(category.weaponTypes).toEqual(["type1"]); // it will be filtered later
+            expect(category.blackListedWeaponTypes).toEqual(["type2"]);
+            expect(category.alsoCheckDescription).toBe(true);
+        });
+
         it("should handle different override behaviours for CanBeUsedAs", () => 
         {
             (mockVfs.getDirectories as jest.Mock).mockReturnValue(["mod1", "mod2", "mod3"]);

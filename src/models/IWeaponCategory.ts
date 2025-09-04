@@ -5,5 +5,8 @@ export interface IWeaponCategory
     alsoCheckDescription? : boolean, // if true, the description of the weapon will be checked for keywords
     whiteListedKeywords? : string[], // regex. required keywords for the weapon to be considered as this category, if empty skipped
     blackListedKeywords? : string[], // regex. if any of these keywords are found, the weapon will not be considered as this category, if empty skipped
-    allowedCalibres?: string[] // only weapons with these calibres will be considered as this category, if empty skipped
+    allowedCalibres?: string[], // only weapons with these calibres will be considered as this category, if empty skipped
+    blackListedCalibres?: string[], // weapons with these calibres will not be considered as this category, if empty skipped
+    weaponTypes?: string[], // only weapons with these weapon types will be considered as this category, if empty skipped
+    blackListedWeaponTypes?: string[], // weapons with these weapon types will not be considered as this category, if empty skipped
 }

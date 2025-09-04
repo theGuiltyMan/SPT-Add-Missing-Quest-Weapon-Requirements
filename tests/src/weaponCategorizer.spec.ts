@@ -24,12 +24,16 @@ const mockItems: Record<string, ITemplateItem> = {
     "m4a1": { _id: "m4a1", _name: "m4a1", _parent: "5447b54c4bdc2d16278b4567", _props: {}, _type: "Item" as _ItemType },
     "m4a1_fde": { _id: "m4a1_fde", _name: "m4a1_fde", _parent: "5447b54c4bdc2d16278b4567", _props: {}, _type: "Item" as _ItemType },
     "blacklisted_item": { _id: "blacklisted_item", _name: "blacklisted_item", _parent: "5447b5694bdc2d6f028b4567", _props: {}, _type: "Item" as _ItemType },
+    "weapon_9mm": { _id: "weapon_9mm", _name: "weapon_9mm", _parent: "5447b5694bdc2d6f028b4567", _props: { ammoCaliber: "Caliber9x19" }, _type: "Item" as _ItemType },
+    "weapon_45acp": { _id: "weapon_45acp", _name: "weapon_45acp", _parent: "5447b5694bdc2d6f028b4567", _props: { ammoCaliber: "Caliber1143x23ACP" }, _type: "Item" as _ItemType },
+    "smg_mp5": { _id: "smg_mp5", _name: "smg_mp5", _parent: "5447b58d4bdc2d04278b4567", _props: {}, _type: "Item" as _ItemType },
 
     // Hierarchy
     "5447b5694bdc2d6f028b4567": { _id: "5447b5694bdc2d6f028b4567", _name: "Pistol", _parent: "5447b5004bdc2d65028b4567", _props: {}, _type: "Item" as _ItemType },
     "5447b6094bdc2d87028b4567": { _id: "5447b6094bdc2d87028b4567", _name: "Shotgun", _parent: "5447b5004bdc2d65028b4567", _props: {}, _type: "Item" as _ItemType },
     "5447b5f14bdc2d61278b4567": { _id: "5447b5f14bdc2d61278b4567", _name: "SniperRifle", _parent: "5447b5004bdc2d65028b4567", _props: {}, _type: "Item" as _ItemType },
     "5447b54c4bdc2d16278b4567": { _id: "5447b54c4bdc2d16278b4567", _name: "AssaultRifle", _parent: "5447b5004bdc2d65028b4567", _props: {}, _type: "Item" as _ItemType },
+    "5447b58d4bdc2d04278b4567": { _id: "5447b58d4bdc2d04278b4567", _name: "Smg", _parent: "5447b5004bdc2d65028b4567", _props: {}, _type: "Item" as _ItemType },
     "5447b5004bdc2d65028b4567": { _id: "5447b5004bdc2d65028b4567", _name: "Weapon", _parent: "57864a66245977548f04a81f", _props: {}, _type: "Item" as _ItemType },
     "57864a66245977548f04a81f": { _id: "57864a66245977548f04a81f", _name: "Item", _parent: "", _props: {}, _type: "Item" as _ItemType }
 };
@@ -147,6 +151,35 @@ describe("WeaponCategorizer", () =>
         weaponCategorizer.run(mockDependencyContainer);
         const weaponToType = getWeaponToType();
         expect(weaponToType["blacklisted_item"]).toBeUndefined();
+    });
+
+    it("should handle custom categories with blacklisted calibres and weapon types", () => 
+    {
+        mockOverridedSettings.customCategories["FilteredGuns"] = {
+            name: "FilteredGuns",
+            blackListedCalibres: ["Caliber9x19"],
+            blackListedWeaponTypes: ["Smg"]
+        };
+        weaponCategorizer.run(mockDependencyContainer);
+        const weaponTypes = getWeaponTypes();
+        expect(weaponTypes["FilteredGuns"]).toBeDefined();
+        expect(weaponTypes["FilteredGuns"]).not.toContain("weapon_9mm"); // blacklisted calibre
+        expect(weaponTypes["FilteredGuns"]).not.toContain("smg_mp5"); // blacklisted weapon type
+        expect(weaponTypes["FilteredGuns"]).toContain("weapon_45acp"); // should be included
+    });
+
+    it("should handle custom categories with whitelisted weapon types", () => 
+    {
+        mockOverridedSettings.customCategories["OnlyPistols"] = {
+            name: "OnlyPistols",
+            weaponTypes: ["Pistol"]
+        };
+        weaponCategorizer.run(mockDependencyContainer);
+        const weaponTypes = getWeaponTypes();
+        expect(weaponTypes["OnlyPistols"]).toBeDefined();
+        expect(weaponTypes["OnlyPistols"]).toContain("pistol_pm");
+        expect(weaponTypes["OnlyPistols"]).toContain("revolver_rhino");
+        expect(weaponTypes["OnlyPistols"]).not.toContain("smg_mp5");
     });
 
     it("should register WeaponTypes and WeaponToType in the container", () => 
