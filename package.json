@@ -17,6 +17,9 @@
         "buildinfo": "node ./build.mjs --verbose",
         "test": "jest"
     },
+    "overrides": {
+        "handlebars": "^4.7.9"
+    },
     "devDependencies": {
         "@types/jest": "^29.5.12",
         "@types/node": "20.11",

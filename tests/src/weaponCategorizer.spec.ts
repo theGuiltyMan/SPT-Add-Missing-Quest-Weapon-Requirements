@@ -153,8 +153,10 @@ describe("WeaponCategorizer", () =>
         expect(weaponToType["blacklisted_item"]).toBeUndefined();
     });
 
-    it("should handle custom categories with blacklisted calibres and weapon types", () => 
+    it("should handle custom categories with blacklisted calibres and weapon types", () =>
     {
+        // A category with no inclusion criteria but with exclusions matches all weapons
+        // except those filtered out by the blacklists.
         mockOverridedSettings.customCategories["FilteredGuns"] = {
             name: "FilteredGuns",
             blackListedCalibres: ["Caliber9x19"],
@@ -165,7 +167,9 @@ describe("WeaponCategorizer", () =>
         expect(weaponTypes["FilteredGuns"]).toBeDefined();
         expect(weaponTypes["FilteredGuns"]).not.toContain("weapon_9mm"); // blacklisted calibre
         expect(weaponTypes["FilteredGuns"]).not.toContain("smg_mp5"); // blacklisted weapon type
-        expect(weaponTypes["FilteredGuns"]).toContain("weapon_45acp"); // should be included
+        expect(weaponTypes["FilteredGuns"]).toContain("weapon_45acp"); // pistol, non-blacklisted calibre — included
+        expect(weaponTypes["FilteredGuns"]).toContain("pistol_pm"); // pistol, no calibre set — included
+        expect(weaponTypes["FilteredGuns"]).toContain("m4a1"); // assault rifle — included
     });
 
     it("should handle custom categories with whitelisted weapon types", () => 

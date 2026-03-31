@@ -8,7 +8,7 @@ import { IOverriddenWeapons } from "../../src/models/IOverriddenWeapons";
 import { OverrideBehaviour } from "../../src/models/OverrideBehaviour";
 import * as jsonHelper from "../../src/util/jsonHelper";
 import { DependencyContainer } from "tsyringe";
-import { describe, it, expect } from "@jest/globals"
+import { describe, it, expect, beforeEach, jest } from "@jest/globals"
 import path from "path";
 
 // Mock dependencies
@@ -34,13 +34,10 @@ describe("OverrideReader", () =>
     let overrideReader: OverrideReader;
     let container: DependencyContainer;
 
-    beforeEach(() => 
+    beforeEach(() =>
     {
         jest.clearAllMocks();
         overrideReader = new OverrideReader(mockLogger as any, mockVfs, modDir);
-
-        // a bit of a hack to get access to the private method
-        (overrideReader as any).readOverrides = overrideReader["readOverrides"].bind(overrideReader);
 
         container = {
             registerInstance: jest.fn()

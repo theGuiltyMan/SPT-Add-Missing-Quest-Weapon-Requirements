@@ -340,9 +340,12 @@ export  class WeaponCategorizer
                 this.logger.error(`Error processing custom category ${k}: ${e}`);
             }
         }
-        // process can be used as once more 
+        // process can be used as once more
+        // Forward iteration with dynamic length ensures: (1) newly created alias keys are also
+        // visited as sources, and (2) transitive chains are resolved — when A→B is processed
+        // and later B→C is processed, A's list gets C because B's list already contains A.
 
-        for (let i = Object.keys(this.overridedSettings.canBeUsedAs).length -1; i >=0 ; --i) 
+        for (let i = 0; i < Object.keys(this.overridedSettings.canBeUsedAs).length; ++i)
         {
             const key = Object.keys(this.overridedSettings.canBeUsedAs)[i];
             const value = this.overridedSettings.canBeUsedAs[key];

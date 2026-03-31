@@ -8,8 +8,8 @@ import { JsonUtil } from "@spt/utils/JsonUtil";
 import { IQuest, IQuestCondition } from "@spt/models/eft/common/tables/IQuest";
 import { describe, it, expect, beforeEach, jest } from "@jest/globals";
 
-const createWeaponCondition = (weapons: string[]): IQuestCondition => ({
-    id: "weapon_cond_id",
+const createWeaponCondition = (weapons: string[], id = "weapon_cond_id"): IQuestCondition => ({
+    id,
     counter: {
         id: "counter_id",
         conditions: [
@@ -19,7 +19,7 @@ const createWeaponCondition = (weapons: string[]): IQuestCondition => ({
             }
         ]
     }
-    
+
     // other properties
 } as unknown as IQuestCondition);
 
@@ -180,7 +180,7 @@ describe("QuestPatcher", () =>
         expect(patchedWeapons).toContain("whitelisted_gun");
     });
 
-    it("should skip a quest if blacklisted", () => 
+    it("should skip all conditions in a quest if the quest override is blacklisted", () =>
     {
         mockQuests["quest_1"] = {
             _id: "quest_1",
@@ -196,11 +196,14 @@ describe("QuestPatcher", () =>
         expect(mockLogger.logDebug).toHaveBeenCalledWith(expect.stringContaining("Skipping"));
     });
 
-    it("should only use whitelisted weapons if 'onlyUseWhiteListedWeapons' is true", () => 
+    it("should only use whitelisted weapons if 'onlyUseWhiteListedWeapons' is true", () =>
     {
+        // Two weapons: without the flag the patcher would expand to all AssaultRifles.
+        // With onlyUseWhiteListedWeapons: true, expansion is suppressed and only the
+        // whitelisted weapons are added on top of the originals.
         mockQuests["quest_1"] = {
             _id: "quest_1",
-            conditions: { AvailableForStart: [createWeaponCondition(["pistol_pm"])] }
+            conditions: { AvailableForStart: [createWeaponCondition(["m4a1", "ak74"])] }
         } as IQuest;
         mockOverridedSettings.questOverrides["quest_1"] = [{
             id: "quest_1",
@@ -211,7 +214,13 @@ describe("QuestPatcher", () =>
         questPatcher.run();
 
         const patchedWeapons = mockQuests["quest_1"].conditions.AvailableForStart[0].counter.conditions[0].weapon;
-        expect(patchedWeapons).toEqual(["pistol_pm", "god_gun_1", "god_gun_2"]); // original weapons are kept
+        // Original weapons are kept, whitelisted weapons are added, but no type-based expansion occurs
+        expect(patchedWeapons).toContain("m4a1");
+        expect(patchedWeapons).toContain("ak74");
+        expect(patchedWeapons).toContain("god_gun_1");
+        expect(patchedWeapons).toContain("god_gun_2");
+        // Should NOT have expanded to other AssaultRifles beyond what was already present
+        expect(patchedWeapons).toHaveLength(4);
     });
 
     it("should handle weapons not found in the database gracefully", () => 
