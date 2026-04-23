@@ -1,0 +1,829 @@
+{
+  "version": 2,
+  "overrideBehaviour": 0,
+  "excludedQuests": [
+    "5c1234c286f77406fa13baeb",
+    "666314b2a9290f9e0806cca3",
+    "666314bafd5ca9577902e03a",
+    "669fa3a40c828825de06d6a1",
+    "671ac68e30609eb2c7e9a7f7",
+    "6747c1e4c6f655f7863b727f",
+    "6748672b895a36c99e880f36",
+    "6748694525ed5b74088bbd08",
+    "67486b07a069ed3f4df34b7d",
+    "67487d3a9466f36422ede295",
+    "67487dc889b8109c6f95d7f7",
+    "67487fe101b59cd5f24454fb",
+    "6762474161ffeb3c022b9b69",
+    "6762566a03b27f2d68c35ddf",
+    "67625a4c9ac37a06ed638698",
+    "6769e31511a1075e8bfc97b7",
+    "6769f36baded384a687d97a1",
+    "6769f51c43d1569d59e3c397",
+    "6769f68fa4eb1eafdf31d38c",
+    "676afe70fdedf195aaaccf56",
+    "677eed2aa7eeba8a46e225c3",
+    "677fdcd382e30db2828dee1f",
+    "67d7ffac0a45f6fea894beb7",
+    "67d814b8a9bc0824cc494f15",
+    "67d81b808092a563867db4d4",
+    "68a3179c948da416d15ba726",
+    "68a3250cfa963fc4257282c9",
+    "68a3251e545f5a09d4d6000b",
+    "68a3252fd029cf07bf9561d2",
+    "68a32567cf5a19b50bd7d72e",
+    "68a3257525fac53439e9a7b3",
+    "68a32583e08103bac7759f5c",
+    "68a32591c51bdf186d33dad2",
+    "68a325a301d14e90ad47c1d8",
+    "68b08a981f4236176e8f0fed",
+    "68b77b59f8362d35febb3c48",
+    "68b8520b2a60bcf0690ecb1e",
+    "Ammo_Proficiency_54527a984bdc2d4e668b4567_Trade",
+    "Ammo_Proficiency_54527ac44bdc2d36668b4567_Trade",
+    "Ammo_Proficiency_560d5e524bdc2d25448b4571_Trade",
+    "Ammo_Proficiency_560d61e84bdc2da74d8b4571_Trade",
+    "Ammo_Proficiency_5656d7c34bdc2d9d198b4587_Trade",
+    "Ammo_Proficiency_573718ba2459775a75491131_Trade",
+    "Ammo_Proficiency_573719762459775a626ccbc1_Trade",
+    "Ammo_Proficiency_573719df2459775a626ccbc2_Trade",
+    "Ammo_Proficiency_57371aab2459775a77142f22_Trade",
+    "Ammo_Proficiency_57371b192459775a9f58a5e0_Trade",
+    "Ammo_Proficiency_57371e4124597760ff7b25f1_Trade",
+    "Ammo_Proficiency_57371eb62459776125652ac1_Trade",
+    "Ammo_Proficiency_57371f2b24597761224311f1_Trade",
+    "Ammo_Proficiency_57371f8d24597761006c6a81_Trade",
+    "Ammo_Proficiency_5737201124597760fc4431f1_Trade",
+    "Ammo_Proficiency_5737207f24597760ff7b25f2_Trade",
+    "Ammo_Proficiency_573720e02459776143012541_Trade",
+    "Ammo_Proficiency_57372140245977611f70ee91_Trade",
+    "Ammo_Proficiency_5737218f245977612125ba51_Trade",
+    "Ammo_Proficiency_57a0dfb82459774d3078b56c_Trade",
+    "Ammo_Proficiency_57a0e5022459774d1673f889_Trade",
+    "Ammo_Proficiency_58820d1224597753c90aeb13_Trade",
+    "Ammo_Proficiency_5887431f2459777e1612938f_Trade",
+    "Ammo_Proficiency_59e0d99486f7744a32234762_Trade",
+    "Ammo_Proficiency_59e4cf5286f7741778269d8a_Trade",
+    "Ammo_Proficiency_59e4d24686f7741776641ac7_Trade",
+    "Ammo_Proficiency_59e4d3d286f774176a36250a_Trade",
+    "Ammo_Proficiency_59e68f6f86f7746c9f75e846_Trade",
+    "Ammo_Proficiency_59e6906286f7746c9f75e847_Trade",
+    "Ammo_Proficiency_59e690b686f7746c9f75e848_Trade",
+    "Ammo_Proficiency_59e6918f86f7746c9f75e849_Trade",
+    "Ammo_Proficiency_59e6920f86f77411d82aa167_Trade",
+    "Ammo_Proficiency_59e6927d86f77411da468256_Trade",
+    "Ammo_Proficiency_59e77a2386f7742ee578960a_Trade",
+    "Ammo_Proficiency_5c0d591486f7744c505b416f_Trade",
+    "Ammo_Proficiency_5c0d5ae286f7741e46554302_Trade",
+    "Ammo_Proficiency_5c0d668f86f7747ccb7f13b2_Trade",
+    "Ammo_Proficiency_5c0d688c86f77413ae3407b2_Trade",
+    "Ammo_Proficiency_5d6e6772a4b936088465b17c_Trade",
+    "Ammo_Proficiency_5d6e67fba4b9361bc73bc779_Trade",
+    "Ammo_Proficiency_5d6e6806a4b936088465b17e_Trade",
+    "Ammo_Proficiency_5d6e6869a4b9361c140bcfde_Trade",
+    "Ammo_Proficiency_5d6e6891a4b9361bd473feea_Trade",
+    "Ammo_Proficiency_5d6e689ca4b9361bc8618956_Trade",
+    "Ammo_Proficiency_5d6e68a8a4b9360b6c0d54e2_Trade",
+    "Ammo_Proficiency_5d6e68b3a4b9361bca7e50b5_Trade",
+    "Ammo_Proficiency_5d6e68c4a4b9361b93413f79_Trade",
+    "Ammo_Proficiency_5d6e68d1a4b93622fe60e845_Trade",
+    "Ammo_Proficiency_5d6e68dea4b9361bcc29e659_Trade",
+    "Ammo_Proficiency_5d6e68e6a4b9361c140bcfe0_Trade",
+    "Ammo_Proficiency_5d6e6911a4b9361bd5780d52_Trade",
+    "Ammo_Proficiency_5e023cf8186a883be655e54f_Trade",
+    "Ammo_Proficiency_5e023d34e8a400319a28ed44_Trade",
+    "Ammo_Proficiency_5e023d48186a883be655e551_Trade",
+    "Ammo_Proficiency_60194943740c5d77f6705eea_Trade",
+    "Ammo_Proficiency_601949593ae8f707c4608daa_Trade",
+    "Ammo_Proficiency_601aa3d2b2bcb34913271e6d_Trade",
+    "Ammo_Proficiency_61962d879bb3d20b0946d385_Trade",
+    "double_agent_19_fence"
+  ],
+  // Mod-group overrides (A3). Mod groups use intra-group AND, cross-group OR:
+  //   "modsExpansionMode": "Auto" | "WhitelistOnly" | "NoExpansion"
+  //     Auto           — singleton groups expand via type + aliases into new singleton
+  //                      groups; multi-item groups kept verbatim (AND-bundles preserved).
+  //     WhitelistOnly  — original field discarded; rebuilt as singleton groups from
+  //                      includedMods alone.
+  //     NoExpansion    — original groups kept verbatim; includedMods still appended.
+  //   "includedMods":  ["attachmentId", "TypeName", ...]  appended as new singleton
+  //                                                       groups (type names expand
+  //                                                       to one singleton per member).
+  //   "excludedMods":  ["attachmentId", "TypeName", ...]  applied last:
+  //                      bare id    → drops any output group containing the id;
+  //                      type name  → drops only groups whose members are entirely
+  //                                   within that type (mixed bundles kept).
+  "overrides": [
+    {
+      "id": "59ca2eb686f77445a80ed049",
+      "expansionMode": 2,
+      "conditions": [],
+      "includedWeapons": [
+        "SVD"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "5a27bb8386f7741c770d2d0a",
+      "expansionMode": 2,
+      "conditions": [],
+      "includedWeapons": [
+        "AR-15"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "668caeedbdb70c05d702f1fc",
+      "expansionMode": 0,
+      "conditions": [
+        "668caeedbdb70c05d702f200",
+        "668caeedbdb70c05d702f203",
+        "668caeedbdb70c05d702f206",
+        "668caeedbdb70c05d702f209",
+        "668caeedbdb70c05d702f20c",
+        "668caeedbdb70c05d702f20f"
+      ],
+      "includedWeapons": [
+        "AssaultCarbine",
+        "AssaultRifle",
+        "MachineGun",
+        "MarksmanRifle",
+        "Shotgun",
+        "Smg"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "677fdcdc374fd42fac57454e",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "AK"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "677fdcdca4df7500db1c7eb6",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "AKS-74U"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "677fdce0d063b4d3a555643e",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "mosin"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "66c8b497a756f800b530a071",
+      "expansionMode": 1,
+      "conditions": [
+        "66c8b8148a5ca21e986773c7"
+      ],
+      "includedWeapons": [
+        "BoltActionSniperRifle"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "67ea813bd8d2dc676746f53e",
+      "expansionMode": 0,
+      "conditions": [],
+      "includedWeapons": [
+        "BoltActionSniperRifle",
+        "SniperRifle"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "676acb5bc60f9d06283a2234",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "AKM"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "674758ea142f52a016ecd92d",
+      "expansionMode": 0,
+      "conditions": [],
+      "includedWeapons": [
+        "AK"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "6747b568ffb78dbbb8a7968d",
+      "expansionMode": 0,
+      "conditions": [],
+      "includedWeapons": [
+        "HK"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "6747b6d1b00b3bfcb6b02f94",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "SR-25_like"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "67966e33a1a7e9077af54709",
+      "expansionMode": 0,
+      "conditions": [],
+      "includedWeapons": [
+        "cal_9x39"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "66c3ccf91d8e4df0710ee395",
+      "expansionMode": 1,
+      "conditions": [
+        "66c3ccf9df6f8b969eb31400",
+        "66c3ccf965bd6fffa7cad7ec"
+      ],
+      "includedWeapons": [
+        "smg_9x19PARA",
+        "12ga"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "66c3fa32b966223ebb542e27",
+      "expansionMode": 0,
+      "conditions": [],
+      "includedWeapons": [
+        "MarksmanRifle"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "66c404ba2bd9c56b380a89d7",
+      "expansionMode": 0,
+      "conditions": [
+        "66c404ba5cbd8135838bba10",
+        "66c404ba8eaf6d1c3fb36ef6",
+        "66c404ba4b9d5eb6d35fb944"
+      ],
+      "includedWeapons": [
+        "MarksmanRifle",
+        "BoltActionSniperRifle",
+        "BA_MR_762x54R"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "66c40852e32a65ddf98e38f8",
+      "expansionMode": 1,
+      "conditions": [
+        "66c40852392c8b4f78743bc8"
+      ],
+      "includedWeapons": [
+        "BA_762x51",
+        "MR_762x51"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "66c24845a671c1a1aa170372",
+      "expansionMode": 1,
+      "conditions": [
+        "66c2488b5a88529678c23390",
+        "66c2488b00349f29537663c8"
+      ],
+      "includedWeapons": [
+        "cal_545x39",
+        "cal_762x39"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "66c249657e6d87ebf458f0bf",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "cal_366TKM"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "676ace5f69e9afec028e5221",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "20ga",
+        "cal_23x75"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "6747bfd667581ad41fc4a9de",
+      "expansionMode": 0,
+      "conditions": [],
+      "includedWeapons": [
+        "Shotgun",
+        "BoltActionSniperRifle"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "676b0de9ab6151bd15ce350e",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "AR-15"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "6747c136681e886c4f32ec2d",
+      "expansionMode": 0,
+      "conditions": [],
+      "includedWeapons": [
+        "AssaultRifle"
+      ],
+      "excludedWeapons": [
+        "russian_ar",
+        "Pistol",
+        "5bf3e0490db83400196199af"
+      ]
+    },
+    {
+      "id": "6747c182942fe0faa5478a5e",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "AK"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "6747c0991fa4b29ab5692551",
+      "expansionMode": 0,
+      "conditions": [],
+      "includedWeapons": [
+        "AK"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "674882b91e3043f208409ba5",
+      "expansionMode": 0,
+      "conditions": [],
+      "includedWeapons": [
+        "cal_338"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "67518cbcb6c904e276ea22cb",
+      "expansionMode": 0,
+      "conditions": [
+        "67518dd72d114057705a3d79",
+        "67518d7d433c688fdcb5cc17"
+      ],
+      "includedWeapons": [
+        "m700"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "67519005bdabf0213250f1dd",
+      "expansionMode": 2,
+      "conditions": [
+        "6751907449a55cff66a65832",
+        "67519170878bf4da86e5f1ad"
+      ],
+      "includedWeapons": [],
+      "excludedWeapons": []
+    },
+    {
+      "id": "675192a9ccd06a5a07e78922",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "VSS",
+        "SVD"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "67519b5f3de90180bd0768a4",
+      "expansionMode": 0,
+      "conditions": [],
+      "includedWeapons": [
+        "AKM"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "675356e57d04aa9325c82e00",
+      "expansionMode": 0,
+      "conditions": [],
+      "includedWeapons": [
+        "mcx_spear"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "67487bd534005ee5fe84e59d",
+      "expansionMode": 0,
+      "conditions": [],
+      "includedWeapons": [
+        "AssaultRifle",
+        "AssaultCarbine"
+      ],
+      "excludedWeapons": [
+        "russian_ar",
+        "Pistol",
+        "Smg",
+        "6410733d5dd49d77bd07847e",
+        "643ea5b23db6f9f57107d9fd"
+      ]
+    },
+    {
+      "id": "67487d759f790d565629d605",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "mcx_any"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "67487e1e0cccda4800c62658",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "M4A1"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "67487f06faadf7934dfd29e4",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "SR-25_like"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "67d81b374bfc36986e9e2839",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "scar_any"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "6747c36d4e805e1b7f6387b5",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "AK"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "67486b938b89470d9673a492",
+      "expansionMode": 0,
+      "conditions": [],
+      "includedWeapons": [
+        "BoltActionSniperRifle",
+        "MarksmanRifle"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "67486c0582d1897605b403c5",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "cal_9x39"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "67486879604d84c3e3e3ddd0",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "AK-74"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "6748690cb0fff3f2a5ba3d47",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "AKM"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "67486a921ef237f01abfd45f",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "VSS"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "67ee61bb0084128bf23f5477",
+      "expansionMode": 0,
+      "conditions": [],
+      "includedWeapons": [
+        "AssaultRifle",
+        "AssaultCarbine",
+        "Smg",
+        "Pistol",
+        "MarksmanRifle",
+        "BoltActionSniperRifle",
+        "MachineGun",
+        "Shotgun"
+      ],
+      "excludedWeapons": [
+        "russian_ar",
+        "BA_MR_762x54R",
+        "VSS",
+        "russian_smg_pistol",
+        "russian_shotgun",
+        "russian_mg",
+        "588892092459774ac91d4b11",
+        "5df24cf80dee1b22f862e9bc",
+        "5c501a4d2e221602b412b540",
+        "5de652c31b7e3716273428be"
+      ]
+    },
+    {
+      "id": "68b1d617ec28f2ab78f9b4c8",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "AK"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68037d165a7e1349b4901c3b",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "cal_338"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a324f0e5c58491cf1cc17e",
+      "expansionMode": 2,
+      "conditions": [
+        "68a3412b17b2f3c601f6f2ce",
+        "68a3413f0ea23979f767e267",
+        "68a341148847c4bb51155b55",
+        "68a34186945a804f83e1df30"
+      ],
+      "includedWeapons": [
+        "M4A1",
+        "scar_any"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a324e08f8840a01589ddd2",
+      "expansionMode": 2,
+      "conditions": [
+        "68a341af829ce17fd07324a9",
+        "68a341dd988686e19d19d327",
+        "68a3421e50e72938f4db28bb",
+        "68a3424b80045e52876e770a",
+        "68a342832a452b16d01ffdfe",
+        "68a3429fa46a0051aa5b0a37",
+        "68a3429094965f2dafc01083"
+      ],
+      "includedWeapons": [
+        "AKM_only",
+        "AK-100_only",
+        "AK-74_only",
+        "AKS-74U",
+        "AK-12_like",
+        "Velociraptor_only"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a31c0682f6f122b650f97e",
+      "expansionMode": 2,
+      "conditions": [
+        "68a342ae0e25ca0fce80d00f",
+        "68a342bda2fb18340f7274d4",
+        "68a342cbf7211c3f7c996750",
+        "68a342d767741a2ade695b6f",
+        "68a342e099698f4ce4a88d7f",
+        "68a342eb9fd4b979b6989a90"
+      ],
+      "includedWeapons": [
+        "Mk47_only",
+        "MCX-blk_only"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a317daa4acb2d09cc8822b",
+      "expansionMode": 2,
+      "conditions": [
+        "68a3431ded2231920c38080f",
+        "68a343305229d6b7e674748d",
+        "68a3437f3efb363032ff1927",
+        "68a3433a19630a553f8e9c1a",
+        "68a34361cf00143a0c145b9f",
+        "68a34349a6ceee6b41d80f3f",
+        "68a3436f7d6e77b83de0e6b3"
+      ],
+      "includedWeapons": [
+        "Mosin",
+        "m700",
+        "AXMC",
+        "DVL-10",
+        "SV-98"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a317ca41081fb3942fd195",
+      "expansionMode": 2,
+      "conditions": [
+        "68a3439195abc61f95dc0ca1",
+        "68a3439b57c587edde1b9f61",
+        "68a343bef96edd5623bea860",
+        "68a343c7fa259490ef1c4a5c",
+        "68a343e207b44a79caa8299d",
+        "68a343a5b3ff55dbf03ac845",
+        "68a343b194ead884d843f815"
+      ],
+      "includedWeapons": [
+        "VSS",
+        "M1A",
+        "SR-25_like",
+        "SVD",
+        "HK-G28_like"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68c084031fd16ee291638622",
+      "expansionMode": 1,
+      "conditions": [
+        "68c0863a9d3578d974db2119"
+      ],
+      "includedWeapons": [
+        "cal_9x39",
+        "cal_762x35"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "6747c298d1c2a3d2091dbe7d",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "soviet"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "6747268e69275427dffb78f7",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "AK-12_like",
+        "AK-74"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "67472a63f94746bd0f99ff9e",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "AK-12_like",
+        "AK-74"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "676aca14fe90a5a838dd04c3",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "cal_762x25TT"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "5c1234c286f77406fa13baeb",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "MP-shotguns"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "5a03153686f77442d90e2171",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "12ga"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "59ca264786f77445a80ed044",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "12ga"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "5c0d4c12d09282029f539173",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "M4A1"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "666314b4d7f171c4c20226c3",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "M4A1"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "66058cb9e8e4f17985230805",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "AKS-74UB"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "64e7b9bffd30422ed03dad38",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "AssaultRifle",
+        "AssaultCarbine"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "5c0bd94186f7747a727f09b2",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "M1A"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "64f5deac39e45b527a7c4232",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "AK-12_like"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "675c1ff1a757ddd00404f0aa",
+      "expansionMode": 1,
+      "conditions": [],
+      "includedWeapons": [
+        "Velociraptor_only"
+      ],
+      "excludedWeapons": []
+    }
+  ]
+}

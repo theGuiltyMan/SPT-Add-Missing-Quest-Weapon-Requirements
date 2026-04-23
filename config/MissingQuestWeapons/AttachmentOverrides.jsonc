@@ -1,0 +1,34 @@
+{
+  "version": 2,
+  "overrideBehaviour": 0,
+
+  // Manual attachment type overrides: attachment ID → comma-separated type names.
+  // When set, auto-detection by rule chain is bypassed for that item.
+  "manualAttachmentTypeOverrides": {},
+
+  // Explicit cross-links between attachment IDs — used when two items are functionally
+  // interchangeable in quest terms but have different types or names. Most pure color
+  // variants are already linked automatically via the short-name aliasing below.
+  "canBeUsedAs": {},
+
+  // Tokens stripped from attachment locale names before short-name aliasing.
+  // Any two attachments whose names match after stripping become canBeUsedAs of each other.
+  // Comparison is whole-word, case-insensitive (see CategorizationHelper.RemoveIgnoredWords).
+  //
+  // ONLY color / finish suffix tokens go here. Model, manufacturer, interface, mechanism,
+  // and "Prototype"/"Customized" markers are intentionally excluded — those distinguish
+  // functionally different items and must not be aliased together.
+  "aliasNameStripWords": [
+    "(FDE)",
+    "(Black)",
+    "(Tan)",
+    "(Plum)",
+    "(DDC)",
+    "(Coyote)",
+    "(Grey)",
+    "(White)",
+    "(Sand)",
+    "(Khaki)",
+    "(Red)"
+  ]
+}

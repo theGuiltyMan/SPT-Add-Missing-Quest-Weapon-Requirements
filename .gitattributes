@@ -1,0 +1,6 @@
+# Normalize line endings to LF on checkin; checkout as-is on each platform
+* text=auto eol=lf
+
+# Windows batch files must stay CRLF or cmd.exe breaks them
+*.bat text eol=crlf
+*.cmd text eol=crlf

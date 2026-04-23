@@ -1,0 +1,77 @@
+# Build output
+bin/
+obj/
+out/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Rider
+.idea/
+*.sln.iml
+
+# VS / VS Code
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+coverage*/
+
+# Machine-local MSBuild settings
+local.props
+
+# SptDbExporter exported DB (generated at runtime by SPT server)
+SptDbExporter/export/
+
+# Claude Code local settings
+.claude/
+
+# Worktrees
+.worktrees/
+
+# Superpowers brainstorm sessions
+.superpowers/
+
+# IDE run configurations
+.run/
+
+# Machine-local inspector config (contains absolute paths)
+inspector-config.json
+
+# Generated reports
+inspector-report.html
+inspector-report.json
+report.html
+report.json
+report_active.json
+AddMissingQuestRequirements-debug-report.html
+AddMissingQuestRequirements-debug-report.json
+AddMissingQuestRequirements.log
+
+# Stray Windows path artifacts
+SptDbExporter/K:/
+
+# Local AI assistant state
+.auto_accept.json
+.claude-sbx.json
+
+# Local backup / scratch directories
+old_version/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

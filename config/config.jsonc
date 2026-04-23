@@ -1,0 +1,21 @@
+{
+  "version": 4,
+  "enabled": true,
+  "parentTypes": {
+    "Revolver": "Pistol",
+    "PumpActionShotgun": "Shotgun",
+    "BoltActionSniperRifle": "SniperRifle",
+    "grenade": "explosive",
+    "Launcher": "explosive",
+    "GrenadeLauncher": "explosive"
+  },
+  "excludedItems": [],
+  "excludedWeaponTypes": [],
+  "weaponLikeAncestors": ["Weapon", "Knife", "ThrowWeap", "Launcher"],
+  "includeParentCategories": true,
+  "bestCandidateExpansion": false,
+  // 0 = Strip, 1 = KeepInDb (old `keepUnknownWeapons: true` equivalent), 2 = KeepAll (conservative)
+  "unknownWeaponHandling": 2,
+  "validateOverrideIds": false,
+  "debug": false
+}

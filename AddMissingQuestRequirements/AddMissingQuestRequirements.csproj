@@ -1,0 +1,94 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>AddMissingQuestRequirements</RootNamespace>
+    <AssemblyName>AddMissingQuestRequirements</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+    <Version>1.0.0</Version>
+    <OutputPath>bin\$(Configuration)\$(ProjectName)\$(AssemblyName)\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SPTarkov.Common" Version="4.0.13" />
+    <PackageReference Include="SPTarkov.DI" Version="4.0.13" />
+    <PackageReference Include="SPTarkov.Server.Core" Version="4.0.13" />
+  </ItemGroup>
+
+  <!-- Ship the default config tree alongside the DLL. Layout on disk:
+         {modDir}/config/config.jsonc                           ← global ModConfig
+         {modDir}/MissingQuestWeapons/*.jsonc                   ← per-mod overrides
+       OverrideReader expects MissingQuestWeapons/ at the mod root (same convention
+       every other mod uses). Keeping config.jsonc under config/ avoids cluttering
+       the mod root with a dozen miscellaneous files. PreserveNewest preserves user
+       edits across rebuilds. -->
+  <ItemGroup>
+    <Content Include="..\config\config.jsonc">
+      <Link>config\config.jsonc</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\config\MissingQuestWeapons\**\*.jsonc">
+      <Link>MissingQuestWeapons\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- HTML report assets: embedded so HtmlReportWriter can build a self-contained
+       HTML file without any runtime file dependencies. Consumed by both the
+       Inspector CLI and the SPT loader's config.Debug output. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Reporting\Assets\report.js" LogicalName="AddMissingQuestRequirements.Reporting.Assets.report.js" />
+    <EmbeddedResource Include="Reporting\Assets\shell.js" LogicalName="AddMissingQuestRequirements.Reporting.Assets.shell.js" />
+  </ItemGroup>
+
+  <!--
+    Deploy to SPT mods folder after build.
+    Requires local.props with <SptRoot> set (copy local.props.template → local.props).
+    Binaries are overwritten every build. Config files are copied ONLY when they do
+    not already exist in the target — this preserves user edits across rebuilds.
+    No-ops gracefully when SptRoot is unset or the target directory does not exist
+    (e.g. building in a Linux dev container without an SPT install).
+  -->
+  <Target Name="DeployToSptMods" AfterTargets="Build"
+          Condition="'$(SptModsDir)' != '' and '$(SptRoot)' != 'CHANGE_ME' and Exists('$(SptModsDir)') and '$([MSBuild]::IsOSPlatform(`Windows`))' == 'true'">
+    <PropertyGroup>
+      <_DeployDir>$(SptModsDir)\AddMissingQuestRequirements</_DeployDir>
+      <_DeployConfigDir>$(_DeployDir)\config</_DeployConfigDir>
+      <_DeployMqwDir>$(_DeployDir)\MissingQuestWeapons</_DeployMqwDir>
+    </PropertyGroup>
+
+    <MakeDir Directories="$(_DeployDir)" />
+    <MakeDir Directories="$(_DeployConfigDir)" />
+    <MakeDir Directories="$(_DeployMqwDir)" />
+
+    <!-- Binaries: always refresh. -->
+    <ItemGroup>
+      <_DeployBinaries Include="$(TargetDir)*.dll" />
+      <_DeployBinaries Include="$(TargetDir)*.pdb" />
+      <_DeployBinaries Include="$(TargetDir)*.deps.json" />
+      <_DeployBinaries Include="$(TargetDir)*.staticwebassets.endpoints.json" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_DeployBinaries)" DestinationFolder="$(_DeployDir)" SkipUnchangedFiles="true" />
+
+    <!-- Config files: ship defaults only on first install. Do not overwrite user edits. -->
+    <Copy SourceFiles="$(TargetDir)config\config.jsonc"
+          DestinationFiles="$(_DeployConfigDir)\config.jsonc"
+          Condition="!Exists('$(_DeployConfigDir)\config.jsonc')" />
+    <Copy SourceFiles="$(TargetDir)MissingQuestWeapons\QuestOverrides.jsonc"
+          DestinationFiles="$(_DeployMqwDir)\QuestOverrides.jsonc"
+          Condition="!Exists('$(_DeployMqwDir)\QuestOverrides.jsonc')" />
+    <Copy SourceFiles="$(TargetDir)MissingQuestWeapons\WeaponOverrides.jsonc"
+          DestinationFiles="$(_DeployMqwDir)\WeaponOverrides.jsonc"
+          Condition="!Exists('$(_DeployMqwDir)\WeaponOverrides.jsonc')" />
+    <Copy SourceFiles="$(TargetDir)MissingQuestWeapons\AttachmentOverrides.jsonc"
+          DestinationFiles="$(_DeployMqwDir)\AttachmentOverrides.jsonc"
+          Condition="!Exists('$(_DeployMqwDir)\AttachmentOverrides.jsonc')" />
+
+    <Message Text="[AddMissingQuestRequirements] Deployed → $(_DeployDir)" Importance="high" />
+  </Target>
+
+</Project>

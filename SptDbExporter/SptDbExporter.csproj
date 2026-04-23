@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>SptDbExporter</RootNamespace>
+    <AssemblyName>SptDbExporter</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Library</OutputType>
+    <Version>1.0.0</Version>
+    <OutputPath>bin\$(Configuration)\$(ProjectName)\$(AssemblyName)\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="SPTarkov.Common" Version="4.0.13" />
+    <PackageReference Include="SPTarkov.DI" Version="4.0.13" />
+    <PackageReference Include="SPTarkov.Server.Core" Version="4.0.13" />
+  </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="export\items.json" />
+    <_ContentIncludedByDefault Remove="export\locale_en.json" />
+    <_ContentIncludedByDefault Remove="export\quests.json" />
+  </ItemGroup>
+
+  <!--
+    Deploy to SPT mods folder after build.
+    Requires local.props with <SptRoot> set (copy local.props.template → local.props).
+    Generates exporter-config.json pointing OutputPath to SptDbExporter/export/ under this project.
+  -->
+  <Target Name="DeployToSptMods" AfterTargets="Build"
+          Condition="'$(SptModsDir)' != '' and '$(SptRoot)' != 'CHANGE_ME' and '$([MSBuild]::IsOSPlatform(`Windows`))' == 'true'">
+    <PropertyGroup>
+      <_DeployDir>$(SptModsDir)\SptDbExporter</_DeployDir>
+      <!-- Forward slashes avoid JSON backslash escaping -->
+      <_ExportDir>$(MSBuildProjectDirectory.Replace('\', '/'))/export</_ExportDir>
+      <_ConfigJson>{"OutputPath": "$(_ExportDir)"}</_ConfigJson>
+    </PropertyGroup>
+
+    <MakeDir Directories="$(_DeployDir)" />
+    <MakeDir Directories="$(MSBuildProjectDirectory)\export" />
+
+    <ItemGroup>
+      <_DeployFiles Include="$(TargetDir)*.dll" />
+      <_DeployFiles Include="$(TargetDir)*.pdb" />
+      <_DeployFiles Include="$(TargetDir)*.deps.json" />
+      <_DeployFiles Include="$(TargetDir)*.staticwebassets.endpoints.json" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_DeployFiles)" DestinationFolder="$(_DeployDir)" SkipUnchangedFiles="true" />
+
+    <WriteLinesToFile File="$(_DeployDir)\exporter-config.json"
+                      Lines="$(_ConfigJson)"
+                      Overwrite="true" />
+
+    <Message Text="[SptDbExporter] Deployed → $(_DeployDir)" Importance="high" />
+  </Target>
+</Project>

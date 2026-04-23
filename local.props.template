@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <!-- Absolute path to your SPT installation root (folder containing SPT/, EscapeFromTarkov.exe, etc.) -->
+    <!-- Copy this file to local.props (git-ignored) and set your path. -->
+    <SptRoot>CHANGE_ME</SptRoot>
+
+    <!-- Optional: override if your mods folder layout differs from the default $(SptRoot)\SPT\user\mods -->
+    <!-- <SptModsDir>$(SptRoot)\SPT\user\mods</SptModsDir> -->
+  </PropertyGroup>
+</Project>

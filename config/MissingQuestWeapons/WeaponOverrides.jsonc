@@ -1,0 +1,1412 @@
+{
+  "version": 2,
+  "overrideBehaviour": 0,
+  "manualTypeOverrides": {
+    "61f7c9e189e6fb1a5e3ea78d": "12ga,BA_MR_762x54R,MP-shotguns",
+    "weapon_striker_12": "12ga",
+    "weapon_JAK12_12ga_MASSIVESOFT": "12ga",
+    "weapon_AA12_12ga_MASSIVESOFT": "12ga",
+    "sh-SaigaSKS": "12ga",
+    "5cadfbf7ae92152ac412eeef": "russian_ar",
+    "6410733d5dd49d77bd07847e": "russian_ar",
+    "643ea5b23db6f9f57107d9fd": "russian_ar",
+    "620109578d82e67e7911abf2": "russian_smg_pistol",
+    "57f4c844245977379d5c14d1": "russian_smg_pistol",
+    "64748cb8de82c85eaf0a273a": "PumpActionShotgun,Shotgun",
+    "5580223e4bdc2d1c128b457f": "PumpActionShotgun,Shotgun",
+    "60db29ce99594040e04c4a27": "Shotgun,Revolver",
+    "57c44b372459772d2b39b8ce": "AssaultCarbine,AssaultRifle",
+    "639af924d0446708ee62294e": "GrenadeLauncher",
+    "639c3fbbd0446708ee622ee9": "GrenadeLauncher",
+    "5e81ebcd8e146c7080625e15": "GrenadeLauncher",
+    "5d52cc5ba4b9367408500062": "GrenadeLauncher",
+    "6275303a9f372d6ea97f9ec7": "GrenadeLauncher",
+    "0101_BLACK_LINES_M4A1": "AssaultCarbine,AssaultRifle",
+    "0102_BLACK_LINES_AK103": "AssaultRifle",
+    "0103_BLACK_RSASS": "MarksmanRifle",
+    "0104_BLACK_LINES_MK47": "AssaultRifle",
+    "0105_BLACK_AUG": "AssaultRifle",
+    "0106_FLAMING_M4A1": "AssaultCarbine,AssaultRifle",
+    "0107_PRISTINE_M4A1": "AssaultCarbine,AssaultRifle",
+    "0108_BLACK_SPEAR": "AssaultRifle",
+    "gc_1_MDR_556": "AssaultCarbine,AssaultRifle",
+    "gc_2_MDR_762": "AssaultCarbine,AssaultRifle",
+    "gc_3_M4A1_green": "AssaultCarbine,AssaultRifle",
+    "SC_0101_MCX_SAND": "AssaultCarbine,AssaultRifle",
+    "SC_0102_M4A1_SAND": "AssaultCarbine,AssaultRifle",
+    "SC_0103_AK101_SAND": "AssaultRifle",
+    "SC_0104_AK102_SAND": "AssaultCarbine,AssaultRifle",
+    "SC_0105_AK103_SAND": "AssaultRifle",
+    "SC_0106_AK104_SAND": "AssaultCarbine,AssaultRifle",
+    "SC_0107_AK105_SAND": "AssaultCarbine,AssaultRifle",
+    "SC_0108_HK416_SAND": "AssaultCarbine,AssaultRifle",
+    "SC_0109_G36_SAND": "AssaultRifle",
+    "SC_01010_M4A1_SAND_2": "AssaultCarbine,AssaultRifle",
+    "wc_010421_WHITE_M4A1": "AssaultCarbine,AssaultRifle",
+    "weapon_tactikal_gladius": "Knife",
+    "WEAPON_AR-54_SIUL": "MarksmanRifle",
+    "WEAPON_MK-12_SIUL": "Shotgun",
+    "WEAPON_DVL-50_SIUL": "BoltActionSniperRifle",
+    "weapon_arblackout_300blk": "AssaultCarbine,AssaultRifle",
+    "Atlas ATL-15 .300 BLK Precision Rifle": "AssaultCarbine,AssaultRifle,MarksmanRifle",
+    "Atlas ATL-15 5.56x45 Precision Rifle": "AssaultCarbine,AssaultRifle,MarksmanRifle",
+    "Knight's Armament Company SR-25 7.62x51 FDE": "MarksmanRifle",
+    "weapon_qhb_300blk": "AssaultCarbine,AssaultRifle",
+    "weapon_93_raffica": "Pistol,Smg",
+    "weapon_imi_uzi": "Smg",
+    "020020DF056DF05600000000": "AssaultRifle",
+    "020020F15FF15F0000000000": "AssaultRifle",
+    "020020F15DF15D0000000000": "AssaultRifle",
+    "020020F15EF15E0000000000": "AssaultRifle",
+    "020020F150F1500000000000": "Smg",
+    "020020F154F1540000000000": "Smg",
+    "020020F151F1510000000000": "Smg",
+    "020020F152F1520000000000": "Smg",
+    "020020F153F1530000000000": "Smg",
+    "023023A12A12A12000000000": "Shotgun",
+    "02002010AB10AB0000000000": "BoltActionSniperRifle",
+    "020020AA14AA140000000000": "MarksmanRifle",
+    "0210211911CE000000000000": "Pistol",
+    "020020AACBBB1C0000000000": "AssaultRifle",
+    "020020AACBBFDE0000000000": "AssaultRifle",
+    "020020AACBB3000000000000": "AssaultRifle",
+    "020020AACBBA1A0000000000": "AssaultRifle",
+    "020020AACBBCFB0000000000": "AssaultRifle",
+    "020020BBA03BBA0300000000": "AssaultRifle",
+    "020020BBA97BBA9700000000": "AssaultRifle",
+    "020020195195F95556000000": "AssaultCarbine,AssaultRifle",
+    "020020195195F95545000000": "AssaultCarbine,AssaultRifle",
+    "022022C64C64000000000000": "Smg",
+    "020020308308000000000000": "AssaultRifle",
+    "deee28079e76d537f532021c": "BoltActionSniperRifle,SniperRifle",
+    "1bf618e47cce6d69bec01e9f": "BoltActionSniperRifle,SniperRifle",
+    "4b81488c78c8a8ac7d37f9b9": "AssaultCarbine,AssaultRifle",
+    "d672109946fe88b803449054": "AssaultRifle",
+    "939c742f7dad852286188029": "AssaultCarbine,AssaultRifle",
+    "627c4fe34b0a558e8a3642a1": "AssaultCarbine,AssaultRifle",
+    "ed05294ed53c0400ae0e8a55": "AssaultCarbine,AssaultRifle",
+    "ffc95b9d143f52202a311820": "AssaultCarbine,AssaultRifle",
+    "93bcdfda236122e67c098847": "Pistol,AssaultRifle",
+    "57f28a7ffb22e277b0234219": "AssaultRifle",
+    "e895575bcd1fa1de36d301b6": "AssaultRifle",
+    "3dc691f607ffed3228bf6ca2": "AssaultRifle",
+    "0af5f6a5aa9712e11c733fb9": "BoltActionSniperRifle,SniperRifle",
+    "52ce1b65b13e1035808c4fd2": "AssaultRifle",
+    "96f5c38a676e11e13544dfba": "AssaultRifle",
+    "8d59d8b10a4c2e85b871c317": "AssaultRifle",
+    "72bbf927bf5b1d4a0837485b": "AssaultRifle,AssaultCarbine",
+    "66e5b5e16c48ad4b4735cfbc": "AssaultRifle,MarksmanRifle",
+    "66b7d231babb635f70257534": "Pistol",
+    "6681810d4f568d3cb0c7187c": "Pistol",
+    "66c01f332770caf084f35480": "SniperRifle",
+    "66c13c53999e17f0702c2e70": "SniperRifle",
+    "66945f346fd04c33d4f9bc35": "AssaultRifle,AssaultCarbine",
+    "6696b5e6ed3ac659cc619eff": "AssaultRifle,AssaultCarbine",
+    "6696b5f5520265c38b644920": "AssaultRifle,AssaultCarbine",
+    "6696b60855a9454cbc033d4e": "AssaultRifle,AssaultCarbine",
+    "667b693466834848ed0c05a6": "BoltActionSniperRifle,SniperRifle",
+    "66a2d15b2500a672aa10d9ff": "AssaultRifle",
+    "66a37082da8293dc5e0a377d": "AssaultRifle",
+    "66a47e98c486ec9d1af3a4da": "AssaultRifle,AssaultCarbine",
+    "66a544c956621d3364f6085e": "AssaultRifle,AssaultCarbine",
+    "66a545898022784400d6c836": "AssaultRifle,AssaultCarbine",
+    "66ca50aacb9b900a4c8a5545": "AssaultRifle",
+    "66cbc1d13919ac843e616d84": "BoltActionSniperRifle,SniperRifle",
+    "66b9de8cf34d11aa91b5f20c": "AssaultRifle",
+    "6668df22e6b592f28024be10": "AssaultRifle,AssaultCarbine",
+    "6668ddd37b793f48deb730d4": "AssaultRifle,AssaultCarbine",
+    "665fe0e865683281eb8e7ed6": "Pistol",
+    "668c45bf9069178d4b1f225c": "BoltActionSniperRifle,SniperRifle",
+    "66e88596febdcf9daade16a8": "MarksmanRifle,SniperRifle",
+    "6671ebcdd32bd95eb398e920": "AssaultRifle,AssaultCarbine",
+    "669fca7f9ed4916116c76d5e": "Shotgun",
+    "6661012d16fbd2fb75408f87": "Pistol",
+    "664a5b945636ce820472f225": "AssaultRifle,MarksmanRifle",
+    "66ba249b102a9dd6040a6e7e": "AssaultRifle,AssaultCarbine",
+    "66ba26a6925f9921573224c9": "AssaultRifle,AssaultCarbine",
+    "66e718dc498d978477e0ba75": "MachineGun",
+    "66839591f4d0cba7b041b2af": "AssaultRifle,AssaultCarbine",
+    "6657bc8faeddd6b0a9b40224": "MarksmanRifle,SniperRifle",
+    "6657bd4d3a4d6e7c33fd2fdc": "MarksmanRifle,SniperRifle",
+    "663cf1da2496a8e7b0b71759": "Pistol",
+    "czscorpion": "Smg",
+    "czscorpiongrey": "Smg",
+    "664274a4d2e5fe0439d545a6": "AssaultRifle",
+    "664274afd9fe3879695d90e9": "AssaultRifle,MachineGun",
+    "acr": "AssaultRifle",
+    "acrfde": "AssaultRifle",
+    "66b1770c5f8b2271bb5887dc": "AssaultRifle",
+    "66b177141a00c9af1fd50b2d": "AssaultRifle",
+    "66b17d6cbb296d01b4684944": "AssaultRifle",
+    "Asset Store knife": "Knife",
+    "66015072e9f84d5680039678": "Pistol",
+    "663fe6eb47e8baf835124234": "Pistol",
+    "6632aab0b450b045b2160db9": "AssaultRifle,AssaultCarbine",
+    "6632b91ca1a7a5564dad34ac": "AssaultRifle,AssaultCarbine",
+    "MIRA_weapon_izhmash_rpk74n_545x39": "AssaultRifle,MachineGun",
+    "MIRA_weapon_izhmash_akm_762x39_gold": "AssaultRifle",
+    "MIRA_weapon_izhmash_akmn_762x39_gold": "AssaultRifle",
+    "MIRA_weapon_izhmash_akms_762x39_gold": "AssaultRifle",
+    "MIRA_weapon_izhmash_akmsn_762x39_gold": "AssaultRifle",
+    "MIRA_weapon_izhmash_ak_762x39_nodove": "AssaultRifle",
+    "MIRA_weapon_izhmash_ak_762x39": "AssaultRifle",
+    "MIRA_weapon_colt_m16a4_556x45": "AssaultRifle",
+    "MIRA_weapon_ai_awm_338lm": "BoltActionSniperRifle,SniperRifle",
+    "MIRA_weapon_izhmash_svd_762x54": "MarksmanRifle,SniperRifle",
+    "weapon_tt_pit_viper_9x19": "Pistol",
+    "weapon_tt_pit_viper_9x19_fde": "Pistol",
+    "weapon_tt_pit_viper_9x19_pink": "Pistol",
+    "88f81ce14f67a9ae53b2dfc0": "AssaultRifle",
+    "88f84ac6a8fef6c3683ddfc0": "AssaultRifle,AssaultCarbine",
+    "88f8ce9eb764edc8a2e5dfc0": "AssaultRifle,AssaultCarbine",
+    "88f8d5ceb7fcac5d9c17dfc0": "AssaultRifle",
+    "88f8dd740adebb044701dfc0": "Pistol",
+    "88f91bf4bcc22a04b1d6dfc0": "Pistol,Smg",
+    "88f98372dd4acd0bbf7fdfc0": "MarksmanRifle,SniperRifle",
+    "88f9cc4dcdada9ccc0f5dfc0": "Pistol",
+    "88f9cca04f309ce9d35edfc0": "Pistol",
+    "88f9f41eb3f6d927ae3edfc0": "AssaultRifle",
+    "88f9f5f9955dffe97e3edfc0": "AssaultRifle",
+    "88fa6bb68e30e3112f58dfc0": "AssaultCarbine,AssaultRifle",
+    "88fa6be6bbbc7e299ebbdfc0": "AssaultCarbine,AssaultRifle",
+    "88fa99dead62024c56d1dfc0": "BoltActionSniperRifle,SniperRifle",
+    "88fa9eae69cdafd7dc68dfc0": "AssaultRifle",
+    "88fab3241c8e1198c4f5dfc0": "AssaultCarbine,AssaultRifle",
+    "88fab849fbead4ab37a2dfc0": "AssaultCarbine,AssaultRifle",
+    "88fabde73e750a7a675edfc0": "MarksmanRifle,SniperRifle",
+    "88faeb5bd0e015b7bdbfdfc0": "AssaultRifle",
+    "88fac0dcac8db92702f2dfc0": "AssaultRifle",
+    "88faedc4b9dc1af63dcbdfc0": "MarksmanRifle,SniperRifle",
+    "88faf0c37f7d0bcfb3b6dfc0": "BoltActionSniperRifle,SniperRifle",
+    "88fafc4a3c1a9a3ba02ddfc0": "Shotgun",
+    "88fafc6d3f714571deafdfc0": "BoltActionSniperRifle,SniperRifle",
+    "88fb0cdb9d5efeb3fb55dfc0": "Smg",
+    "88fb0ddf90dad4dcea67dfc0": "Smg",
+    "88fb40fb02fa540fccecdfc0": "Smg",
+    "88fb50aa009d16f5572cdfc0": "Smg",
+    "88fb58f7ca8d5a59daafdfc0": "Shotgun",
+    "88fb5c6eb1fdacf32eebdfc0": "MachineGun",
+    "88fb6cfe3240f97d1ccfdfc0": "Smg",
+    "88fb89782fa037aa4253dfc0": "Smg",
+    "88fbaa5ba1ab49a8acfddfc0": "Smg",
+    "88fbc22adbea16f7dfc4dfc0": "AssaultRifle",
+    "88fbcc2007de6151addddfc0": "Pistol",
+    "88fccfcc12a2f6cf49fbdfc0": "AssaultRifle",
+    "88fbe3e9f9efb26e887bdfc0": "AssaultRifle",
+    "88fbf9cdcac07fdcdec0dfc0": "AssaultRifle",
+    "88fbfbd0fec3ef1fdd91dfc0": "Shotgun",
+    "88fbfee8d8bee33b03bddfc0": "Shotgun",
+    "88fc1efb96d31efe8bafdfc0": "Shotgun",
+    "88fc25c843c1dbb408f5dfc0": "Shotgun",
+    "88fc2c570dcb8ba3f501dfc0": "SniperRifle",
+    "88fc3c4fbad055eed42fdfc0": "BoltActionSniperRifle,SniperRifle",
+    "88fc3f0d56b2b3b63c8ddfc0": "BoltActionSniperRifle,SniperRifle",
+    "88fc787dbc740d88a1b7dfc0": "Shotgun",
+    "88fc6cc686e864d7c41ddfc0": "Shotgun",
+    "88fc920a70615f9f3c85dfc0": "Pistol",
+    "88fcabfca15a5d44e79cdfc0": "Smg",
+    "88fc9fa93b6a1c197747dfc0": "Smg",
+    "88fca322be2afcfabbcedfc0": "Smg",
+    "88fcaf04bebd4cda2b30dfc0": "BoltActionSniperRifle,SniperRifle",
+    "88fcbee6a6efe18ac4e5dfc0": "AssaultRifle,AssaultCarbine",
+    "sh-pikalo": "Pistol,Smg",
+    "sh-Saiga": "AssaultCarbine,AssaultRifle",
+    "sh-SKS": "AssaultCarbine,AssaultRifle",
+    "shSVastWeapon": "SniperRifle",
+    "Beowulf": "AssaultRifle",
+    "C14GN": "BoltActionSniperRifle",
+    "CZ-61": "Smg",
+    "Desert Eagle": "Pistol",
+    "M110": "MarksmanRifle",
+    "M16A1": "AssaultRifle",
+    "M4A1 FDE": "AssaultCarbine,AssaultRifle",
+    "M76": "MarksmanRifle",
+    "MK12 DIY": "AssaultCarbine",
+    "MK12 DIY0": "AssaultCarbine",
+    "QBU-88": "AssaultRifle,AssaultCarbine",
+    "QBZ-03": "AssaultRifle,AssaultCarbine",
+    "QBZ-191": "AssaultRifle,AssaultCarbine",
+    "QBZ-95": "AssaultRifle,AssaultCarbine",
+    "QBZ-97": "AssaultRifle,AssaultCarbine",
+    "RO635": "Smg",
+    "S-SASS": "MarksmanRifle",
+    "ST AR15": "AssaultCarbine,AssaultRifle",
+    "suomiG": "Smg",
+    "super shorty": "Shotgun",
+    "Type-56 MOD1": "AssaultRifle,AssaultCarbine",
+    "Type-56 MOD2": "AssaultRifle,AssaultCarbine",
+    "Type-56 MOD3": "AssaultRifle,AssaultCarbine",
+    "ump40": "Smg",
+    "ump9": "Smg"
+  },
+  "canBeUsedAs": {
+    "5c46fbd72e2216398b5a8c9c": [
+      "6657bc8faeddd6b0a9b40224",
+      "6657bd4d3a4d6e7c33fd2fdc",
+      "MIRA_weapon_izhmash_svd_762x54",
+      "SVD"
+    ],
+    "5447a9cd4bdc2dbd208b4567": [
+      "M4A1"
+    ]
+  },
+  "aliasNameStripWords": [
+  ],
+  "aliasNameExcludeWeapons": [
+    "MCW",
+    "ISO",
+    "Hemlock",
+    "700",
+    "M700",
+    "SR-25",
+    "Expedite",
+    "Mk47",
+    "AK",
+    ".300 Blackout",
+    ".300",
+    "Blackout",
+    "FDE",
+    "OD",
+    "furry",
+    "black",
+    "BK",
+    "GRY",
+    ".277",
+    "red",
+    "gold",
+    "multi",
+    "caliber",
+    "MCX",
+    "AKS-74UN",
+    "AKS-74UB",
+    "AKS-74U",
+    "SIG",
+    "Virtus",
+    "AK-"
+  ],
+  "customTypeRules": [
+    {
+      "comment": "Migrated from CustomCategories 'AKM'",
+      "conditions": {
+        "nameMatches": "\\b(AKM|AK-1|VPO|Draco)\\w*",
+        "caliber": "Caliber762x39"
+      },
+      "type": "AKM",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'AKS-74U'",
+      "conditions": {
+        "nameMatches": "\\b(AKS-74U|SAG AK-545)\\w*"
+      },
+      "type": "AKS-74U",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories '12ga'",
+      "conditions": {
+        "caliber": "Caliber12g"
+      },
+      "type": "12ga",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'AK'",
+      "conditions": {
+        "nameMatches": "\\b(AK|Draco)\\w*"
+      },
+      "type": "AK",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'AK-74'",
+      "conditions": {
+        "nameMatches": "\\b(AK-74|AKS-74|SAG AK-545|Saiga SGL31|Saiga MK Ver. 030)\\w*",
+        "not": {
+          "nameMatches": "(\\b(AKS-74U)\\w*)"
+        }
+      },
+      "type": "AK-74",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'AR-15'",
+      "conditions": {
+        "or": [
+          {
+            "nameMatches": "\\b(AR-15|M4A1|ATL-15)\\w*"
+          },
+          {
+            "descriptionMatches": "\\b(AR-15|M4A1|ATL-15)\\w*"
+          }
+        ]
+      },
+      "type": "AR-15",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'M4A1'",
+      "conditions": {
+        "nameMatches": "\\b(M4A1|M416)\\w*"
+      },
+      "type": "M4A1",
+      "alsoAs": []
+    },
+    {
+      "comment": "Throwable grenades (frag, smoke, stun, flash). Excludes underbarrel launchers whose names also contain 'grenade'. Rolls up to 'explosive' via parentTypes.",
+      "conditions": {
+        "and": [
+          { "nameMatches": "\\b(grenade)\\w*" },
+          { "not": { "hasAncestor": "Launcher" } }
+        ]
+      },
+      "type": "grenade",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'HK'",
+      "conditions": {
+        "or": [
+          {
+            "nameMatches": "\\b(HK|Heckler|Koch)\\w*"
+          },
+          {
+            "descriptionMatches": "\\b(HK|Heckler|Koch)\\w*"
+          }
+        ],
+        "not": {
+          "or": [
+            {
+              "nameMatches": "(\\b(SR-|MCX|ACR)\\w*)"
+            },
+            {
+              "descriptionMatches": "(\\b(SR-|MCX|ACR)\\w*)"
+            }
+          ]
+        }
+      },
+      "type": "HK",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'SR-25_like'",
+      "conditions": {
+        "and": [
+          {
+            "or": [
+              {
+                "nameMatches": "\\b(SR-)\\w*"
+              },
+              {
+                "descriptionMatches": "\\b(SR-)\\w*"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "caliber": "Caliber86x43"
+              },
+              {
+                "caliber": "Caliber762x51"
+              },
+              {
+                "caliber": "Caliber6.5x48"
+              },
+              {
+                "caliber": "Caliber68x51"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "hasAncestor": "AssaultRifle"
+              },
+              {
+                "hasAncestor": "AssaultCarbine"
+              },
+              {
+                "hasAncestor": "MarksmanRifle"
+              },
+              {
+                "hasAncestor": "SniperRifle"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "SR-25_like",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'BA_MR_762x54R'",
+      "conditions": {
+        "caliber": "Caliber762x54R",
+        "or": [
+          {
+            "hasAncestor": "MarksmanRifle"
+          },
+          {
+            "hasAncestor": "SniperRifle"
+          },
+          {
+            "hasAncestor": "BoltActionSniperRifle"
+          }
+        ]
+      },
+      "type": "BA_MR_762x54R",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'BA_762x51'",
+      "conditions": {
+        "caliber": "Caliber762x51",
+        "or": [
+          {
+            "hasAncestor": "BoltActionSniperRifle"
+          },
+          {
+            "hasAncestor": "SniperRifle"
+          }
+        ]
+      },
+      "type": "BA_762x51",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'MR_762x51'",
+      "conditions": {
+        "caliber": "Caliber762x51",
+        "or": [
+          {
+            "hasAncestor": "AssaultCarbine"
+          },
+          {
+            "hasAncestor": "MarksmanRifle"
+          },
+          {
+            "hasAncestor": "SniperRifle"
+          }
+        ]
+      },
+      "type": "MR_762x51",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'smg_9x19PARA'",
+      "conditions": {
+        "caliber": "Caliber9x19PARA",
+        "hasAncestor": "Smg"
+      },
+      "type": "smg_9x19PARA",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'm700'",
+      "conditions": {
+        "and": [
+          {
+            "or": [
+              {
+                "nameMatches": "\\b(m700|model 700)\\w*"
+              },
+              {
+                "descriptionMatches": "\\b(m700|model 700)\\w*"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "hasAncestor": "BoltActionSniperRifle"
+              },
+              {
+                "hasAncestor": "SniperRifle"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "m700",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'VSS'",
+      "conditions": {
+        "nameMatches": "\\b(VSS|Vintorez)\\w*",
+        "caliber": "Caliber9x39",
+        "or": [
+          {
+            "hasAncestor": "AssaultCarbine"
+          },
+          {
+            "hasAncestor": "MarksmanRifle"
+          }
+        ],
+        "not": {
+          "nameMatches": "(\\b(VSK-94)\\w*)"
+        }
+      },
+      "type": "VSS",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'mcx_spear'",
+      "conditions": {
+        "or": [
+          {
+            "nameMatches": "\\b(spear)\\w*"
+          },
+          {
+            "descriptionMatches": "\\b(spear)\\w*"
+          }
+        ]
+      },
+      "type": "mcx_spear",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'mcx_any'",
+      "conditions": {
+        "or": [
+          {
+            "nameMatches": "\\b(mcx|virtus)\\w*"
+          },
+          {
+            "descriptionMatches": "\\b(mcx|virtus)\\w*"
+          }
+        ]
+      },
+      "type": "mcx_any",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'scar_any'",
+      "conditions": {
+        "or": [
+          {
+            "nameMatches": "\\b(scar)\\w*"
+          },
+          {
+            "descriptionMatches": "\\b(scar)\\w*"
+          }
+        ],
+        "not": {
+          "or": [
+            {
+              "nameMatches": "(\\b(ACR)\\w*)"
+            },
+            {
+              "descriptionMatches": "(\\b(ACR)\\w*)"
+            }
+          ]
+        }
+      },
+      "type": "scar_any",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories '57_pistol'",
+      "conditions": {
+        "or": [
+          {
+            "nameMatches": "\\b(five-seven|57|pistol)\\w*"
+          },
+          {
+            "descriptionMatches": "\\b(five-seven|57|pistol)\\w*"
+          }
+        ],
+        "caliber": "Caliber57x28",
+        "hasAncestor": "Pistol"
+      },
+      "type": "57_pistol",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'russian_ar'",
+      "conditions": {
+        "and": [
+          {
+            "or": [
+              {
+                "nameMatches": "AR-15J|AK|ASh-12|Val|AN-94|Molot|Kalashnikov|VPO-101|AKM|AK-1|AK-74|AKS-74U|SAG AK-545|AEK-9|AN-94|KBP|SAG|Russia|Russian|Soviet|AVT|SVT|AKS|AKS-74|ADAR|Tokarev"
+              },
+              {
+                "descriptionMatches": "AR-15J|AK|ASh-12|Val|AN-94|Molot|Kalashnikov|VPO-101|AKM|AK-1|AK-74|AKS-74U|SAG AK-545|AEK-9|AN-94|KBP|SAG|Russia|Russian|Soviet|AVT|SVT|AKS|AKS-74|ADAR|Tokarev"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "hasAncestor": "AssaultCarbine"
+              },
+              {
+                "hasAncestor": "AssaultRifle"
+              }
+            ]
+          },
+          {
+            "not": {
+              "or": [
+                {
+                  "nameMatches": "(\\b(m1a|m4a|iwi|acr|mcx|cmmg|iso|hk|arx|ak5d|ak5c|zlr|echoes|pdw|RD-704|Velociraptor|Bofors)\\w*)"
+                },
+                {
+                  "descriptionMatches": "(\\b(m1a|m4a|iwi|acr|mcx|cmmg|iso|hk|arx|ak5d|ak5c|zlr|echoes|pdw|RD-704|Velociraptor|Bofors)\\w*)"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "type": "russian_ar",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'russian_smg_pistol'",
+      "conditions": {
+        "and": [
+          {
+            "or": [
+              {
+                "nameMatches": "Russia|Russian|Soviet|PM|BP|Makarov|SR-|PP-|TT-|Stechkin|PPSh-41|PL-|RSh-12|STM-9|SP-81|MP-|Saiga-9|9x18PMM"
+              },
+              {
+                "descriptionMatches": "Russia|Russian|Soviet|PM|BP|Makarov|SR-|PP-|TT-|Stechkin|PPSh-41|PL-|RSh-12|STM-9|SP-81|MP-|Saiga-9|9x18PMM"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "caliber": "Caliber9x19PARA"
+              },
+              {
+                "caliber": "Caliber9x18PM"
+              },
+              {
+                "caliber": "Caliber9x21"
+              },
+              {
+                "caliber": "Caliber762x25TT"
+              },
+              {
+                "caliber": "Caliber127x55"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "hasAncestor": "Smg"
+              },
+              {
+                "hasAncestor": "Pistol"
+              }
+            ]
+          },
+          {
+            "not": {
+              "or": [
+                {
+                  "nameMatches": "(\\b(Minebea)\\w*)"
+                },
+                {
+                  "descriptionMatches": "(\\b(Minebea)\\w*)"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "type": "russian_smg_pistol",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'russian_shotgun'",
+      "conditions": {
+        "and": [
+          {
+            "or": [
+              {
+                "nameMatches": "Russia|Russian|Soviet|MP-|Saiga-12|TOZ"
+              },
+              {
+                "descriptionMatches": "Russia|Russian|Soviet|MP-|Saiga-12|TOZ"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "caliber": "Caliber12g"
+              },
+              {
+                "caliber": "Caliber20g"
+              },
+              {
+                "caliber": "Caliber23x75"
+              }
+            ]
+          },
+          {
+            "hasAncestor": "Shotgun"
+          },
+          {
+            "not": {
+              "or": [
+                {
+                  "nameMatches": "(\\b(remington|benelli|mossberg|Shorty|serbu)\\w*)"
+                },
+                {
+                  "descriptionMatches": "(\\b(remington|benelli|mossberg|Shorty|serbu)\\w*)"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "type": "russian_shotgun",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'russian_mg'",
+      "conditions": {
+        "and": [
+          {
+            "or": [
+              {
+                "nameMatches": "PKM|RPD|PKTM|RPK|NSV|PKP"
+              },
+              {
+                "descriptionMatches": "PKM|RPD|PKTM|RPK|NSV|PKP"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "caliber": "Caliber762x54R"
+              },
+              {
+                "caliber": "Caliber545x39"
+              },
+              {
+                "caliber": "Caliber762x39"
+              }
+            ]
+          },
+          {
+            "hasAncestor": "MachineGun"
+          }
+        ]
+      },
+      "type": "russian_mg",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'soviet'",
+      "conditions": {
+        "and": [
+          {
+            "or": [
+              {
+                "nameMatches": "soviet|ussr|svd|simonov|SKS|OP-SKS|ag-|AK-74|AKS-74|AKM|Makarov|PB|PM|AKS|APS|APB|mosin|TT-|Tokarev|VAL|VSS|PKM|PKP|KS-23|MP-43|Saiga"
+              },
+              {
+                "descriptionMatches": "soviet|ussr|svd|simonov|SKS|OP-SKS|ag-|AK-74|AKS-74|AKM|Makarov|PB|PM|AKS|APS|APB|mosin|TT-|Tokarev|VAL|VSS|PKM|PKP|KS-23|MP-43|Saiga"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "caliber": "Caliber762x54R"
+              },
+              {
+                "caliber": "Caliber545x39"
+              },
+              {
+                "caliber": "Caliber762x39"
+              },
+              {
+                "caliber": "Caliber762x25TT"
+              },
+              {
+                "caliber": "Caliber9x18PM"
+              },
+              {
+                "caliber": "Caliber9x39"
+              }
+            ]
+          },
+          {
+            "not": {
+              "or": [
+                {
+                  "nameMatches": "(type)|(RAK74-P)|(AN-94)|(AK-1)|(VSK-94)|(SR-3M)|(Molot Arms)|(PP-91)|(Kedr)|(Draco)"
+                },
+                {
+                  "descriptionMatches": "(type)|(RAK74-P)|(AN-94)|(AK-1)|(VSK-94)|(SR-3M)|(Molot Arms)|(PP-91)|(Kedr)|(Draco)"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "type": "soviet",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'AKM_only'",
+      "conditions": {
+        "nameMatches": "\\b(AKM)\\w*",
+        "or": [
+          {
+            "hasAncestor": "AssaultRifle"
+          },
+          {
+            "hasAncestor": "AssaultCarbine"
+          }
+        ]
+      },
+      "type": "AKM_only",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'AK-100_only'",
+      "conditions": {
+        "nameMatches": "\\b(AK-10)\\w*",
+        "or": [
+          {
+            "hasAncestor": "AssaultRifle"
+          },
+          {
+            "hasAncestor": "AssaultCarbine"
+          }
+        ]
+      },
+      "type": "AK-100_only",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'AK-74_only'",
+      "conditions": {
+        "nameMatches": "\\b(AK-74)\\w*",
+        "or": [
+          {
+            "hasAncestor": "AssaultRifle"
+          },
+          {
+            "hasAncestor": "AssaultCarbine"
+          }
+        ]
+      },
+      "type": "AK-74_only",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'AK-12_like'",
+      "conditions": {
+        "nameMatches": "\\b(AK-12|AK-15|AK-19)\\w*",
+        "or": [
+          {
+            "hasAncestor": "AssaultRifle"
+          },
+          {
+            "hasAncestor": "AssaultCarbine"
+          }
+        ]
+      },
+      "type": "AK-12_like",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'Velociraptor_only'",
+      "conditions": {
+        "nameMatches": "\\b(Velociraptor|Aklys)\\w*",
+        "or": [
+          {
+            "hasAncestor": "AssaultRifle"
+          },
+          {
+            "hasAncestor": "AssaultCarbine"
+          }
+        ]
+      },
+      "type": "Velociraptor_only",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'Mk47_only'",
+      "conditions": {
+        "nameMatches": "\\b(Mk47)\\w*",
+        "or": [
+          {
+            "hasAncestor": "AssaultRifle"
+          },
+          {
+            "hasAncestor": "AssaultCarbine"
+          }
+        ]
+      },
+      "type": "Mk47_only",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'MCX-blk_only'",
+      "conditions": {
+        "nameMatches": "\\b(MCX|SIG|Virtus)\\w*",
+        "caliber": "Caliber762x35",
+        "or": [
+          {
+            "hasAncestor": "AssaultRifle"
+          },
+          {
+            "hasAncestor": "AssaultCarbine"
+          }
+        ]
+      },
+      "type": "MCX-blk_only",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'AXMC'",
+      "conditions": {
+        "nameMatches": "\\b(AXMC)\\w*",
+        "or": [
+          {
+            "hasAncestor": "BoltActionSniperRifle"
+          },
+          {
+            "hasAncestor": "SniperRifle"
+          }
+        ]
+      },
+      "type": "AXMC",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'DVL-10'",
+      "conditions": {
+        "nameMatches": "\\b(DVL-10)\\w*",
+        "or": [
+          {
+            "hasAncestor": "BoltActionSniperRifle"
+          },
+          {
+            "hasAncestor": "SniperRifle"
+          }
+        ]
+      },
+      "type": "DVL-10",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'SV-98'",
+      "conditions": {
+        "nameMatches": "\\b(SV-98)\\w*",
+        "or": [
+          {
+            "hasAncestor": "BoltActionSniperRifle"
+          },
+          {
+            "hasAncestor": "SniperRifle"
+          }
+        ]
+      },
+      "type": "SV-98",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'Mosin'",
+      "conditions": {
+        "nameMatches": "\\b(Mosin)\\w*",
+        "or": [
+          {
+            "hasAncestor": "BoltActionSniperRifle"
+          },
+          {
+            "hasAncestor": "SniperRifle"
+          }
+        ]
+      },
+      "type": "Mosin",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'M1A'",
+      "conditions": {
+        "nameMatches": "\\b(M1A)\\w*",
+        "hasAncestor": "MarksmanRifle"
+      },
+      "type": "M1A",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'HK-G28_like'",
+      "conditions": {
+        "nameMatches": "\\b(G28|HK417)\\w*",
+        "hasAncestor": "MarksmanRifle"
+      },
+      "type": "HK-G28_like",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'AKM'",
+      "conditions": {
+        "nameMatches": "\\b(AKM|AK-1|VPO|Draco|AEK-973)\\w*",
+        "caliber": "Caliber762x39",
+        "or": [
+          {
+            "hasAncestor": "AssaultRifle"
+          },
+          {
+            "hasAncestor": "AssaultCarbine"
+          }
+        ]
+      },
+      "type": "AKM",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'AKS-74U'",
+      "conditions": {
+        "nameMatches": "\\b(AKS-74U|SAG AK-545)\\w*"
+      },
+      "type": "AKS-74U",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'AKS-74UB'",
+      "conditions": {
+        "nameMatches": "\\b(AKS-74UB)\\w*"
+      },
+      "type": "AKS-74UB",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories '12ga'",
+      "conditions": {
+        "caliber": "Caliber12g",
+        "hasAncestor": "Shotgun"
+      },
+      "type": "12ga",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'AK'",
+      "conditions": {
+        "and": [
+          {
+            "nameMatches": "\\b(AK|Draco|RAK74-P|AKS-74|AKS-74U|AEK-|AN-94)\\w*"
+          },
+          {
+            "or": [
+              {
+                "caliber": "Caliber545x39"
+              },
+              {
+                "caliber": "Caliber556x45NATO"
+              },
+              {
+                "caliber": "Caliber762x35"
+              },
+              {
+                "caliber": "Caliber366TKM"
+              },
+              {
+                "caliber": "Caliber9x19PARA"
+              },
+              {
+                "caliber": "Caliber9x39"
+              },
+              {
+                "caliber": "Caliber762x39"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "hasAncestor": "AssaultRifle"
+              },
+              {
+                "hasAncestor": "AssaultCarbine"
+              },
+              {
+                "hasAncestor": "Smg"
+              }
+            ]
+          },
+          {
+            "not": {
+              "nameMatches": "(\\b(AK-50|Bofors)\\w*)"
+            }
+          }
+        ]
+      },
+      "type": "AK",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'AK-74'",
+      "conditions": {
+        "nameMatches": "\\b(AK-74|AKS-74|SAG AK-545|Saiga SGL31|Saiga MK Ver. 030|AN-94|AEK-971)\\w*",
+        "or": [
+          {
+            "hasAncestor": "AssaultRifle"
+          },
+          {
+            "hasAncestor": "AssaultCarbine"
+          },
+          {
+            "hasAncestor": "Smg"
+          }
+        ]
+      },
+      "type": "AK-74",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'AR-15'",
+      "conditions": {
+        "and": [
+          {
+            "or": [
+              {
+                "nameMatches": "\\b(AR-15|M4A|ATL-15|Wages|ADAR|TX-15)\\w*"
+              },
+              {
+                "descriptionMatches": "\\b(AR-15|M4A|ATL-15|Wages|ADAR|TX-15)\\w*"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "hasAncestor": "AssaultRifle"
+              },
+              {
+                "hasAncestor": "AssaultCarbine"
+              },
+              {
+                "hasAncestor": "Smg"
+              },
+              {
+                "hasAncestor": "MarksmanRifle"
+              }
+            ]
+          },
+          {
+            "not": {
+              "or": [
+                {
+                  "nameMatches": "(\\b(SR-|MCX|ACR|HK)\\w*)"
+                },
+                {
+                  "descriptionMatches": "(\\b(SR-|MCX|ACR|HK)\\w*)"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "type": "AR-15",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'M4A1'",
+      "conditions": {
+        "and": [
+          {
+            "or": [
+              {
+                "nameMatches": "\\b(M4A|M416|Wages)\\w*"
+              },
+              {
+                "descriptionMatches": "\\b(M4A|M416|Wages)\\w*"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "caliber": "Caliber556x45NATO"
+              },
+              {
+                "caliber": "Caliber762x35"
+              },
+              {
+                "caliber": "Caliber762x39"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "hasAncestor": "AssaultRifle"
+              },
+              {
+                "hasAncestor": "AssaultCarbine"
+              },
+              {
+                "hasAncestor": "MarksmanRifle"
+              }
+            ]
+          },
+          {
+            "not": {
+              "or": [
+                {
+                  "nameMatches": "(\\b(SR-|MCX|ACR|HK|AR-15J)\\w*)"
+                },
+                {
+                  "descriptionMatches": "(\\b(SR-|MCX|ACR|HK|AR-15J)\\w*)"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "type": "M4A1",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'MP-shotguns'",
+      "conditions": {
+        "nameMatches": "\\b(MP-)\\w*",
+        "hasAncestor": "Shotgun"
+      },
+      "type": "MP-shotguns",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'SVD'",
+      "conditions": {
+        "and": [
+          {
+            "or": [
+              {
+                "nameMatches": "\\b(svd|svds)\\w*"
+              },
+              {
+                "descriptionMatches": "\\b(svd|svds)\\w*"
+              }
+            ]
+          },
+          {
+            "caliber": "Caliber762x54R"
+          },
+          {
+            "or": [
+              {
+                "hasAncestor": "MarksmanRifle"
+              },
+              {
+                "hasAncestor": "SniperRifle"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "SVD",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'cal_9x19'",
+      "conditions": {
+        "caliber": "Caliber9x19PARA"
+      },
+      "type": "cal_9x19",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'cal_9x39'",
+      "conditions": {
+        "caliber": "Caliber9x39"
+      },
+      "type": "cal_9x39",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'cal_556x45NATO'",
+      "conditions": {
+        "caliber": "Caliber556x45NATO"
+      },
+      "type": "cal_556x45NATO",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'cal_545x39'",
+      "conditions": {
+        "caliber": "Caliber545x39",
+        "not": {
+          "nameMatches": "(Utyos)"
+        }
+      },
+      "type": "cal_545x39",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'cal_762x35'",
+      "conditions": {
+        "caliber": "Caliber762x35"
+      },
+      "type": "cal_762x35",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'cal_762x39'",
+      "conditions": {
+        "caliber": "Caliber762x39"
+      },
+      "type": "cal_762x39",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'cal_762x54R'",
+      "conditions": {
+        "caliber": "Caliber762x54R"
+      },
+      "type": "cal_762x54R",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'cal_366TKM'",
+      "conditions": {
+        "caliber": "Caliber366TKM"
+      },
+      "type": "cal_366TKM",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'cal_338'",
+      "conditions": {
+        "or": [
+          {
+            "caliber": "Caliber86x70"
+          },
+          {
+            "caliber": "Caliber86x63"
+          }
+        ],
+        "not": {
+          "nameMatches": "(\\b(.300|Winchester)\\w*)"
+        }
+      },
+      "type": "cal_338",
+      "alsoAs": []
+    },
+    {
+      "comment": "Migrated from CustomCategories 'cal_762x25TT'",
+      "conditions": {
+        "caliber": "Caliber762x25TT"
+      },
+      "type": "cal_762x25TT",
+      "alsoAs": []
+    }
+  ]
+}
