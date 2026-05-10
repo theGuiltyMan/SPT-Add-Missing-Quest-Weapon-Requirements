@@ -126,20 +126,20 @@ Top-level structure:
 | Value | Name | Meaning |
 |---|---|---|
 | `0` | `Auto` | Default. Full pipeline — type expansion → whitelist additions → aliases → blacklist removals. |
-| `1` | `WhitelistOnly` | Discard the game's weapon list; use `includedWeapons` only. |
+| `1` | `WhitelistOnly` | Discard the game's weapon list; use `includedWeapons` only. Good when BSG's list is wrong. |
 | `2` | `NoExpansion` | Keep the game's weapon list; don't add same-type weapons. `includedWeapons` still applies. |
 
-**`modsExpansionMode`, `includedMods`, `excludedMods` — all three apply only to `weaponModsInclusive`.** `weaponModsExclusive` always runs in the default `Auto` mode regardless of the override (broadening a kill-counts rule and simultaneously tightening its reject rule would silently invert the author's intent, so the exclusive field is left alone).
+**`modsExpansionMode` (for `weaponModsInclusive` / `weaponModsExclusive`)**
 
-| Value | Name | Meaning for `weaponModsInclusive` |
+| Value | Name | Meaning |
 |---|---|---|
 | `0` | `Auto` | Singleton groups with ≥2 same-type peers expand; multi-item AND-bundles (like "Test Drive" suppressor+scope combos) stay verbatim. |
 | `1` | `WhitelistOnly` | Discard the original field, rebuild from `includedMods` only. |
 | `2` | `NoExpansion` | Keep the original groups verbatim; `includedMods` still appended. |
 
-`includedMods` — bare attachment IDs and type names (like `"Suppressor"`) are each appended to `weaponModsInclusive` as **singleton groups** (one item per group). Type-name entries expand to one singleton per member of that type. There is no override knob for adding a multi-item AND-bundle.
+**`includedMods` / `excludedMods`**
 
-`excludedMods` — drops groups from `weaponModsInclusive`. A bare ID drops any group containing it. A type name drops only groups whose members are *all* in that type.
+Bare attachment IDs add/remove single items. Type names (like `"Suppressor"`) expand to every attachment of that type. Exclusion rules: a bare ID drops any group containing it; a type name drops only groups whose members are *all* in that type.
 
 ### `MissingQuestWeapons/WeaponOverrides.jsonc` — weapon categorization
 
@@ -147,7 +147,7 @@ Top-level structure:
 |---|---|
 | `manualTypeOverrides` | Force a specific weapon ID into one or more types. Useful when the rule chain misses a niche weapon. Format: `"itemId": "Type1,Type2"`. |
 | `canBeUsedAs` | Declare that two weapon IDs are interchangeable for quest purposes (e.g. a modded AK variant counts as the base AK). Format: `"id_a": ["id_b"]`. |
-| `aliasNameStripWords` | Words stripped from weapon locale names before the auto-aliasing pass. |
+| `aliasNameStripWords` | Words stripped from weapon locale names before the auto-aliasing pass. Use for pure-cosmetic suffixes like `"(FDE)"`. Never put model/mechanism words here. |
 | `aliasNameExcludeWeapons` | Weapons that should *not* participate in short-name aliasing. |
 | `customTypeRules` | Your own type-detection rules. See "Writing type rules" below. |
 
@@ -188,7 +188,7 @@ A rule has three parts:
 | `nameContains` | `"pump"` — case-insensitive substring check against the locale name. |
 | `nameMatches` | `"^HK\\s*416"` — regex against locale name. |
 | `descriptionMatches` | Regex against locale description. |
-| `pathMatches` | Regex against the full `_parent`-chain name path. |
+| `pathMatches` | Regex against the full `_parent`-chain name path (most powerful, most brittle). |
 | `and` / `or` / `not` | Meta-conditions. `and` / `or` take an array of objects; `not` takes one object. |
 
 ### Examples
@@ -251,7 +251,7 @@ Turn on `"debug": true` in `config/config.jsonc`. On the next server start you'l
 - **`AddMissingQuestRequirements-debug-report.json`** next to the DLL. Structured dump of: settings, every weapon and attachment with its assigned types, every patched quest with `before` / `after` for each condition.
 - **`AddMissingQuestRequirements-debug-report.html`** — same data as an interactive browseable report. Open it in a browser. The Quests tab is the most useful view: a search box filters by quest name/ID, and a "hide noop" toggle focuses on conditions the mod actually changed. Expand a quest to see each condition's before/after weapon list and mod groups side by side.
 
-The HTML report is the **same format** the standalone Inspector tool produces (run `dotnet run --project AddMissingQuestRequirements.Inspector`, or the convenience wrappers in `tools/`), so you can compare against the "what should happen" baseline without SPT running.
+The HTML report is the **same format** the standalone Inspector tool produces (see `./inspect.bat`), so you can compare against the "what should happen" baseline without SPT running.
 
 ### Logging
 
@@ -305,37 +305,14 @@ Individual array values can also carry a behaviour:
 ]
 ```
 
-### How `weaponModsInclusive` groups work
+### Intra-group AND, cross-group OR
 
-The field is an **array of arrays**. Every inner array is one group. Two rules:
+This matters only if you're tweaking `weaponModsInclusive` / `weaponModsExclusive` on a condition.
 
-- **Inside a group: AND.** All items in the group must be on the weapon.
-- **Across groups: OR.** Any one group is enough.
+- A single group of `[A, B]` means the weapon must carry **both** A and B (AND).
+- Multiple groups `[[A], [B]]` means the weapon must carry either A or B (OR).
 
-Example — "kill using a silencer **and** a scope":
-
-```jsonc
-"weaponModsInclusive": [
-  ["silencer_id", "scope_id"]
-]
-```
-
-One group, two items → the weapon must carry both.
-
-Example — "kill using a silencer **or** a muzzle brake":
-
-```jsonc
-"weaponModsInclusive": [
-  ["silencer_id"],
-  ["muzzle_brake_id"]
-]
-```
-
-Two groups, one item each → either one is enough.
-
-**What the mod does to existing groups.** Multi-item groups pass through verbatim — the expander never adds or removes items inside a group. Singleton groups (one item) can expand into N singletons when the field has ≥2 singletons that share a common type; see `modsExpansionMode` above.
-
-**What you can do through overrides.** `includedMods` appends new **singleton** groups (each entry becomes its own one-item group). `excludedMods` drops groups. There's no config field for adding a new multi-item AND-bundle — if a quest needs a brand-new "A and B" requirement, the override surface can't express it today.
+The mod preserves AND-bundles verbatim when expanding. If you need to widen a bundle, you have to express the new alternative as a **new group**, not by adding items to the existing one.
 
 ### Multi-mod layering example
 

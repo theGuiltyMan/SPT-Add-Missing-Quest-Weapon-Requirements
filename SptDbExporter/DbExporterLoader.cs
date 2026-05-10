@@ -11,7 +11,7 @@ using SPTarkov.Server.Core.Servers;
 
 namespace SptDbExporter;
 
-[Injectable(TypePriority = OnLoadOrder.PostDBModLoader + 1)]
+[Injectable(TypePriority = OnLoadOrder.TraderRegistration + 9999)]
 public sealed class DbExporterLoader(
     DatabaseServer databaseServer,
     ModHelper modHelper,

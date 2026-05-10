@@ -28,7 +28,7 @@ namespace AddMissingQuestRequirements.Spt;
 /// quest tables. Failures are logged and swallowed — the server must finish
 /// startup regardless of this mod's success.
 /// </summary>
-[Injectable(TypePriority = OnLoadOrder.PostDBModLoader + 1)]
+[Injectable(TypePriority = OnLoadOrder.TraderRegistration + 9999)]
 public sealed class AddMissingQuestRequirementsLoader : IOnLoad
 {
     private const int CurrentConfigVersion = 4;
@@ -93,7 +93,7 @@ public sealed class AddMissingQuestRequirementsLoader : IOnLoad
 
             // OverrideReader.Read() produces a settings container with a default
             // ModConfig. Rebind the loaded config so downstream phases see it.
-            var readSettings = new OverrideReader(modDirs).Read();
+            var readSettings = new OverrideReader(modDirs, logger).Read();
             var settings = new OverriddenSettings
             {
                 Config = config,

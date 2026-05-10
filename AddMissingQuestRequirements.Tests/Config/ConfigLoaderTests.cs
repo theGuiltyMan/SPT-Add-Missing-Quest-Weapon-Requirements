@@ -1,6 +1,7 @@
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using AddMissingQuestRequirements.Config;
+using AddMissingQuestRequirements.Models;
 using FluentAssertions;
 
 namespace AddMissingQuestRequirements.Tests.Config;
@@ -102,5 +103,46 @@ public class ConfigLoaderTests
             jsonc, currentVersion: 1, migrations: [Rename_old_to_new]);
 
         result.Config.Name.Should().Be("jsonc_test");
+    }
+
+    [Fact]
+    public void LoadFromString_v0_file_reports_WasMigrated_true_and_OriginalVersion_zero()
+    {
+        var jsonc = "{ \"BlackListedQuests\": [\"q\"] }"; // no version key → v0
+        var loaded = ConfigLoader.LoadFromString<QuestOverridesFile>(
+            jsonc,
+            currentVersion: 2,
+            migrations: [Migrations.v0_to_v1, Migrations.v1_to_v2_Quest]);
+
+        loaded.WasMigrated.Should().BeTrue();
+        loaded.OriginalVersion.Should().Be(0);
+        loaded.MigratedJson["version"]!.GetValue<int>().Should().Be(2);
+    }
+
+    [Fact]
+    public void LoadFromString_already_current_reports_WasMigrated_false()
+    {
+        var jsonc = "{ \"version\": 2, \"excludedQuests\": [\"q\"] }";
+        var loaded = ConfigLoader.LoadFromString<QuestOverridesFile>(
+            jsonc,
+            currentVersion: 2,
+            migrations: [Migrations.v0_to_v1, Migrations.v1_to_v2_Quest]);
+
+        loaded.WasMigrated.Should().BeFalse();
+        loaded.OriginalVersion.Should().Be(2);
+    }
+
+    [Fact]
+    public void LoadFromString_newer_than_supported_reports_WasMigrated_false()
+    {
+        var jsonc = "{ \"version\": 99 }";
+        var loaded = ConfigLoader.LoadFromString<QuestOverridesFile>(
+            jsonc,
+            currentVersion: 2,
+            migrations: [Migrations.v0_to_v1, Migrations.v1_to_v2_Quest]);
+
+        loaded.WasMigrated.Should().BeFalse();
+        loaded.OriginalVersion.Should().Be(99);
+        loaded.Warnings.Should().NotBeEmpty();
     }
 }

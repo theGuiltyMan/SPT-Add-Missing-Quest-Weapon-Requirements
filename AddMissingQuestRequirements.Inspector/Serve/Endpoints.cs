@@ -78,7 +78,6 @@ public static class Endpoints
     private static string BuildShellHtml()
     {
         var css = HtmlReportWriter.ReportCss;
-        var body = HtmlReportWriter.ReportShellBody;
         return $$"""
 <!DOCTYPE html>
 <html lang="en">
@@ -96,7 +95,35 @@ public static class Endpoints
 </style>
 </head>
 <body>
-{{body}}
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('settings')">Settings</button>
+  <button class="tab-btn" onclick="showTab('weapons')">Weapons</button>
+  <button class="tab-btn" onclick="showTab('types')">Types</button>
+  <button class="tab-btn" onclick="showTab('quests')">Quests</button>
+</div>
+<div id="tab-settings" class="tab-content active"><div id="settings-panel"></div></div>
+<div id="tab-weapons" class="tab-content">
+  <div class="filter-bar">
+    <input type="search" id="weapon-search" placeholder="Filter by name or id..." oninput="filterWeapons()">
+  </div>
+  <table id="weapon-table">
+    <thead><tr><th>Name</th><th>Types</th><th>Caliber</th></tr></thead>
+    <tbody id="weapon-tbody"></tbody>
+  </table>
+</div>
+<div id="tab-types" class="tab-content">
+  <div class="filter-bar">
+    <input type="search" id="type-search" placeholder="Filter by type name..." oninput="filterTypes()">
+  </div>
+  <div id="types-panel"></div>
+</div>
+<div id="tab-quests" class="tab-content">
+  <div class="filter-bar">
+    <input type="search" id="quest-search" placeholder="Filter by quest name or id..." oninput="filterQuests()">
+    <label><input type="checkbox" id="hide-noop" onchange="filterQuests()" checked> Hide NOOP quests</label>
+  </div>
+  <div id="quests-panel"></div>
+</div>
 <div id="mqw-toast" class="toast hidden"></div>
 <script src="/report.js"></script>
 <script src="/shell.js"></script>

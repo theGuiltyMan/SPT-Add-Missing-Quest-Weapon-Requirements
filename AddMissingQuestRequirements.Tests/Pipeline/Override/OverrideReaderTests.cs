@@ -509,4 +509,152 @@ public class OverrideReaderTests : IDisposable
         settings.AttachmentTypeRules.Should().HaveCount(1);
         settings.AttachmentTypeRules[0].Type.Should().Be("CustomScope");
     }
+
+    // ── Legacy filename fallback ─────────────────────────────────────────────
+
+    [Fact]
+    public void Legacy_OverriddenWeapons_filename_is_loaded_when_new_name_absent()
+    {
+        var modDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(modDir);
+        _tempDirs.Add(modDir);
+
+        var mqwDir = Path.Combine(modDir, "MissingQuestWeapons");
+        Directory.CreateDirectory(mqwDir);
+
+        File.WriteAllText(Path.Combine(mqwDir, "OverriddenWeapons.jsonc"), """
+        {
+            "OverrideBehaviour": "MERGE",
+            "Override": {
+                "weapon_legacy_id": "BoltActionSniperRifle"
+            }
+        }
+        """);
+
+        var reader = new OverrideReader(new InMemoryModDirectoryProvider([modDir]));
+        var result = reader.Read();
+
+        result.ManualTypeOverrides.Should().ContainKey("weapon_legacy_id");
+        result.ManualTypeOverrides["weapon_legacy_id"].Should().Be("BoltActionSniperRifle");
+    }
+
+    [Fact]
+    public void New_WeaponOverrides_filename_wins_over_legacy_when_both_present()
+    {
+        var modDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(modDir);
+        _tempDirs.Add(modDir);
+
+        var mqwDir = Path.Combine(modDir, "MissingQuestWeapons");
+        Directory.CreateDirectory(mqwDir);
+
+        File.WriteAllText(Path.Combine(mqwDir, "WeaponOverrides.jsonc"), """
+        {
+            "manualTypeOverrides": { "weapon_new_id": "AssaultRifle" }
+        }
+        """);
+        File.WriteAllText(Path.Combine(mqwDir, "OverriddenWeapons.jsonc"), """
+        {
+            "Override": { "weapon_legacy_id": "BoltActionSniperRifle" }
+        }
+        """);
+
+        var reader = new OverrideReader(new InMemoryModDirectoryProvider([modDir]));
+        var result = reader.Read();
+
+        result.ManualTypeOverrides.Should().ContainKey("weapon_new_id");
+        result.ManualTypeOverrides.Should().NotContainKey("weapon_legacy_id");
+    }
+
+    // ── Disk rewrite after migration ─────────────────────────────────────────
+
+    [Fact]
+    public void Legacy_OverriddenWeapons_is_renamed_to_v0_bak_and_canonical_is_written()
+    {
+        var modDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(modDir);
+        _tempDirs.Add(modDir);
+
+        var mqwDir = Path.Combine(modDir, "MissingQuestWeapons");
+        Directory.CreateDirectory(mqwDir);
+
+        var legacyPath = Path.Combine(mqwDir, "OverriddenWeapons.jsonc");
+        var canonicalPath = Path.Combine(mqwDir, "WeaponOverrides.jsonc");
+        File.WriteAllText(legacyPath, """
+        {
+            "Override": { "weapon_legacy_id": "BoltActionSniperRifle" }
+        }
+        """);
+
+        var reader = new OverrideReader(new InMemoryModDirectoryProvider([modDir]));
+        var settings = reader.Read();
+
+        File.Exists(legacyPath).Should().BeFalse("legacy file should be renamed to .v0.bak");
+        File.Exists(legacyPath + ".v0.bak").Should().BeTrue();
+        File.Exists(canonicalPath).Should().BeTrue();
+
+        var rewritten = File.ReadAllText(canonicalPath);
+        rewritten.Should().Contain("\"version\": 2");
+        rewritten.Should().Contain("manualTypeOverrides");
+
+        settings.ManualTypeOverrides.Should().ContainKey("weapon_legacy_id");
+    }
+
+    [Fact]
+    public void Already_current_WeaponOverrides_is_not_rewritten_and_no_backup_appears()
+    {
+        var modDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(modDir);
+        _tempDirs.Add(modDir);
+
+        var mqwDir = Path.Combine(modDir, "MissingQuestWeapons");
+        Directory.CreateDirectory(mqwDir);
+
+        var canonicalPath = Path.Combine(mqwDir, "WeaponOverrides.jsonc");
+        var content = """
+        {
+            "version": 2,
+            "manualTypeOverrides": { "id1": "AssaultRifle" }
+        }
+        """;
+        File.WriteAllText(canonicalPath, content);
+        var beforeBytes = File.ReadAllBytes(canonicalPath);
+
+        var reader = new OverrideReader(new InMemoryModDirectoryProvider([modDir]));
+        reader.Read();
+
+        File.ReadAllBytes(canonicalPath).Should().Equal(beforeBytes);
+        Directory.GetFiles(mqwDir, "*.bak").Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Quest_v1_file_is_backed_up_as_v1_bak_and_overwritten_with_v2()
+    {
+        var modDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(modDir);
+        _tempDirs.Add(modDir);
+
+        var mqwDir = Path.Combine(modDir, "MissingQuestWeapons");
+        Directory.CreateDirectory(mqwDir);
+
+        var path = Path.Combine(mqwDir, "QuestOverrides.jsonc");
+        File.WriteAllText(path, """
+        {
+            "version": 1,
+            "BlackListedQuests": ["q_a"],
+            "Overrides": [
+                { "id": "q1", "whiteListedWeapons": ["w1"], "onlyUseWhiteListedWeapons": true }
+            ]
+        }
+        """);
+
+        var reader = new OverrideReader(new InMemoryModDirectoryProvider([modDir]));
+        reader.Read();
+
+        File.Exists(path + ".v1.bak").Should().BeTrue();
+        var rewritten = File.ReadAllText(path);
+        rewritten.Should().Contain("\"version\": 2");
+        rewritten.Should().Contain("excludedQuests");
+        rewritten.Should().Contain("includedWeapons");
+    }
 }

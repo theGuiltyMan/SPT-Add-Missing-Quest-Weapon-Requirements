@@ -58,17 +58,11 @@ public sealed class WeaponModsExpander : IConditionExpander
             config,
             logger);
 
-        // User-authored includedMods / excludedMods / ModsExpansionMode apply
-        // only to weaponModsInclusive. Letting them affect weaponModsExclusive
-        // inverts the author's intent: "broaden what satisfies this quest"
-        // would also mean "reject weapons that carry these mods". The exclusive
-        // field still runs through the expander (for baseline auto-expansion
-        // of singleton groups that share a type) but with no override.
         var newExclusive = RewriteField(
             condition.WeaponModsExclusive,
             condition.Id,
             "weaponModsExclusive",
-            overrideEntry: null,
+            overrideEntry,
             config,
             logger);
 

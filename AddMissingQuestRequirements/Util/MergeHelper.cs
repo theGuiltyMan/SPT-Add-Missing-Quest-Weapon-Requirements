@@ -176,32 +176,47 @@ public static class MergeHelper
         {
             var effective = entry.Behaviour ?? fileDefaultBehaviour;
 
-            if (effective == OverrideBehaviour.DELETE)
+            if (!result.TryGetValue(entry.Id, out var existingEntries))
             {
-                result.Remove(entry.Id);
+                if (effective == OverrideBehaviour.DELETE)
+                {
+                    continue;
+                }
+
+                result[entry.Id] = [CloneEntry(entry)];
                 continue;
             }
 
-            if (!result.TryGetValue(entry.Id, out var existingEntries))
+            var matchIndex = existingEntries.FindIndex(e => SameConditionSet(e.Conditions, entry.Conditions));
+
+            if (matchIndex < 0)
             {
-                // New quest ID — always add
-                result[entry.Id] = [CloneEntry(entry)];
+                if (effective == OverrideBehaviour.DELETE
+                    || effective == OverrideBehaviour.IGNORE)
+                {
+                    continue;
+                }
+
+                existingEntries.Add(CloneEntry(entry));
                 continue;
             }
 
             switch (effective)
             {
                 case OverrideBehaviour.IGNORE:
-                    break; // keep existing, skip incoming
-
-                case OverrideBehaviour.REPLACE:
-                    result[entry.Id] = [CloneEntry(entry)];
                     break;
-
+                case OverrideBehaviour.REPLACE:
+                    existingEntries[matchIndex] = CloneEntry(entry);
+                    break;
                 case OverrideBehaviour.MERGE:
-                    // Merge lists into the first existing entry for this quest
-                    var target = existingEntries[0];
-                    result[entry.Id][0] = MergeEntries(target, entry);
+                    existingEntries[matchIndex] = MergeEntries(existingEntries[matchIndex], entry);
+                    break;
+                case OverrideBehaviour.DELETE:
+                    existingEntries.RemoveAt(matchIndex);
+                    if (existingEntries.Count == 0)
+                    {
+                        result.Remove(entry.Id);
+                    }
                     break;
             }
         }
@@ -280,28 +295,35 @@ public static class MergeHelper
 
     private static QuestOverrideEntry CloneEntry(QuestOverrideEntry e) => new()
     {
-        Id                = e.Id,
-        Behaviour         = e.Behaviour,
-        ExpansionMode     = e.ExpansionMode,
-        Conditions        = [..e.Conditions],
-        IncludedWeapons   = [..e.IncludedWeapons],
-        ExcludedWeapons   = [..e.ExcludedWeapons],
-        ModsExpansionMode = e.ModsExpansionMode,
-        IncludedMods      = [..e.IncludedMods],
-        ExcludedMods      = [..e.ExcludedMods],
+        Id              = e.Id,
+        Behaviour       = e.Behaviour,
+        ExpansionMode   = e.ExpansionMode,
+        Conditions      = [..e.Conditions],
+        IncludedWeapons = [..e.IncludedWeapons],
+        ExcludedWeapons = [..e.ExcludedWeapons],
     };
 
     private static QuestOverrideEntry MergeEntries(QuestOverrideEntry a, QuestOverrideEntry b) => new()
     {
-        Id                = a.Id,
-        Behaviour         = a.Behaviour,
+        Id              = a.Id,
+        Behaviour       = a.Behaviour,
         // When merging, prefer the more restrictive mode (NoExpansion > WhitelistOnly > Auto)
-        ExpansionMode     = (ExpansionMode)Math.Max((int)a.ExpansionMode, (int)b.ExpansionMode),
-        Conditions        = [..a.Conditions.Union(b.Conditions)],
-        IncludedWeapons   = [..a.IncludedWeapons.Union(b.IncludedWeapons)],
-        ExcludedWeapons   = [..a.ExcludedWeapons.Union(b.ExcludedWeapons)],
-        ModsExpansionMode = (ExpansionMode)Math.Max((int)a.ModsExpansionMode, (int)b.ModsExpansionMode),
-        IncludedMods      = [..a.IncludedMods.Union(b.IncludedMods)],
-        ExcludedMods      = [..a.ExcludedMods.Union(b.ExcludedMods)],
+        ExpansionMode   = (ExpansionMode)Math.Max((int)a.ExpansionMode, (int)b.ExpansionMode),
+        Conditions      = [..a.Conditions.Union(b.Conditions)],
+        IncludedWeapons = [..a.IncludedWeapons.Union(b.IncludedWeapons)],
+        ExcludedWeapons = [..a.ExcludedWeapons.Union(b.ExcludedWeapons)],
     };
+
+    private static bool SameConditionSet(
+        IReadOnlyCollection<string> a,
+        IReadOnlyCollection<string> b)
+    {
+        if (a.Count != b.Count)
+        {
+            return false;
+        }
+        var setA = new HashSet<string>(a, StringComparer.Ordinal);
+        var setB = new HashSet<string>(b, StringComparer.Ordinal);
+        return setA.SetEquals(setB);
+    }
 }

@@ -2,7 +2,11 @@ using System.Text.Json.Nodes;
 
 namespace AddMissingQuestRequirements.Config;
 
-public sealed record MigrationResult(JsonObject Json, IReadOnlyList<string> Warnings);
+public sealed record MigrationResult(
+    JsonObject Json,
+    int OriginalVersion,
+    bool WasMigrated,
+    IReadOnlyList<string> Warnings);
 
 /// <summary>
 /// Applies an ordered chain of migration functions to a raw JSON object,
@@ -29,20 +33,20 @@ public static class ConfigMigrator
             warnings.Add(
                 $"Config version {fileVersion} is newer than the mod's expected version {currentVersion}. " +
                 "Some settings may be ignored.");
-            return new MigrationResult(json, warnings);
+            return new MigrationResult(json, fileVersion, false, warnings);
         }
 
-        // Apply migrations from fileVersion to currentVersion.
-        // If no function is defined for a step the file is already compatible — skip it.
         for (var from = fileVersion; from < currentVersion; from++)
         {
             if (from < migrations.Length)
+            {
                 json = migrations[from](json);
+            }
         }
 
-        // Stamp the final version
         json["version"] = currentVersion;
 
-        return new MigrationResult(json, warnings);
+        var wasMigrated = fileVersion < currentVersion;
+        return new MigrationResult(json, fileVersion, wasMigrated, warnings);
     }
 }

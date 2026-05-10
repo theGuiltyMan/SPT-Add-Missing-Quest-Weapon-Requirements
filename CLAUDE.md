@@ -36,8 +36,8 @@ Auto-deploy on Windows: copy `local.props.template` → `local.props`, set `SptR
 
 Two modes, one binary:
 
-- **One-shot CLI** (`tools/inspect.bat [inspector-config.json]` on Windows, or `dotnet run --project AddMissingQuestRequirements.Inspector` anywhere) — run the pipeline once, write `inspector-report.html` + `inspector-report.json`. Self-contained.
-- **Serve** (`tools/inspect-serve.bat [--port N] [--no-open]` on Windows, or `dotnet run --project AddMissingQuestRequirements.Inspector -- serve` anywhere) — local HTTP server at `http://localhost:5173`, opens the browser, watches `MainConfigPath` for saves. Each `*.jsonc` save reruns the pipeline and pushes the new state over SSE; broken JSONC shows a toast and keeps the last good state. Read-only to disk.
+- **One-shot CLI** (`inspect.bat [inspector-config.json]`) — run the pipeline once, write `inspector-report.html` + `inspector-report.json`. Self-contained.
+- **Serve** (`inspect-serve.bat [--port N] [--no-open]`) — local HTTP server at `http://localhost:5173`, opens the browser, watches `MainConfigPath` for saves. Each `*.jsonc` save reruns the pipeline and pushes the new state over SSE; broken JSONC shows a toast and keeps the last good state. Read-only to disk.
 
 ## SPT integration patterns
 

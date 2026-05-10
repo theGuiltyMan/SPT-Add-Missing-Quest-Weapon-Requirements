@@ -97,8 +97,7 @@
     "Ammo_Proficiency_601949593ae8f707c4608daa_Trade",
     "Ammo_Proficiency_601aa3d2b2bcb34913271e6d_Trade",
     "Ammo_Proficiency_61962d879bb3d20b0946d385_Trade",
-    "double_agent_19_fence",
-    "671a59e43d73dac1360765cc" // Dangerous Props
+    "double_agent_19_fence"
   ],
   // Mod-group overrides (A3). Mod groups use intra-group AND, cross-group OR:
   //   "modsExpansionMode": "Auto" | "WhitelistOnly" | "NoExpansion"

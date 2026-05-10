@@ -16,7 +16,7 @@ Unit tests are hermetic and run offline in a few seconds. Integration tests need
 ## Project layout
 
 - `AddMissingQuestRequirements/` — the mod. Three pipeline phases under `Pipeline/`: `Override/` reads user config, `Weapon/` + `Attachment/` categorize items, `Quest/` patches quest conditions. SPT wiring in `Spt/AddMissingQuestRequirementsLoader.cs`.
-- `AddMissingQuestRequirements.Inspector/` — standalone CLI that runs the same pipeline against an exported DB slice and emits a JSON + HTML report. Two modes: one-shot and serve + watch. Run via `dotnet run --project AddMissingQuestRequirements.Inspector [-- serve]`, or the Windows wrappers in `tools/`.
+- `AddMissingQuestRequirements.Inspector/` — standalone CLI that runs the same pipeline against an exported DB slice and emits a JSON + HTML report. Two modes: one-shot (`inspect.bat`) and serve + watch (`inspect-serve.bat`).
 - `AddMissingQuestRequirements.Tests/` — xUnit + FluentAssertions. Integration tests are opt-in via `[Trait("Category", "Integration")]`.
 - `SptDbExporter/` — small utility that dumps the SPT item/quest/locale tables to JSON so the Inspector can run without booting a server. `SptDbExporter/export/` is gitignored; check it in only for tracked test fixtures.
 - `config/` — the default `config.jsonc` + `MissingQuestWeapons/*.jsonc` shipped to end-users.

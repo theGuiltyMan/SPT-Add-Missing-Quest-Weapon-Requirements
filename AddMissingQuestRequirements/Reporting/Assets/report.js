@@ -13,56 +13,43 @@ function esc(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;');
 }
 
-// Mod-group arrays are conceptually a set-of-groups where each group is a
-// set-of-ids (intra-group AND, cross-group OR). Diffing them by array index
-// shows spurious -/+ lines whenever the pipeline emits groups in a different
-// order. Key each group by its sorted id list and diff by key presence.
 function renderModGroupDiffs(label, before, after) {
   if (before.length === 0 && after.length === 0) { return ''; }
-
-  const keyOf = g => g.map(w => w.id).slice().sort().join(',');
-  const sortItems = g => g.slice().sort((a, b) => a.id.localeCompare(b.id));
-
-  const byKey = new Map();
-  before.forEach(g => {
-    const k = keyOf(g);
-    if (!byKey.has(k)) { byKey.set(k, { key: k, before: g, after: null }); }
-  });
-  after.forEach(g => {
-    const k = keyOf(g);
-    const existing = byKey.get(k);
-    if (existing) { existing.after = g; }
-    else { byKey.set(k, { key: k, before: null, after: g }); }
-  });
-
-  const entries = [...byKey.values()].sort((a, b) => a.key.localeCompare(b.key));
-
-  const itemLine = (marker, cls, w) =>
-    `<div class="${cls}">${marker} ${esc(w.name)} <span class="id-hover" title="${esc(w.id)}">${esc(w.id)}</span></div>`;
-
   let html = '';
-  entries.forEach((e, i) => {
+  const count = Math.max(before.length, after.length);
+  for (let i = 0; i < count; i++) {
+    const bg = before[i] || [];
+    const ag = after[i] || [];
+    const bgIds = new Set(bg.map(w => w.id));
+    const agIds = new Set(ag.map(w => w.id));
     html += `<div class="mod-group-label">${label} [${i}]</div>`;
     html += '<div class="git-diff">';
-    if (e.before && e.after) {
-      sortItems(e.after).forEach(w => { html += itemLine('&nbsp;', 'diff-same', w); });
-    } else if (e.before) {
-      sortItems(e.before).forEach(w => { html += itemLine('-', 'diff-removed', w); });
-    } else {
-      sortItems(e.after).forEach(w => { html += itemLine('+', 'diff-added', w); });
-    }
+    bg.forEach(w => {
+      if (!agIds.has(w.id)) {
+        html += `<div class="diff-removed">- ${esc(w.name)} <span class="id-hover" title="${esc(w.id)}">${esc(w.id)}</span></div>`;
+      }
+    });
+    ag.forEach(w => {
+      if (bgIds.has(w.id)) {
+        html += `<div class="diff-same">  ${esc(w.name)} <span class="id-hover" title="${esc(w.id)}">${esc(w.id)}</span></div>`;
+      } else {
+        html += `<div class="diff-added">+ ${esc(w.name)} <span class="id-hover" title="${esc(w.id)}">${esc(w.id)}</span></div>`;
+      }
+    });
     html += '</div>';
-  });
+  }
   return html;
 }
 
 function countGroupAdditions(before, after) {
-  const keyOf = g => g.map(w => w.id).slice().sort().join(',');
-  const beforeKeys = new Set(before.map(keyOf));
   let n = 0;
-  after.forEach(g => {
-    if (!beforeKeys.has(keyOf(g))) { n += g.length; }
-  });
+  const count = Math.max(before.length, after.length);
+  for (let i = 0; i < count; i++) {
+    const b = before[i] || [];
+    const a = after[i] || [];
+    const bIds = new Set(b.map(w => w.id));
+    n += a.filter(w => !bIds.has(w.id)).length;
+  }
   return n;
 }
 

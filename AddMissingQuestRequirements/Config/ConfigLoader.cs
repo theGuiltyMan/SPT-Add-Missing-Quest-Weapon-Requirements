@@ -4,7 +4,12 @@ using AddMissingQuestRequirements.Util;
 
 namespace AddMissingQuestRequirements.Config;
 
-public sealed record LoadResult<T>(T Config, IReadOnlyList<string> Warnings);
+public sealed record LoadResult<T>(
+    T Config,
+    JsonObject MigratedJson,
+    int OriginalVersion,
+    bool WasMigrated,
+    IReadOnlyList<string> Warnings);
 
 /// <summary>
 /// Chains JsoncReader → ConfigMigrator → JsonSerializer to load a typed config file.
@@ -30,7 +35,7 @@ public static class ConfigLoader
         var obj = node?.AsObject() ?? new JsonObject();
         var migrated = ConfigMigrator.Migrate(obj, currentVersion, migrations);
         var config = migrated.Json.Deserialize<T>(JsoncReader.DefaultOptions) ?? new T();
-        return new LoadResult<T>(config, migrated.Warnings);
+        return new LoadResult<T>(config, migrated.Json, migrated.OriginalVersion, migrated.WasMigrated, migrated.Warnings);
     }
 
     /// <summary>
@@ -43,7 +48,9 @@ public static class ConfigLoader
         where T : IVersionedConfig, new()
     {
         if (!File.Exists(path))
-            return new LoadResult<T>(new T(), []);
+        {
+            return new LoadResult<T>(new T(), new JsonObject(), currentVersion, false, []);
+        }
 
         var content = File.ReadAllText(path);
         return LoadFromString<T>(content, currentVersion, migrations);

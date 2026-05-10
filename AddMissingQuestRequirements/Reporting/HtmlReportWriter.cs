@@ -166,16 +166,19 @@ public static class HtmlReportWriter
         Console.WriteLine($"Report written to {outputPath}");
     }
 
-    /// <summary>
-    /// The tab bar + panel containers shared by the one-shot HTML report and the
-    /// live-serve inspector shell. Keeping it in one place stops the two
-    /// consumers from drifting — missing panels here cause the JS render chain
-    /// (<c>renderAttachments</c>, <c>renderQuests</c>, …) to null-ref and abort.
-    /// Does not include a <c>&lt;script&gt;</c> block — callers add their own
-    /// (inline data + report.js vs external /report.js + /shell.js).
-    /// </summary>
-    public static string ReportShellBody { get; } =
-        """
+    private static string BuildHtml(string dataJson)
+    {
+        return $$"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MQR Inspector</title>
+<style>
+{{ReportCss}}
+</style>
+</head>
+<body>
 <div class="tabs">
   <button class="tab-btn active" onclick="showTab('settings')">Settings</button>
   <button class="tab-btn" onclick="showTab('weapons')">Weapons</button>
@@ -231,22 +234,7 @@ public static class HtmlReportWriter
   </div>
   <div id="quests-panel"></div>
 </div>
-""";
 
-    private static string BuildHtml(string dataJson)
-    {
-        return $$"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>MQR Inspector</title>
-<style>
-{{ReportCss}}
-</style>
-</head>
-<body>
-{{ReportShellBody}}
 <script>
 window.__INSPECTOR_DATA__ = {{dataJson}};
 {{_reportJs.Value}}

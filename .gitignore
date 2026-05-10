@@ -70,6 +70,7 @@ SptDbExporter/K:/
 
 # Local backup / scratch directories
 old_version/
+amqr_patches/
 
 # OS
 .DS_Store

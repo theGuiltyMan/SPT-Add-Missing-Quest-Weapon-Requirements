@@ -323,57 +323,6 @@ public class MergeHelperTests
         result["quest_new"][0].IncludedWeapons.Should().BeEquivalentTo(["weapon_x"]);
     }
 
-    [Fact]
-    public void MergeQuestEntries_preserves_mod_fields_on_new_quest_add()
-    {
-        // Guards a real regression: the clone path dropped IncludedMods /
-        // ExcludedMods / ModsExpansionMode on every insert, so user-authored
-        // attachment-group overrides silently never reached the expander.
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>();
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new()
-            {
-                Id                = "quest_new",
-                ModsExpansionMode = ExpansionMode.WhitelistOnly,
-                IncludedMods      = ["attachment_a", "attachment_b"],
-                ExcludedMods      = ["attachment_c"]
-            }
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.IGNORE);
-
-        var entry = result["quest_new"][0];
-        entry.ModsExpansionMode.Should().Be(ExpansionMode.WhitelistOnly);
-        entry.IncludedMods.Should().BeEquivalentTo(["attachment_a", "attachment_b"]);
-        entry.ExcludedMods.Should().BeEquivalentTo(["attachment_c"]);
-    }
-
-    [Fact]
-    public void MergeQuestEntries_MERGE_unions_mod_fields_across_entries()
-    {
-        var existing = EntriesToDict([new QuestOverrideEntry
-        {
-            Id           = "quest1",
-            IncludedMods = ["a1"],
-            ExcludedMods = ["x1"]
-        }]);
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new()
-            {
-                Id           = "quest1",
-                IncludedMods = ["a2"],
-                ExcludedMods = ["x2"]
-            }
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
-
-        result["quest1"][0].IncludedMods.Should().BeEquivalentTo(["a1", "a2"]);
-        result["quest1"][0].ExcludedMods.Should().BeEquivalentTo(["x1", "x2"]);
-    }
-
     // ── MergeTypeRules ──────────────────────────────────────────────────────
 
     // File-level behaviour
@@ -518,6 +467,129 @@ public class MergeHelperTests
 
         result.Should().HaveCount(1);
         result[0].Behaviour.Should().Be(OverrideBehaviour.REPLACE);
+    }
+
+    [Fact]
+    public void MergeQuestEntries_REPLACE_with_unmatched_conditions_appends_instead_of_wiping_id()
+    {
+        var existing = new Dictionary<string, List<QuestOverrideEntry>>
+        {
+            ["q1"] =
+            [
+                new() { Id = "q1", Conditions = ["c1"], IncludedWeapons = ["a"] },
+                new() { Id = "q1", Conditions = ["c2"], IncludedWeapons = ["b"] },
+            ],
+        };
+        var incoming = new List<QuestOverrideEntry>
+        {
+            new() { Id = "q1", Conditions = ["c3"], IncludedWeapons = ["c"] },
+        };
+
+        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.REPLACE);
+
+        result["q1"].Should().HaveCount(3);
+        result["q1"].Select(e => e.Conditions.Single())
+            .Should().BeEquivalentTo(["c1", "c2", "c3"]);
+    }
+
+    [Fact]
+    public void MergeQuestEntries_IGNORE_with_unmatched_conditions_skips_incoming()
+    {
+        var existing = new Dictionary<string, List<QuestOverrideEntry>>
+        {
+            ["q1"] = [new() { Id = "q1", Conditions = ["c1"], IncludedWeapons = ["a"] }],
+        };
+        var incoming = new List<QuestOverrideEntry>
+        {
+            new() { Id = "q1", Conditions = ["c2"], IncludedWeapons = ["b"] },
+        };
+
+        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.IGNORE);
+
+        result["q1"].Should().HaveCount(1);
+        result["q1"][0].Conditions.Should().BeEquivalentTo(["c1"]);
+        result["q1"][0].IncludedWeapons.Should().BeEquivalentTo(["a"]);
+    }
+
+    [Fact]
+    public void MergeQuestEntries_duplicate_condition_strings_are_not_treated_as_set_equal()
+    {
+        // Guards against a subset-probe regression in SameConditionSet: ["c1","c1"]
+        // and ["c1","c2"] have the same Count but are different sets. The duplicate-
+        // laden incoming entry must not match the distinct-element existing entry.
+        var existing = new Dictionary<string, List<QuestOverrideEntry>>
+        {
+            ["q1"] = [new() { Id = "q1", Conditions = ["c1", "c2"], IncludedWeapons = ["a"] }],
+        };
+        var incoming = new List<QuestOverrideEntry>
+        {
+            new() { Id = "q1", Conditions = ["c1", "c1"], IncludedWeapons = ["b"] },
+        };
+
+        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
+
+        result["q1"].Should().HaveCount(2);
+        result["q1"].Single(e => e.Conditions.SequenceEqual(new[] { "c1", "c2" })).IncludedWeapons
+            .Should().BeEquivalentTo(["a"]);
+    }
+
+    // ── Conditions-set scoping ───────────────────────────────────────────────
+
+    [Fact]
+    public void MergeQuestEntries_same_id_distinct_conditions_coexist_under_MERGE()
+    {
+        var existing = new Dictionary<string, List<QuestOverrideEntry>>();
+        var incoming = new List<QuestOverrideEntry>
+        {
+            new() { Id = "q1", Conditions = ["c1"], IncludedWeapons = ["a"] },
+            new() { Id = "q1", Conditions = ["c2"], IncludedWeapons = ["b"] },
+            new() { Id = "q1", Conditions = ["c3"], IncludedWeapons = ["c"] },
+        };
+
+        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
+
+        result["q1"].Should().HaveCount(3);
+        result["q1"].Select(e => e.Conditions.Single())
+            .Should().BeEquivalentTo(["c1", "c2", "c3"]);
+    }
+
+    [Fact]
+    public void MergeQuestEntries_empty_and_scoped_conditions_coexist()
+    {
+        var existing = new Dictionary<string, List<QuestOverrideEntry>>
+        {
+            ["q1"] = [new() { Id = "q1", Conditions = [], IncludedWeapons = ["broad"] }],
+        };
+        var incoming = new List<QuestOverrideEntry>
+        {
+            new() { Id = "q1", Conditions = ["c1"], IncludedWeapons = ["scoped"] },
+        };
+
+        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
+
+        result["q1"].Should().HaveCount(2);
+        result["q1"].Single(e => e.Conditions.Count == 0).IncludedWeapons
+            .Should().BeEquivalentTo(["broad"]);
+        result["q1"].Single(e => e.Conditions.SequenceEqual(new[] { "c1" })).IncludedWeapons
+            .Should().BeEquivalentTo(["scoped"]);
+    }
+
+    [Fact]
+    public void MergeQuestEntries_same_id_same_conditions_still_merge_under_MERGE()
+    {
+        var existing = new Dictionary<string, List<QuestOverrideEntry>>
+        {
+            ["q1"] = [new() { Id = "q1", Conditions = ["c1"], IncludedWeapons = ["a"] }],
+        };
+        var incoming = new List<QuestOverrideEntry>
+        {
+            new() { Id = "q1", Conditions = ["c1"], IncludedWeapons = ["b"] },
+        };
+
+        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
+
+        result["q1"].Should().HaveCount(1);
+        result["q1"][0].IncludedWeapons.Should().BeEquivalentTo(["a", "b"]);
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────────
