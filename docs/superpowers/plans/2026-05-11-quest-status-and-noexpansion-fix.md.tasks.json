@@ -1,0 +1,54 @@
+{
+  "planPath": "docs/superpowers/plans/2026-05-11-quest-status-and-noexpansion-fix.md",
+  "tasks": [
+    {
+      "id": 0,
+      "subject": "Task 1: NoExpansion appends includedWeapons",
+      "status": "pending",
+      "description": "**Goal:** Under ExpansionMode.NoExpansion, overrideEntry.IncludedWeapons is appended to the condition's weapon list. Excludes and aliases continue to apply.\n\n**Files:**\n- Modify: AddMissingQuestRequirements/Pipeline/Weapon/WeaponArrayExpander.cs:83-89\n- Test: AddMissingQuestRequirements.Tests/Pipeline/Weapon/WeaponArrayExpanderTests.cs\n\n**Acceptance Criteria:**\n- Single-weapon condition + override {NoExpansion, IncludedWeapons=[\"TypeName\"]} adds every type member.\n- Bare-id IncludedWeapons appended once.\n- Original weapons preserved.\n- ExcludedWeapons still removed after additions.\n- Existing WhitelistOnly_* / Auto_* tests still pass.\n\n**Verify:** `dotnet test --filter \"FullyQualifiedName~WeaponArrayExpanderTests\"` green.\n\n```json:metadata\n{\"files\": [\"AddMissingQuestRequirements/Pipeline/Weapon/WeaponArrayExpander.cs\", \"AddMissingQuestRequirements.Tests/Pipeline/Weapon/WeaponArrayExpanderTests.cs\"], \"verifyCommand\": \"dotnet test --filter \\\"FullyQualifiedName~WeaponArrayExpanderTests\\\"\", \"acceptanceCriteria\": [\"NoExpansion + type name appends all members\", \"NoExpansion + bare id appends once\", \"original weapons preserved\", \"excludes still apply\", \"existing tests pass\"]}\n```"
+    },
+    {
+      "id": 1,
+      "subject": "Task 2: MergeHelper MoreRestrictive priority",
+      "status": "pending",
+      "blockedBy": [0],
+      "description": "**Goal:** When two QuestOverrideEntry merge under MERGE, the more restrictive mode wins by intent (WhitelistOnly > NoExpansion > Auto), not by enum int value.\n\n**Files:**\n- Modify: AddMissingQuestRequirements/Util/MergeHelper.cs:309-321\n- Test: AddMissingQuestRequirements.Tests/Util/MergeHelperTests.cs\n\n**Acceptance Criteria:**\n- WhitelistOnly vs NoExpansion → WhitelistOnly\n- NoExpansion vs Auto → NoExpansion\n- WhitelistOnly vs Auto → WhitelistOnly\n- Same three for ModsExpansionMode\n- Existing MergeHelperTests pass or updated to new priority.\n\n**Verify:** `dotnet test --filter \"FullyQualifiedName~MergeHelperTests\"` green.\n\n```json:metadata\n{\"files\": [\"AddMissingQuestRequirements/Util/MergeHelper.cs\", \"AddMissingQuestRequirements.Tests/Util/MergeHelperTests.cs\"], \"verifyCommand\": \"dotnet test --filter \\\"FullyQualifiedName~MergeHelperTests\\\"\", \"acceptanceCriteria\": [\"WhitelistOnly beats NoExpansion\", \"NoExpansion beats Auto\", \"WhitelistOnly beats Auto\", \"mirror for ModsExpansionMode\"]}\n```"
+    },
+    {
+      "id": 2,
+      "subject": "Task 3: Doc updates (ExpansionMode + CLAUDE.md)",
+      "status": "pending",
+      "blockedBy": [1],
+      "description": "**Goal:** ExpansionMode XML doc and CLAUDE.md key behavioural rules describe post-fix NoExpansion semantics.\n\n**Files:**\n- Modify: AddMissingQuestRequirements/Models/ExpansionMode.cs:27-33\n- Modify: CLAUDE.md (§Key behavioural rules)\n\n**Acceptance Criteria:**\n- ExpansionMode.NoExpansion XML doc states includedWeapons still appended.\n- CLAUDE.md describes NoExpansion appending IncludedWeapons.\n- `grep -rn \"whitelist additions are suppressed\" AddMissingQuestRequirements/ CLAUDE.md` returns nothing.\n\n**Verify:** `dotnet build -c Release` clean.\n\n```json:metadata\n{\"files\": [\"AddMissingQuestRequirements/Models/ExpansionMode.cs\", \"CLAUDE.md\"], \"verifyCommand\": \"dotnet build -c Release && grep -rn 'whitelist additions are suppressed' AddMissingQuestRequirements/ CLAUDE.md\", \"acceptanceCriteria\": [\"XML doc updated\", \"CLAUDE.md updated\", \"no stale wording\"]}\n```"
+    },
+    {
+      "id": 3,
+      "subject": "Task 4: QuestStatus enum + classification",
+      "status": "pending",
+      "blockedBy": [2],
+      "description": "**Goal:** Each QuestResult carries one mutually-exclusive QuestStatus of Blacklisted|NoEligibleConditions|Noop|Expanded. Legacy bool Noop getter removed.\n\n**Files:**\n- Create: AddMissingQuestRequirements/Reporting/QuestStatus.cs\n- Modify: AddMissingQuestRequirements/Reporting/InspectorResult.cs:63-73\n- Modify: AddMissingQuestRequirements/Reporting/ReportBuilder.cs:166-248\n- Modify: AddMissingQuestRequirements/Reporting/HtmlReportWriter.cs (JsonSerializerOptions)\n- Create: AddMissingQuestRequirements.Tests/Reporting/QuestStatusTests.cs\n\n**Acceptance Criteria:**\n- Enum defined.\n- QuestResult.Status required init; Noop getter removed.\n- BuildQuestList sets Status by precedence Blacklisted > NoEligibleConditions > Noop > Expanded.\n- JSON serializes enum as string.\n- 4 classification tests green.\n- Pre-existing quest.Noop usages migrated to Status == QuestStatus.Noop.\n\n**Verify:** `dotnet test --filter \"FullyQualifiedName!~Integration\"` green.\n\n```json:metadata\n{\"files\": [\"AddMissingQuestRequirements/Reporting/QuestStatus.cs\", \"AddMissingQuestRequirements/Reporting/InspectorResult.cs\", \"AddMissingQuestRequirements/Reporting/ReportBuilder.cs\", \"AddMissingQuestRequirements/Reporting/HtmlReportWriter.cs\", \"AddMissingQuestRequirements.Tests/Reporting/QuestStatusTests.cs\"], \"verifyCommand\": \"dotnet test --filter \\\"FullyQualifiedName!~Integration\\\"\", \"acceptanceCriteria\": [\"enum defined\", \"Status required\", \"Noop getter removed\", \"precedence applied\", \"JSON string enum\", \"4 classification tests\", \"migrated usages\"]}\n```"
+    },
+    {
+      "id": 4,
+      "subject": "Task 5: HTML filter bar + badge CSS",
+      "status": "pending",
+      "blockedBy": [3],
+      "description": "**Goal:** Quests tab filter bar replaces single Hide NOOP checkbox with four status checkboxes; CSS gains badge-blacklisted and badge-empty.\n\n**Files:**\n- Modify: AddMissingQuestRequirements/Reporting/HtmlReportWriter.cs (CSS + quest filter bar)\n\n**Acceptance Criteria:**\n- 4 named status-cb checkboxes; Expanded checked by default.\n- CSS .badge-blacklisted (red) + .badge-empty (gray) + .status-filter layout.\n- HtmlReportWriter tests still pass.\n\n**Verify:** `dotnet build -c Release && dotnet test --filter \"FullyQualifiedName~HtmlReportWriterTests\"` green.\n\n```json:metadata\n{\"files\": [\"AddMissingQuestRequirements/Reporting/HtmlReportWriter.cs\"], \"verifyCommand\": \"dotnet build -c Release && dotnet test --filter \\\"FullyQualifiedName~HtmlReportWriterTests\\\"\", \"acceptanceCriteria\": [\"4 checkboxes with correct values\", \"badge CSS added\", \"writer tests pass\"]}\n```"
+    },
+    {
+      "id": 5,
+      "subject": "Task 6: report.js badge + multi-checkbox filter + session migration",
+      "status": "pending",
+      "blockedBy": [4],
+      "description": "**Goal:** Rendered Quests panel shows status-specific badge per quest; new four-checkbox filter shows/hides rows with AND-intersection vs search; sessionStorage holds statusFilter[] with legacy hideNoop upgrade.\n\n**Files:**\n- Modify: AddMissingQuestRequirements/Reporting/Assets/report.js (renderQuests, filterQuests, persist/restore)\n\n**Acceptance Criteria:**\n- div.dataset.status = q.status.\n- Badge per status with correct CSS class and text.\n- filterQuests intersects search and checked-status set.\n- persist writes statusFilter[].\n- restore reads statusFilter[]; legacy hideNoop bool upgrades to [\"Expanded\"] or full set.\n- Old-report compatibility: q.status falls back via q.noop.\n\n**Verify:** Manual — inspector report renders, filter UX works.\n\n```json:metadata\n{\"files\": [\"AddMissingQuestRequirements/Reporting/Assets/report.js\"], \"verifyCommand\": \"dotnet build -c Release && dotnet run --project AddMissingQuestRequirements.Inspector\", \"acceptanceCriteria\": [\"dataset.status set\", \"4 badges work\", \"filter intersects search\", \"persist statusFilter\", \"restore + legacy upgrade\", \"compat fallback\"]}\n```"
+    },
+    {
+      "id": 6,
+      "subject": "Task 7: Full-suite verification + manual Lotus check",
+      "status": "pending",
+      "blockedBy": [5],
+      "description": "**Goal:** Bundled changes pass automated tests and produce expected output on user's reported Lotus quests.\n\n**Files:** none modified.\n\n**Acceptance Criteria:**\n- `dotnet build -c Release` clean: 0 warnings, 0 errors.\n- `dotnet test --filter \"FullyQualifiedName!~Integration\"` green.\n- `dotnet test --filter \"Category=Integration\"` green or no-op.\n- Inspector report against AMQWR-patches-4.x/Lotus shows expected behaviour on 67ea813bd8d2dc676746f53e, 6748690cb0fff3f2a5ba3d47, 67486a44ec1dc8048f7cb2dc.\n- Default HTML filter shows only Expanded; toggling reveals other buckets.\n\n**Verify:** see steps in plan task 7.\n\n```json:metadata\n{\"files\": [], \"verifyCommand\": \"dotnet build -c Release && dotnet test --filter \\\"FullyQualifiedName!~Integration\\\"\", \"acceptanceCriteria\": [\"build clean\", \"all unit tests green\", \"integration green or no-op\", \"3 Lotus quests verified\", \"HTML filter UX verified\"]}\n```"
+    }
+  ],
+  "lastUpdated": "2026-05-11T19:36:00Z"
+}

@@ -25,8 +25,9 @@ public enum ExpansionMode
     WhitelistOnly,
 
     /// <summary>
-    /// Weapons: type expansion and whitelist additions are suppressed. Only
-    /// canBeUsedAs aliases are applied to the original weapon list.
+    /// Weapons: type expansion is suppressed. The original weapon list is preserved.
+    /// <c>includedWeapons</c> are still appended. <c>excludedWeapons</c> still applied
+    /// after additions. <c>canBeUsedAs</c> aliases still applied.
     /// Mods: every original group is kept verbatim (no type or alias expansion);
     /// <c>includedMods</c> is still appended as new singleton groups.
     /// </summary>

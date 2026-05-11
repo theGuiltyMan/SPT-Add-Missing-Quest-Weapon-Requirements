@@ -69,7 +69,7 @@ public sealed class QuestResult
     public string? Location { get; init; }
     public string? QuestType { get; init; }
     public required List<ConditionResult> Conditions { get; init; }
-    public bool Noop => Conditions.All(c => c.Noop);
+    public required QuestStatus Status { get; init; }
 }
 
 public sealed class ConditionResult

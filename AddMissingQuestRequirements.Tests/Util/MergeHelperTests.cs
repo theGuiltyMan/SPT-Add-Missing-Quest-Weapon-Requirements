@@ -621,7 +621,7 @@ public class MergeHelperTests
     }
 
     [Fact]
-    public void MergeQuestEntries_MERGE_unions_mod_lists_and_takes_max_mods_mode()
+    public void MergeQuestEntries_MERGE_unions_mod_lists_and_takes_most_restrictive_mods_mode()
     {
         var existing = new Dictionary<string, List<QuestOverrideEntry>>
         {
@@ -652,9 +652,168 @@ public class MergeHelperTests
         var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
 
         var entry = result["q1"].Single();
-        entry.ModsExpansionMode.Should().Be(ExpansionMode.NoExpansion);
+        // WhitelistOnly is more restrictive than NoExpansion — it wins.
+        entry.ModsExpansionMode.Should().Be(ExpansionMode.WhitelistOnly);
         entry.IncludedMods.Should().BeEquivalentTo(["mod-a", "mod-b"]);
         entry.ExcludedMods.Should().BeEquivalentTo(["mod-x", "mod-y"]);
+    }
+
+    // ── ExpansionMode priority in MergeEntries ──────────────────────────────
+
+    [Fact]
+    public void Merge_WhitelistOnly_Wins_Over_NoExpansion_On_ExpansionMode()
+    {
+        var existing = new Dictionary<string, List<QuestOverrideEntry>>
+        {
+            ["q"] = [new QuestOverrideEntry
+            {
+                Id            = "q",
+                ExpansionMode = ExpansionMode.WhitelistOnly,
+            }],
+        };
+        var incoming = new List<QuestOverrideEntry>
+        {
+            new()
+            {
+                Id            = "q",
+                ExpansionMode = ExpansionMode.NoExpansion,
+            },
+        };
+
+        var merged = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
+
+        merged["q"].Should().HaveCount(1);
+        merged["q"][0].ExpansionMode.Should().Be(ExpansionMode.WhitelistOnly);
+    }
+
+    [Fact]
+    public void Merge_WhitelistOnly_Wins_Over_Auto_On_ExpansionMode()
+    {
+        var existing = new Dictionary<string, List<QuestOverrideEntry>>
+        {
+            ["q"] = [new QuestOverrideEntry
+            {
+                Id            = "q",
+                ExpansionMode = ExpansionMode.Auto,
+            }],
+        };
+        var incoming = new List<QuestOverrideEntry>
+        {
+            new()
+            {
+                Id            = "q",
+                ExpansionMode = ExpansionMode.WhitelistOnly,
+            },
+        };
+
+        var merged = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
+
+        merged["q"].Should().HaveCount(1);
+        merged["q"][0].ExpansionMode.Should().Be(ExpansionMode.WhitelistOnly);
+    }
+
+    [Fact]
+    public void Merge_NoExpansion_Wins_Over_Auto_On_ExpansionMode()
+    {
+        var existing = new Dictionary<string, List<QuestOverrideEntry>>
+        {
+            ["q"] = [new QuestOverrideEntry
+            {
+                Id            = "q",
+                ExpansionMode = ExpansionMode.NoExpansion,
+            }],
+        };
+        var incoming = new List<QuestOverrideEntry>
+        {
+            new()
+            {
+                Id            = "q",
+                ExpansionMode = ExpansionMode.Auto,
+            },
+        };
+
+        var merged = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
+
+        merged["q"].Should().HaveCount(1);
+        merged["q"][0].ExpansionMode.Should().Be(ExpansionMode.NoExpansion);
+    }
+
+    [Fact]
+    public void Merge_WhitelistOnly_Wins_Over_NoExpansion_On_ModsExpansionMode()
+    {
+        var existing = new Dictionary<string, List<QuestOverrideEntry>>
+        {
+            ["q"] = [new QuestOverrideEntry
+            {
+                Id                = "q",
+                ModsExpansionMode = ExpansionMode.WhitelistOnly,
+            }],
+        };
+        var incoming = new List<QuestOverrideEntry>
+        {
+            new()
+            {
+                Id                = "q",
+                ModsExpansionMode = ExpansionMode.NoExpansion,
+            },
+        };
+
+        var merged = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
+
+        merged["q"].Should().HaveCount(1);
+        merged["q"][0].ModsExpansionMode.Should().Be(ExpansionMode.WhitelistOnly);
+    }
+
+    [Fact]
+    public void Merge_WhitelistOnly_Wins_Over_Auto_On_ModsExpansionMode()
+    {
+        var existing = new Dictionary<string, List<QuestOverrideEntry>>
+        {
+            ["q"] = [new QuestOverrideEntry
+            {
+                Id                = "q",
+                ModsExpansionMode = ExpansionMode.Auto,
+            }],
+        };
+        var incoming = new List<QuestOverrideEntry>
+        {
+            new()
+            {
+                Id                = "q",
+                ModsExpansionMode = ExpansionMode.WhitelistOnly,
+            },
+        };
+
+        var merged = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
+
+        merged["q"].Should().HaveCount(1);
+        merged["q"][0].ModsExpansionMode.Should().Be(ExpansionMode.WhitelistOnly);
+    }
+
+    [Fact]
+    public void Merge_NoExpansion_Wins_Over_Auto_On_ModsExpansionMode()
+    {
+        var existing = new Dictionary<string, List<QuestOverrideEntry>>
+        {
+            ["q"] = [new QuestOverrideEntry
+            {
+                Id                = "q",
+                ModsExpansionMode = ExpansionMode.NoExpansion,
+            }],
+        };
+        var incoming = new List<QuestOverrideEntry>
+        {
+            new()
+            {
+                Id                = "q",
+                ModsExpansionMode = ExpansionMode.Auto,
+            },
+        };
+
+        var merged = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
+
+        merged["q"].Should().HaveCount(1);
+        merged["q"][0].ModsExpansionMode.Should().Be(ExpansionMode.NoExpansion);
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────────

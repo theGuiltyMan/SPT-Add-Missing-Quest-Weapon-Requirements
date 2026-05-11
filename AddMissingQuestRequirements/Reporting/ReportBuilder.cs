@@ -233,6 +233,11 @@ public static class ReportBuilder
                     ? db.GetLocaleName(quest.TraderId) ?? quest.TraderId
                     : null;
 
+                var status = ClassifyStatus(
+                    blacklisted: settings.ExcludedQuests.Contains(quest.Id),
+                    eligibleConditionCount: conditions.Count,
+                    allConditionsNoop: conditions.Count > 0 && conditions.All(c => c.Noop));
+
                 return new QuestResult
                 {
                     Id = quest.Id,
@@ -242,10 +247,35 @@ public static class ReportBuilder
                     Location = string.IsNullOrEmpty(quest.Location) ? null : quest.Location,
                     QuestType = string.IsNullOrEmpty(quest.QuestType) ? null : quest.QuestType,
                     Conditions = conditions,
+                    Status = status,
                 };
             })
             .OrderBy(q => q.Name)
             .ToList();
+    }
+
+    /// <summary>
+    /// Classifies a quest's operational status using the precedence:
+    /// Blacklisted &gt; NoEligibleConditions &gt; Noop &gt; Expanded.
+    /// </summary>
+    public static QuestStatus ClassifyStatus(bool blacklisted, int eligibleConditionCount, bool allConditionsNoop)
+    {
+        if (blacklisted)
+        {
+            return QuestStatus.Blacklisted;
+        }
+
+        if (eligibleConditionCount == 0)
+        {
+            return QuestStatus.NoEligibleConditions;
+        }
+
+        if (allConditionsNoop)
+        {
+            return QuestStatus.Noop;
+        }
+
+        return QuestStatus.Expanded;
     }
 
     private static (string? matchedType, string? nextBestType, int nextBestCount) ComputeTypeMatch(

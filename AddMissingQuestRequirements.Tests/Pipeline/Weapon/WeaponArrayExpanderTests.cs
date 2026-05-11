@@ -317,4 +317,131 @@ public class WeaponArrayExpanderTests
         condition.Weapon.Should().Contain("not_exists");
         condition.Weapon.Should().Contain("weapon1");
     }
+
+    // ── NoExpansion + IncludedWeapons ────────────────────────────────────────
+
+    [Fact]
+    public void NoExpansion_AppendsIncludedWeapons_FromTypeName()
+    {
+        var cat = MakeCat556();
+        var condition = new ConditionNode
+        {
+            Id            = "c1",
+            ConditionType = "CounterCreator",
+            Weapon        = ["existing_weapon"],
+        };
+        var overrideEntry = new QuestOverrideEntry
+        {
+            Id              = "q1",
+            ExpansionMode   = ExpansionMode.NoExpansion,
+            IncludedWeapons = ["cal_556x45NATO"],
+        };
+
+        MakeExpander().Expand(condition, overrideEntry, cat, DefaultConfig(), NullModLogger.Instance);
+
+        condition.Weapon.Should().BeEquivalentTo(
+            ["existing_weapon", "weapon_a", "weapon_b"],
+            because: "NoExpansion preserves the original list and still appends IncludedWeapons (type expands to members)");
+    }
+
+    [Fact]
+    public void NoExpansion_AppendsIncludedWeapons_BareId()
+    {
+        var cat = MakeCat556();
+        var condition = new ConditionNode
+        {
+            Id            = "c2",
+            ConditionType = "CounterCreator",
+            Weapon        = ["existing_weapon"],
+        };
+        var overrideEntry = new QuestOverrideEntry
+        {
+            Id              = "q1",
+            ExpansionMode   = ExpansionMode.NoExpansion,
+            IncludedWeapons = ["weapon_a"],
+        };
+
+        MakeExpander().Expand(condition, overrideEntry, cat, DefaultConfig(), NullModLogger.Instance);
+
+        condition.Weapon.Should().BeEquivalentTo(["existing_weapon", "weapon_a"]);
+    }
+
+    [Fact]
+    public void NoExpansion_ExcludedWeapons_StillApplyAfterIncludes()
+    {
+        var cat = MakeCat556();
+        var condition = new ConditionNode
+        {
+            Id            = "c3",
+            ConditionType = "CounterCreator",
+            Weapon        = ["existing_weapon"],
+        };
+        var overrideEntry = new QuestOverrideEntry
+        {
+            Id              = "q1",
+            ExpansionMode   = ExpansionMode.NoExpansion,
+            IncludedWeapons = ["cal_556x45NATO"],
+            ExcludedWeapons = ["weapon_b"],
+        };
+
+        MakeExpander().Expand(condition, overrideEntry, cat, DefaultConfig(), NullModLogger.Instance);
+
+        condition.Weapon.Should().BeEquivalentTo(["existing_weapon", "weapon_a"],
+            because: "weapon_b is excluded after the include step");
+    }
+
+    [Fact]
+    public void NoExpansion_PreservesOriginalWeapons()
+    {
+        var cat = MakeCat556();
+        var condition = new ConditionNode
+        {
+            Id            = "c4",
+            ConditionType = "CounterCreator",
+            Weapon        = ["existing_weapon", "another_existing"],
+        };
+        var overrideEntry = new QuestOverrideEntry
+        {
+            Id              = "q1",
+            ExpansionMode   = ExpansionMode.NoExpansion,
+            IncludedWeapons = ["weapon_a"],
+        };
+
+        MakeExpander().Expand(condition, overrideEntry, cat, DefaultConfig(), NullModLogger.Instance);
+
+        condition.Weapon.Should().Contain("existing_weapon")
+            .And.Contain("another_existing")
+            .And.Contain("weapon_a");
+    }
+
+    [Fact]
+    public void NoExpansion_NoOverride_LeavesMultiWeaponListUnchanged()
+    {
+        var cat = MakeCat556();
+        var condition = new ConditionNode
+        {
+            Id            = "c5",
+            ConditionType = "CounterCreator",
+            Weapon        = ["weapon_a", "weapon_b", "weapon_c"],
+        };
+
+        // No override entry — Expand should be a no-op on the existing list under
+        // the current mode-default (Auto with Count>=2 would try to expand by type,
+        // but with no overrideEntry the IncludedWeapons branch is skipped entirely).
+        // Use NoExpansion-equivalent path: pass null overrideEntry, mode defaults to Auto.
+        // To explicitly test NoExpansion-without-override semantics, simulate it via an
+        // empty-overrides entry that selects NoExpansion mode.
+        var overrideEntry = new QuestOverrideEntry
+        {
+            Id            = "q2",
+            ExpansionMode = ExpansionMode.NoExpansion,
+            // No IncludedWeapons / ExcludedWeapons.
+        };
+
+        MakeExpander().Expand(condition, overrideEntry, cat, DefaultConfig(), NullModLogger.Instance);
+
+        condition.Weapon.Should().BeEquivalentTo(
+            ["weapon_a", "weapon_b", "weapon_c"],
+            because: "NoExpansion without includes/excludes is a regression guard — list must be untouched");
+    }
 }

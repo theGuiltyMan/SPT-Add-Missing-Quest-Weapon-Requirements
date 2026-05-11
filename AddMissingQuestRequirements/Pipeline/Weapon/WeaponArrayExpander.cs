@@ -80,7 +80,7 @@ public sealed class WeaponArrayExpander : IConditionExpander
 
         var seen = weapons.ToHashSet();
 
-        if (mode != ExpansionMode.NoExpansion && overrideEntry is not null)
+        if (overrideEntry is not null)
         {
             foreach (var entry in overrideEntry.IncludedWeapons)
             {

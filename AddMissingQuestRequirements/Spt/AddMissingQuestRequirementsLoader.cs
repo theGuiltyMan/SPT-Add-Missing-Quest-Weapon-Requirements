@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using AddMissingQuestRequirements.Config;
 using AddMissingQuestRequirements.Models;
 using AddMissingQuestRequirements.Pipeline.Attachment;
@@ -338,6 +339,7 @@ public sealed class AddMissingQuestRequirementsLoader : IOnLoad
             var json = JsonSerializer.Serialize(result, new JsonSerializerOptions
             {
                 WriteIndented = true,
+                Converters = { new JsonStringEnumConverter() },
             });
 
             var jsonPath = Path.Combine(ownModPath, "AddMissingQuestRequirements-debug-report.json");

@@ -10,7 +10,8 @@ public static class HtmlReportWriter
     {
         WriteIndented = false,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters = { new JsonStringEnumConverter() },
     };
 
     private static readonly Lazy<string> _reportJs = new(() =>
@@ -40,6 +41,8 @@ public static class HtmlReportWriter
 
   /* ── Search / filters ──────────────────────────────────────────────── */
   .filter-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .status-filter { display: flex; gap: 12px; border: none; padding: 0; margin: 0; }
+  .status-filter label { display: inline-flex; align-items: center; gap: 4px; }
   input[type=search] { padding: 6px 10px; background: #3c3c3c; color: #d4d4d4;
                        border: 1px solid #555; font-size: 12px; font-family: inherit;
                        border-radius: 3px; width: 340px; }
@@ -57,6 +60,8 @@ public static class HtmlReportWriter
            font-size: 11px; font-weight: 700; }
   .badge-noop     { background: #3a3a3a; color: #888; }
   .badge-expanded { background: #0e4c20; color: #4ec94e; }
+  .badge-blacklisted { background: #4a1010; color: #f47174; }
+  .badge-empty       { background: #2d2d2d; color: #888; }
   .type-tag { display: inline-block; background: #1e3a5f; color: #9cdcfe;
               padding: 2px 6px; margin: 1px 2px; border-radius: 2px; font-size: 11px;
               cursor: pointer; }
@@ -229,8 +234,16 @@ public static class HtmlReportWriter
   <div class="filter-bar">
     <input type="search" id="quest-search" placeholder="Filter by quest name or id..."
            oninput="filterQuests()">
-    <label><input type="checkbox" id="hide-noop" onchange="filterQuests()" checked>
-      Hide NOOP quests</label>
+    <fieldset class="status-filter">
+      <label><input type="checkbox" class="status-cb" value="Blacklisted" id="status-blacklisted"
+             onchange="filterQuests()"> Blacklisted</label>
+      <label><input type="checkbox" class="status-cb" value="NoEligibleConditions" id="status-no-eligible"
+             onchange="filterQuests()"> No eligible</label>
+      <label><input type="checkbox" class="status-cb" value="Noop" id="status-noop"
+             onchange="filterQuests()"> Noop</label>
+      <label><input type="checkbox" class="status-cb" value="Expanded" id="status-expanded"
+             onchange="filterQuests()" checked> Expanded</label>
+    </fieldset>
   </div>
   <div id="quests-panel"></div>
 </div>

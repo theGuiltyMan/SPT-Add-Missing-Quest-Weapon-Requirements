@@ -310,15 +310,30 @@ public static class MergeHelper
     {
         Id                = a.Id,
         Behaviour         = a.Behaviour,
-        // When merging, prefer the more restrictive mode (NoExpansion > WhitelistOnly > Auto)
-        ExpansionMode     = (ExpansionMode)Math.Max((int)a.ExpansionMode, (int)b.ExpansionMode),
+        // Prefer the most restrictive mode. Order: WhitelistOnly (discards original)
+        // > NoExpansion (preserves original) > Auto (broadens original). The enum's
+        // int values do NOT match this order — see MoreRestrictive.
+        ExpansionMode     = MoreRestrictive(a.ExpansionMode, b.ExpansionMode),
         Conditions        = [..a.Conditions.Union(b.Conditions)],
         IncludedWeapons   = [..a.IncludedWeapons.Union(b.IncludedWeapons)],
         ExcludedWeapons   = [..a.ExcludedWeapons.Union(b.ExcludedWeapons)],
-        ModsExpansionMode = (ExpansionMode)Math.Max((int)a.ModsExpansionMode, (int)b.ModsExpansionMode),
+        ModsExpansionMode = MoreRestrictive(a.ModsExpansionMode, b.ModsExpansionMode),
         IncludedMods      = [..a.IncludedMods.Union(b.IncludedMods)],
         ExcludedMods      = [..a.ExcludedMods.Union(b.ExcludedMods)],
     };
+
+    private static ExpansionMode MoreRestrictive(ExpansionMode a, ExpansionMode b)
+    {
+        if (a == ExpansionMode.WhitelistOnly || b == ExpansionMode.WhitelistOnly)
+        {
+            return ExpansionMode.WhitelistOnly;
+        }
+        if (a == ExpansionMode.NoExpansion || b == ExpansionMode.NoExpansion)
+        {
+            return ExpansionMode.NoExpansion;
+        }
+        return ExpansionMode.Auto;
+    }
 
     private static bool SameConditionSet(
         IReadOnlyCollection<string> a,

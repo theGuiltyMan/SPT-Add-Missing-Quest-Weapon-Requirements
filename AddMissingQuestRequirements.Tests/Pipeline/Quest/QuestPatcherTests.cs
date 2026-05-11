@@ -221,7 +221,7 @@ public class QuestPatcherTests
     // ── Override: NoExpansion ────────────────────────────────────────────────
 
     [Fact]
-    public void Override_NoExpansion_suppresses_type_expansion_and_whitelist()
+    public void Override_NoExpansion_suppresses_type_expansion_but_applies_whitelist()
     {
         var settings = new OverriddenSettings
         {
@@ -231,15 +231,15 @@ public class QuestPatcherTests
                 [
                     new QuestOverrideEntry
                     {
-                        Id             = "q1",
-                        ExpansionMode  = ExpansionMode.NoExpansion,
-                        IncludedWeapons = ["sv98"],   // must NOT be added in NoExpansion mode
+                        Id              = "q1",
+                        ExpansionMode   = ExpansionMode.NoExpansion,
+                        IncludedWeapons = ["sv98"],   // must still be added under NoExpansion
                     }
                 ]
             }
         };
 
-        // Add a third AR to prove type expansion is also skipped
+        // Add a third AR to prove type expansion is skipped but IncludedWeapons still applies
         var cat = MakeCat(
             extraWeaponTypes: new() { ["AssaultRifle"] = new HashSet<string> { "ak74", "ak47", "m4" } },
             extraWeaponToType: new() { ["m4"] = new HashSet<string> { "AssaultRifle" } },
@@ -249,10 +249,9 @@ public class QuestPatcherTests
         var db        = MakeDb(MakeQuest("q1", condition));
         MakePatcher().Patch(db, settings, cat, NullModLogger.Instance);
 
-        // No type expansion (m4 not added), no whitelist (sv98 not added)
-        condition.Weapon.Should().BeEquivalentTo(["ak74", "ak47"]);
+        // No type expansion (m4 not added), but whitelist (sv98) is still applied
+        condition.Weapon.Should().BeEquivalentTo(["ak74", "ak47", "sv98"]);
         condition.Weapon.Should().NotContain("m4");
-        condition.Weapon.Should().NotContain("sv98");
     }
 
     [Fact]

@@ -199,10 +199,15 @@ These were the reasons for the rewrite and are all shipped today.
 
 - **Weapon field:** single-weapon conditions (`Count == 1`) are never expanded by type. Whitelist (`includedWeapons`) and `canBeUsedAs` still apply. Mirrored by `WeaponArrayExpander.Count >= 2`.
 - **Weapon processing order** within a condition: type expansion → whitelist additions → `canBeUsedAs` aliases → blacklist (`excludedWeapons`) removals. Blacklist always runs last.
+- **`NoExpansion` mode:** Under `NoExpansion`, type expansion is suppressed but the full processing order still applies — `includedWeapons` are appended, `excludedWeapons` are applied after additions, and `canBeUsedAs` aliases still resolve. This mirrors the mod side: `NoExpansion` on `weaponModsInclusive` / `weaponModsExclusive` preserves original groups but still appends `includedMods`.
 - **Mod fields:** see §Mod-group expansion. Multi-item groups are AND-bundles and are preserved verbatim; singleton expansion fires only with ≥2 singletons sharing the same minimal type.
 - **Unknown IDs** follow `ModConfig.UnknownWeaponHandling`: `Strip` removes with a warning; `KeepInDb` keeps IDs present in the item DB silently and strips others with a warning; `KeepAll` keeps everything silently.
 - **`canBeUsedAs` alias expansion:** after the alias map is built, a second pass cross-links all transitive group members.
 - **`includeParentCategories: true` (default):** a weapon appears in both its restrictive type and every `parentTypes` ancestor (e.g. a bolt-action sniper is tagged `BoltActionSniperRifle` and `SniperRifle`). Manual-override types walk the parent chain too.
+
+## Releasing
+
+Every PR that ships user-visible behaviour (bugfix, feature, breaking change) must bump `ModMetadata.Version` in `AddMissingQuestRequirements/Spt/ModMetadata.cs` as part of the same PR. Use semver: patch for fixes, minor for additive features, major for breaking changes. Pure-docs / pure-test / pure-refactor PRs may skip the bump. When in doubt, bump.
 
 ## C# code style
 

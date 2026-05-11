@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using AddMissingQuestRequirements.Inspector;
 using AddMissingQuestRequirements.Reporting;
 using AddMissingQuestRequirements.Util;
@@ -41,14 +42,18 @@ var result = PipelineRunner.Run(loaded, logger);
 
 Console.WriteLine($"Categorized {result.Weapons.Count} weapons in {result.Types.Count} types");
 Console.WriteLine($"Processed {result.Quests.Count} quests, " +
-    $"{result.Quests.Count(q => !q.Noop)} with weapon changes");
+    $"{result.Quests.Count(q => q.Status == QuestStatus.Expanded)} with weapon changes");
 
 Console.WriteLine($"Writing report to: {config.OutputReportPath}");
 HtmlReportWriter.Write(result, config.OutputReportPath);
 
 var jsonOutputPath = Path.ChangeExtension(config.OutputReportPath, ".json");
 Console.WriteLine($"Writing JSON export to: {jsonOutputPath}");
-await File.WriteAllTextAsync(jsonOutputPath, JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+await File.WriteAllTextAsync(jsonOutputPath, JsonSerializer.Serialize(result, new JsonSerializerOptions
+{
+    WriteIndented = true,
+    Converters = { new JsonStringEnumConverter() },
+}));
 
 if (config.ExportConfigPath is { } exportPath)
 {

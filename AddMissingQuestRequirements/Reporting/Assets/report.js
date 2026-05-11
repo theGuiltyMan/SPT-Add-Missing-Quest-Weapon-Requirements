@@ -360,16 +360,22 @@ function jumpToAttachmentType(typeName) {
 function renderQuests() {
   const panel = document.getElementById('quests-panel');
   (__DATA__.quests||[]).forEach((q, qi) => {
-    const isNoop = q.noop;
     const addedCount = (q.conditions||[]).reduce((n, c) => {
       const weaponAdded = (c.after||[]).filter(w => !(c.before||[]).find(b => b.id === w.id)).length;
-      const inclAdded = countGroupAdditions(c.modsInclusiveBefore||[], c.modsInclusiveAfter||[]);
-      const exclAdded = countGroupAdditions(c.modsExclusiveBefore||[], c.modsExclusiveAfter||[]);
+      const inclAdded   = countGroupAdditions(c.modsInclusiveBefore||[], c.modsInclusiveAfter||[]);
+      const exclAdded   = countGroupAdditions(c.modsExclusiveBefore||[], c.modsExclusiveAfter||[]);
       return n + weaponAdded + inclAdded + exclAdded;
     }, 0);
-    const badge = isNoop
-      ? '<span class="badge badge-noop">NOOP</span>'
-      : `<span class="badge badge-expanded">+${addedCount}</span>`;
+
+    // Legacy reports lack q.status — derive from q.noop for back-compat.
+    const status = q.status ?? (q.noop ? 'Noop' : 'Expanded');
+    let badge;
+    switch (status) {
+      case 'Blacklisted':          badge = '<span class="badge badge-blacklisted">BLACKLISTED</span>'; break;
+      case 'NoEligibleConditions': badge = '<span class="badge badge-empty">NO ELIGIBLE</span>'; break;
+      case 'Noop':                 badge = '<span class="badge badge-noop">NOOP</span>'; break;
+      default:                     badge = `<span class="badge badge-expanded">+${addedCount}</span>`;
+    }
 
     const anyNextBest = (q.conditions||[]).find(c => c.nextBestType);
     const nextBestTag = anyNextBest
@@ -378,7 +384,7 @@ function renderQuests() {
 
     const div = document.createElement('div');
     div.className = 'quest-row';
-    div.dataset.noop = String(isNoop);
+    div.dataset.status = status;
     div.dataset.search = `${q.name} ${q.id}`.toLowerCase();
 
     let condsHtml = '';
@@ -513,12 +519,16 @@ function toggleCondDetail(qi, ci) {
 }
 
 function filterQuests() {
-  const q       = document.getElementById('quest-search').value.toLowerCase();
-  const hideNoop = document.getElementById('hide-noop').checked;
+  const q = document.getElementById('quest-search').value.toLowerCase();
+  const allowed = new Set(
+    Array.from(document.querySelectorAll('.status-cb'))
+      .filter(c => c.checked)
+      .map(c => c.value)
+  );
   document.querySelectorAll('.quest-row').forEach(row => {
     const matchSearch = !q || row.dataset.search.includes(q);
-    const isNoop      = row.dataset.noop === 'true';
-    row.classList.toggle('hidden', !matchSearch || (hideNoop && isNoop));
+    const matchStatus = allowed.has(row.dataset.status);
+    row.classList.toggle('hidden', !matchSearch || !matchStatus);
   });
 }
 
@@ -531,7 +541,8 @@ function persistSessionState() {
     typeSearch: document.getElementById('type-search')?.value ?? '',
     questSearch: document.getElementById('quest-search')?.value ?? '',
     ruleSearch: document.getElementById('rule-search')?.value ?? '',
-    hideNoop: document.getElementById('hide-noop')?.checked ?? true,
+    statusFilter: Array.from(document.querySelectorAll('.status-cb'))
+      .filter(c => c.checked).map(c => c.value),
     attachmentSearch: document.getElementById('attachment-search')?.value ?? '',
     attachmentTypeSearch: document.getElementById('attachment-type-search')?.value ?? '',
     attachmentRuleSearch: document.getElementById('attachment-rule-search')?.value ?? '',
@@ -553,8 +564,19 @@ function hydrateSessionState() {
   setVal('attachment-search', state.attachmentSearch);
   setVal('attachment-type-search', state.attachmentTypeSearch);
   setVal('attachment-rule-search', state.attachmentRuleSearch);
-  const hn = document.getElementById('hide-noop');
-  if (hn && typeof state.hideNoop === 'boolean') { hn.checked = state.hideNoop; }
+  const cbs = document.querySelectorAll('.status-cb');
+  let want;
+  if (Array.isArray(state.statusFilter)) {
+    want = new Set(state.statusFilter);
+  } else if (typeof state.hideNoop === 'boolean') {
+    // Legacy upgrade: hideNoop=true → show only Expanded; hideNoop=false → show all.
+    want = state.hideNoop
+      ? new Set(['Expanded'])
+      : new Set(['Blacklisted', 'NoEligibleConditions', 'Noop', 'Expanded']);
+  } else {
+    want = new Set(['Expanded']);
+  }
+  cbs.forEach(c => { c.checked = want.has(c.value); });
   if (typeof filterWeapons === 'function') { filterWeapons(); }
   if (typeof filterTypes === 'function') { filterTypes(); }
   if (typeof filterQuests === 'function') { filterQuests(); }
