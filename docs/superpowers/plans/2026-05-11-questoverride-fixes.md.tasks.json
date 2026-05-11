@@ -1,0 +1,19 @@
+{
+  "planPath": "docs/superpowers/plans/2026-05-11-questoverride-fixes.md",
+  "tasks": [
+    {
+      "id": 1,
+      "subject": "Task 1: Preserve mods fields through MergeHelper clone/merge",
+      "status": "completed",
+      "description": "**Goal:** MergeHelper.CloneEntry and MergeEntries round-trip every public field on QuestOverrideEntry (incl. ModsExpansionMode, IncludedMods, ExcludedMods).\n\n**Files:**\n- Modify: AddMissingQuestRequirements/Util/MergeHelper.cs:296-315\n- Test: AddMissingQuestRequirements.Tests/Util/MergeHelperTests.cs\n\n**Verify:** dotnet test --filter \"FullyQualifiedName~MergeHelperTests\" --nologo -v minimal\n\n```json:metadata\n{\"files\": [\"AddMissingQuestRequirements/Util/MergeHelper.cs\", \"AddMissingQuestRequirements.Tests/Util/MergeHelperTests.cs\"], \"verifyCommand\": \"dotnet test --filter \\\"FullyQualifiedName~MergeHelperTests\\\" --nologo -v minimal\", \"acceptanceCriteria\": [\"First-insert preserves Mods fields\", \"MERGE unions IncludedMods/ExcludedMods and takes max ModsExpansionMode\", \"Existing MergeHelperTests still pass\"]}\n```"
+    },
+    {
+      "id": 2,
+      "subject": "Task 2: Resolver matches outer CounterCreator id as well as sub id",
+      "status": "completed",
+      "blockedBy": [1],
+      "description": "**Goal:** QuestOverrideResolver matches entry.Conditions against either ConditionNode.Id or ConditionNode.ParentConditionId.\n\n**Files:**\n- Modify: AddMissingQuestRequirements/Pipeline/Quest/QuestOverrideResolver.cs:11-35\n- Modify: AddMissingQuestRequirements/Pipeline/Quest/QuestPatcher.cs:50\n- Modify: AddMissingQuestRequirements/Reporting/ReportBuilder.cs:182\n- Create: AddMissingQuestRequirements.Tests/Pipeline/Quest/QuestOverrideResolverTests.cs\n\n**Verify:** dotnet test --filter \"FullyQualifiedName!~Integration\" --nologo -v minimal\n\n```json:metadata\n{\"files\": [\"AddMissingQuestRequirements/Pipeline/Quest/QuestOverrideResolver.cs\", \"AddMissingQuestRequirements/Pipeline/Quest/QuestPatcher.cs\", \"AddMissingQuestRequirements/Reporting/ReportBuilder.cs\", \"AddMissingQuestRequirements.Tests/Pipeline/Quest/QuestOverrideResolverTests.cs\"], \"verifyCommand\": \"dotnet test --filter \\\"FullyQualifiedName!~Integration\\\" --nologo -v minimal\", \"acceptanceCriteria\": [\"Sub-id match returns entry\", \"Parent-id match returns entry\", \"Specific match preferred over generic\", \"Null when no match and no generic\", \"All unit tests green\"]}\n```"
+    }
+  ],
+  "lastUpdated": "2026-05-11T13:00:00Z"
+}

@@ -10,9 +10,11 @@ public sealed class ConditionNode
     public string ConditionType { get; init; } = string.Empty;
 
     /// <summary>
-    /// Parent CounterCreator condition ID. Display-only metadata — not read by any pipeline
-    /// stage. SPT stores the user-facing condition description under this bare-ID locale key,
-    /// not under the sub-condition <see cref="Id"/>, so the inspector needs it to resolve
+    /// Parent CounterCreator condition ID. Read by <see cref="QuestOverrideResolver"/>, which
+    /// matches override entries against this id as well as <see cref="Id"/> — users commonly
+    /// author overrides against the outer CounterCreator id surfaced by quest editors.
+    /// SPT also stores the user-facing condition description under this bare-ID locale key
+    /// (not under the sub-condition <see cref="Id"/>), so the inspector uses it to resolve
     /// descriptions for the HTML report. Empty when unknown or when populated by tests that
     /// do not care about descriptions.
     /// </summary>

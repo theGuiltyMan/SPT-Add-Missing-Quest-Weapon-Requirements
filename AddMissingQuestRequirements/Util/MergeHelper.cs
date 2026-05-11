@@ -295,23 +295,29 @@ public static class MergeHelper
 
     private static QuestOverrideEntry CloneEntry(QuestOverrideEntry e) => new()
     {
-        Id              = e.Id,
-        Behaviour       = e.Behaviour,
-        ExpansionMode   = e.ExpansionMode,
-        Conditions      = [..e.Conditions],
-        IncludedWeapons = [..e.IncludedWeapons],
-        ExcludedWeapons = [..e.ExcludedWeapons],
+        Id                = e.Id,
+        Behaviour         = e.Behaviour,
+        ExpansionMode     = e.ExpansionMode,
+        Conditions        = [..e.Conditions],
+        IncludedWeapons   = [..e.IncludedWeapons],
+        ExcludedWeapons   = [..e.ExcludedWeapons],
+        ModsExpansionMode = e.ModsExpansionMode,
+        IncludedMods      = [..e.IncludedMods],
+        ExcludedMods      = [..e.ExcludedMods],
     };
 
     private static QuestOverrideEntry MergeEntries(QuestOverrideEntry a, QuestOverrideEntry b) => new()
     {
-        Id              = a.Id,
-        Behaviour       = a.Behaviour,
+        Id                = a.Id,
+        Behaviour         = a.Behaviour,
         // When merging, prefer the more restrictive mode (NoExpansion > WhitelistOnly > Auto)
-        ExpansionMode   = (ExpansionMode)Math.Max((int)a.ExpansionMode, (int)b.ExpansionMode),
-        Conditions      = [..a.Conditions.Union(b.Conditions)],
-        IncludedWeapons = [..a.IncludedWeapons.Union(b.IncludedWeapons)],
-        ExcludedWeapons = [..a.ExcludedWeapons.Union(b.ExcludedWeapons)],
+        ExpansionMode     = (ExpansionMode)Math.Max((int)a.ExpansionMode, (int)b.ExpansionMode),
+        Conditions        = [..a.Conditions.Union(b.Conditions)],
+        IncludedWeapons   = [..a.IncludedWeapons.Union(b.IncludedWeapons)],
+        ExcludedWeapons   = [..a.ExcludedWeapons.Union(b.ExcludedWeapons)],
+        ModsExpansionMode = (ExpansionMode)Math.Max((int)a.ModsExpansionMode, (int)b.ModsExpansionMode),
+        IncludedMods      = [..a.IncludedMods.Union(b.IncludedMods)],
+        ExcludedMods      = [..a.ExcludedMods.Union(b.ExcludedMods)],
     };
 
     private static bool SameConditionSet(

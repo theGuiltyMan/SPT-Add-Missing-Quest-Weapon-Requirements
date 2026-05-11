@@ -179,7 +179,7 @@ public static class ReportBuilder
                         var before = prePatch.TryGetValue(c, out var pre) ? pre : [];
                         var (matched, nextBest, nextBestCount) = ComputeTypeMatch(before, cat, config);
                         var caliberFilter = c.WeaponCaliber.Count > 0 ? string.Join(", ", c.WeaponCaliber) : null;
-                        var overrideEntry = QuestOverrideResolver.Resolve(settings, quest.Id, c.Id);
+                        var overrideEntry = QuestOverrideResolver.Resolve(settings, quest.Id, c);
                         var expansionMode = (overrideEntry?.ExpansionMode ?? ExpansionMode.Auto).ToString();
                         var overrideIncluded = overrideEntry?.IncludedWeapons.ToList() ?? [];
                         var overrideExcluded = overrideEntry?.ExcludedWeapons.ToList() ?? [];

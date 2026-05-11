@@ -47,7 +47,7 @@ public sealed class QuestPatcher
                     continue;
                 }
 
-                var overrideEntry = QuestOverrideResolver.Resolve(settings, questId, condition.Id);
+                var overrideEntry = QuestOverrideResolver.Resolve(settings, questId, condition);
 
                 foreach (var expander in _expanders)
                 {

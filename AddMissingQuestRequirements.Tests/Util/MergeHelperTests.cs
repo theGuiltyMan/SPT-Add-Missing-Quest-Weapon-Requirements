@@ -592,6 +592,71 @@ public class MergeHelperTests
         result["q1"][0].IncludedWeapons.Should().BeEquivalentTo(["a", "b"]);
     }
 
+    // ── Mods fields round-trip ───────────────────────────────────────────────
+
+    [Fact]
+    public void MergeQuestEntries_preserves_mods_fields_on_first_insert()
+    {
+        var incoming = new List<QuestOverrideEntry>
+        {
+            new()
+            {
+                Id = "q1",
+                Conditions = ["c1"],
+                ModsExpansionMode = ExpansionMode.NoExpansion,
+                IncludedMods = ["mod-a", "mod-b"],
+                ExcludedMods = ["mod-x"],
+            },
+        };
+
+        var result = MergeHelper.MergeQuestEntries(
+            new Dictionary<string, List<QuestOverrideEntry>>(),
+            incoming,
+            OverrideBehaviour.MERGE);
+
+        var entry = result["q1"].Single();
+        entry.ModsExpansionMode.Should().Be(ExpansionMode.NoExpansion);
+        entry.IncludedMods.Should().BeEquivalentTo(["mod-a", "mod-b"]);
+        entry.ExcludedMods.Should().BeEquivalentTo(["mod-x"]);
+    }
+
+    [Fact]
+    public void MergeQuestEntries_MERGE_unions_mod_lists_and_takes_max_mods_mode()
+    {
+        var existing = new Dictionary<string, List<QuestOverrideEntry>>
+        {
+            ["q1"] =
+            [
+                new()
+                {
+                    Id = "q1",
+                    Conditions = ["c1"],
+                    ModsExpansionMode = ExpansionMode.WhitelistOnly,
+                    IncludedMods = ["mod-a"],
+                    ExcludedMods = ["mod-x"],
+                },
+            ],
+        };
+        var incoming = new List<QuestOverrideEntry>
+        {
+            new()
+            {
+                Id = "q1",
+                Conditions = ["c1"],
+                ModsExpansionMode = ExpansionMode.NoExpansion,
+                IncludedMods = ["mod-b"],
+                ExcludedMods = ["mod-y"],
+            },
+        };
+
+        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
+
+        var entry = result["q1"].Single();
+        entry.ModsExpansionMode.Should().Be(ExpansionMode.NoExpansion);
+        entry.IncludedMods.Should().BeEquivalentTo(["mod-a", "mod-b"]);
+        entry.ExcludedMods.Should().BeEquivalentTo(["mod-x", "mod-y"]);
+    }
+
     // ── Helpers ─────────────────────────────────────────────────────────────
 
     private static TypeRule Rule(string type, OverrideBehaviour? behaviour = null) => new()
