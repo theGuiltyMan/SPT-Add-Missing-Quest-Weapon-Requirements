@@ -180,7 +180,9 @@ public static class ReportBuilder
                         var (matched, nextBest, nextBestCount) = ComputeTypeMatch(before, cat, config);
                         var caliberFilter = c.WeaponCaliber.Count > 0 ? string.Join(", ", c.WeaponCaliber) : null;
                         var overrideEntry = QuestOverrideResolver.Resolve(settings, quest.Id, c);
-                        var expansionMode = (overrideEntry?.ExpansionMode ?? ExpansionMode.Auto).ToString();
+                        var expansionModeEnum = overrideEntry?.ExpansionMode ?? ExpansionMode.Auto;
+                        var expansionMode = expansionModeEnum.ToString();
+                        var suppressTypeMatch = expansionModeEnum is ExpansionMode.NoExpansion or ExpansionMode.WhitelistOnly;
                         var overrideIncluded = overrideEntry?.IncludedWeapons.ToList() ?? [];
                         var overrideExcluded = overrideEntry?.ExcludedWeapons.ToList() ?? [];
 
@@ -203,9 +205,9 @@ public static class ReportBuilder
                             Description = LookupConditionDescription(c, db),
                             Before = before.Select(id => ToWeaponRef(id, db)).ToList(),
                             After = c.Weapon.Select(id => ToWeaponRef(id, db)).ToList(),
-                            MatchedType = matched,
-                            NextBestType = nextBest,
-                            NextBestTypeCount = nextBestCount,
+                            MatchedType = suppressTypeMatch ? null : matched,
+                            NextBestType = suppressTypeMatch ? null : nextBest,
+                            NextBestTypeCount = suppressTypeMatch ? 0 : nextBestCount,
                             ExpansionMode = expansionMode,
                             OverrideMatched = overrideEntry is not null,
                             OverrideIncludedWeapons = overrideIncluded,

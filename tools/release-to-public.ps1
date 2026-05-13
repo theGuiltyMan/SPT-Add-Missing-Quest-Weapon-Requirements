@@ -1,7 +1,13 @@
 # Snapshot forgejo `origin/master` as one release commit on `public/main` and push.
-# Usage: tools/release-to-public.ps1 <version> [-NotesFile <path>]
-#   <version>     e.g. v0.2.0
-#   -NotesFile    optional path to a markdown file used as the commit body
+# Usage:
+#   tools/release-to-public.ps1 <version>
+#   tools/release-to-public.ps1 <version> -NotesFile <path>
+#   tools/release-to-public.ps1 <version> -DryRun
+#     <version>     e.g. v0.2.0
+#     -NotesFile    optional path to a markdown file used as the commit body AND the
+#                   annotated tag body (so `git show <tag>` prints release notes).
+#     -DryRun       walk every step except the final `git push public`. Local
+#                   release-stage branch + tag are preserved for inspection.
 #
 # Pattern: see docs/RELEASE.md (Pattern B — public = squash-release branch).
 # Public and forgejo histories are disjoint by design; never reverse-merge.
@@ -17,15 +23,17 @@ param(
     [Parameter(Mandatory = $true, Position = 0)]
     [string]$Version,
 
-    [Parameter(Position = 1)]
-    [string]$NotesFile
+    [string]$NotesFile,
+
+    [switch]$DryRun
 )
 
 $ErrorActionPreference = "Stop"
 
 function Fail([string]$msg) {
-    Write-Error $msg
-    exit 1
+    # Throw rather than `exit 1` so the script-level `finally` block runs cleanup.
+    # `$ErrorActionPreference = "Stop"` turns an uncaught throw into a non-zero exit.
+    throw $msg
 }
 
 function Invoke-Git {
@@ -34,6 +42,11 @@ function Invoke-Git {
     if ($LASTEXITCODE -ne 0) {
         Fail "git $($GitArgs -join ' ') failed (exit $LASTEXITCODE)"
     }
+}
+
+function Read-YesNo([string]$prompt) {
+    $answer = Read-Host $prompt
+    return ($answer -imatch '^y')
 }
 
 if ($Version -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.+-]+)?$') {
@@ -105,7 +118,8 @@ try {
     # something stale slipped in (working-tree edits, partial read-tree, etc).
     & git diff --quiet --cached origin/master
     if ($LASTEXITCODE -ne 0) {
-        & git diff --cached --stat origin/master | Select-Object -Last 5 | Write-Error
+        $diagStat = (& git diff --cached --stat origin/master | Select-Object -Last 5 | Out-String)
+        Write-Error $diagStat
         Fail "staged tree does not match origin/master after read-tree; aborting"
     }
 
@@ -117,27 +131,42 @@ try {
         $shortSha = (& git rev-parse --short origin/master).Trim()
         $lines += "Squashed from forgejo origin/master @ $shortSha"
     }
-    Set-Content -LiteralPath $CommitMsgFile -Value ($lines -join "`n") -NoNewline -Encoding utf8
+    # UTF-8 no-BOM so the commit message + tag annotation don't gain a stray BOM.
+    [System.IO.File]::WriteAllText($CommitMsgFile, ($lines -join "`n"), [System.Text.UTF8Encoding]::new($false))
 
     Invoke-Git commit -F $CommitMsgFile
-    Invoke-Git tag -a $Version -m $Version
+
+    # Tag annotation: when NotesFile is provided, annotate the tag with the same
+    # body so `git show <tag>` prints release notes. Otherwise fall back to a
+    # one-line annotation.
+    if ($NotesFile) {
+        Invoke-Git tag -a $Version -F $CommitMsgFile
+    } else {
+        Invoke-Git tag -a $Version -m $Version
+    }
 
     Write-Host ""
     $headShort = (& git rev-parse --short HEAD).Trim()
     Write-Host "==> ready to push:"
     Write-Host "    public/main  <-  $headShort  ($Version)"
     Write-Host ""
-    $confirm = Read-Host "push to public? [y/N]"
-    if ($confirm -ne "y" -and $confirm -ne "Y") {
-        Write-Host "aborted; release-stage branch + tag preserved locally for inspection"
-        # Skip cleanup so the user can inspect release-stage + the new tag.
+
+    if ($DryRun) {
+        Write-Host "==> [dry-run] would run: git push public release-stage:main $Version"
+        Write-Host "    release-stage branch + tag preserved locally for inspection"
+        # Null these so `$cleanup` (run by `finally`) leaves release-stage + tag intact;
+        # the temp commit-msg file is still removed by `$cleanup`.
         $ReleaseStageCreated = $false
         $OriginalHead = $null
-        if ($CommitMsgFile -and (Test-Path -LiteralPath $CommitMsgFile)) {
-            Remove-Item -LiteralPath $CommitMsgFile -Force -ErrorAction SilentlyContinue
-        }
-        $CommitMsgFile = $null
-        exit 1
+        return
+    }
+
+    if (-not (Read-YesNo "push to public? [y/N]")) {
+        Write-Host "aborted by user; release-stage branch + tag preserved locally for inspection"
+        # Same preservation pattern as the dry-run path above.
+        $ReleaseStageCreated = $false
+        $OriginalHead = $null
+        return
     }
 
     Invoke-Git push public "release-stage:main" $Version
