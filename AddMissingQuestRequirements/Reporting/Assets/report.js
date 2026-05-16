@@ -402,15 +402,21 @@ function renderQuests() {
             return `<span class="tag-amber" style="font-size:10px">${label}</span>`;
           })()
         : '';
+      const overrideIncludedModBundles = c.overrideIncludedModBundles || [];
+      const overrideExcludedModBundles = c.overrideExcludedModBundles || [];
       const modsOverrideTag = c.overrideMatched && (
         c.modsExpansionMode !== 'Auto' ||
         (c.overrideIncludedMods || []).length > 0 ||
-        (c.overrideExcludedMods || []).length > 0)
+        (c.overrideExcludedMods || []).length > 0 ||
+        overrideIncludedModBundles.length > 0 ||
+        overrideExcludedModBundles.length > 0)
         ? (() => {
             let label = `Mods: ${esc(c.modsExpansionMode)}`;
             const bits = [
               ...(c.overrideIncludedMods || []),
-              ...((c.overrideExcludedMods || []).map(s => '-' + s))
+              ...((c.overrideExcludedMods || []).map(s => '-' + s)),
+              ...overrideIncludedModBundles.map(b => b.join(' + ')),
+              ...overrideExcludedModBundles.map(b => '-(' + b.join(' + ') + ')')
             ];
             if (bits.length) {
               label += ` (${bits.map(esc).join(', ')})`;

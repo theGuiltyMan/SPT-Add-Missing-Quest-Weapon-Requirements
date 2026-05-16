@@ -147,7 +147,9 @@ Custom categories are first-class: a type named `"AKM"` produced by a user rule 
 
 ### Mod-group expansion
 
-`WeaponModsExpander` rewrites each of `weaponModsInclusive` and `weaponModsExclusive` as a whole. Per field, per mode:
+`WeaponModsExpander` rewrites each of `weaponModsInclusive` and `weaponModsExclusive`. Each field is processed independently — overrides scoped to one field cannot leak into the other.
+
+**Per-mode processing of original groups (both fields):**
 
 - **`Auto` (default)**:
   - Partition groups into singletons (`Count == 1`) and multi-item bundles (`Count >= 2`).
@@ -157,12 +159,27 @@ Custom categories are first-class: a type named `"AKM"` produced by a user rule 
     2. Every singleton's minimal covering type is identical (strict match; catch-all ancestors like `Muzzle` don't count as a shared type).
   - When both gates pass, emit one singleton group per member of the shared type, plus `canBeUsedAs` aliases per emitted ID.
   - When either gate fails, emit singletons verbatim.
-- **`NoExpansion`**: every original group verbatim; `IncludedMods` still appended as singletons.
-- **`WhitelistOnly`**: original field discarded; rebuilt from `IncludedMods` singletons only.
+- **`NoExpansion`**: every original group verbatim. Override appends still apply (see below).
+- **`WhitelistOnly`**: original field discarded; rebuilt from override-side append-only sources (`includedMods` + `includedModBundles` for the inclusive field; `excludedMods` + `excludedModBundles` for the exclusive field).
 
-`IncludedMods` appends new singleton groups. `ExcludedMods` drops groups: a bare id drops any containing group; a type name drops only groups whose members are entirely in that type. Empty groups are dropped. Output is de-duplicated by sorted-set key, first-occurrence order.
+**Per-field overrides (since 2.1.0):**
 
-Rationale for strict-per-singleton match: BSG sometimes lists mixed-category items in a single condition (e.g. 22 silencers + 1 muzzle brake in "The Tarkov Shooter - Part 7"). Union-based type selection would fall through to a broad ancestor and balloon the output. Strict match preserves authored intent when types disagree.
+- `includedMods` + `includedModBundles` append only to `weaponModsInclusive`. Required-mods semantics.
+- `excludedMods` + `excludedModBundles` append only to `weaponModsExclusive`. Forbidden-mods semantics.
+- Drop-on-either-field semantics is gone — nothing in an override entry removes groups from either field. (Pre-2.1.0 `excludedMods` was a drop-filter; see `Migrations.v2_to_v3_Quest` for the schema-version notice surfaced to authors at load time.)
+- `includedMods` / `excludedMods` are flat lists of bare ids or type names. Type-name entries expand to one singleton per type member.
+
+**Cartesian bundles (`includedModBundles` / `excludedModBundles`):**
+
+Each outer entry is a list of *sets*: a type-name expands to its member set, a bare id is a singleton-set. The output is the cartesian product, emitted as one AND-bundle per combination.
+
+Example: `[["m60_barrels", "aimpoint_scopes"]]` with 2 barrels and 5 scopes emits 10 bundles of shape `[barrel, scope]`.
+
+Each entry's product is capped by `ModConfig.ModBundleCartesianCap` (default 500). Over-cap entries are truncated and the patcher logs a warning naming the quest/condition/bundle index.
+
+**Output dedupe:** all emitted groups go through a final dedupe by sorted-set key, first-occurrence order. Empty groups are dropped.
+
+**Rationale for strict-per-singleton match:** BSG sometimes lists mixed-category items in a single condition (e.g. 22 silencers + 1 muzzle brake in "The Tarkov Shooter - Part 7"). Union-based type selection would fall through to a broad ancestor and balloon the output. Strict match preserves authored intent when types disagree.
 
 ### Config file layout
 
@@ -177,7 +194,7 @@ config/
                                           aliasNameStripWords
 ```
 
-`ModConfig` fields (see `Models/ModConfig.cs`): `enabled`, `parentTypes`, `excludedItems`, `excludedWeaponTypes`, `weaponLikeAncestors`, `includeParentCategories`, `bestCandidateExpansion`, `unknownWeaponHandling`, `validateOverrideIds`, `debug`. Every field has a sane default — the shipped `config.jsonc` is a worked example, not a requirement.
+`ModConfig` fields (see `Models/ModConfig.cs`): `enabled`, `parentTypes`, `excludedItems`, `excludedWeaponTypes`, `weaponLikeAncestors`, `modBundleCartesianCap`, `includeParentCategories`, `bestCandidateExpansion`, `unknownWeaponHandling`, `validateOverrideIds`, `debug`. Every field has a sane default — the shipped `config.jsonc` is a worked example, not a requirement.
 
 Built-in rules live in code. User rules ride on the `customTypeRules` field of each `*Overrides.jsonc` — no `rules/` subdirectory.
 
@@ -194,6 +211,7 @@ These were the reasons for the rewrite and are all shipped today.
 5. **Rule-chain type detection** — replaces the TS hardcoded bolt-action / pump-action / revolver branches. New detections are a config change, not a code change.
 6. **Best-candidate expansion** — opt-in (`bestCandidateExpansion`). When one type covers all but one weapon in a condition, expand using that type and log the outlier instead of silently doing nothing.
 7. **Override ID validation** — opt-in (`validateOverrideIds`). Warn at startup when `includedWeapons` / `excludedWeapons` reference IDs not in the DB.
+8. **Per-field mod overrides + cartesian bundles** — `includedMods` / `excludedMods` only touch their respective `weaponModsInclusive` / `weaponModsExclusive` fields. New `includedModBundles` / `excludedModBundles` produce AND-bundles via cartesian product of type-sets, capped by `modBundleCartesianCap`. Replaces the v2-era symmetric drop semantic; see `Migrations.v2_to_v3_Quest` for the schema-version notice.
 
 ### Key behavioural rules (inherited from TS; do not change without a plan)
 

@@ -64,4 +64,43 @@ public class Migrate_2_to_3Tests
 
         result.Config.UnknownWeaponHandling.Should().Be(UnknownWeaponHandling.KeepInDb);
     }
+
+    // ── v2_to_v3_Quest ────────────────────────────────────────────────────────
+
+    [Fact]
+    public void Quest_v2_to_v3_plants_sentinel_when_any_entry_has_non_empty_excludedMods()
+    {
+        var json = JsonNode.Parse("""
+        {
+          "version": 2,
+          "overrides": [
+            { "id": "q1", "excludedMods": ["all_flashlights"] },
+            { "id": "q2", "excludedMods": [] }
+          ]
+        }
+        """)!.AsObject();
+
+        var result = Migrations.v2_to_v3_Quest(json);
+
+        result["_v2_to_v3_excludedMods_semantic_changed"]?.GetValue<bool>()
+            .Should().BeTrue();
+    }
+
+    [Fact]
+    public void Quest_v2_to_v3_no_sentinel_when_all_excludedMods_empty_or_missing()
+    {
+        var json = JsonNode.Parse("""
+        {
+          "version": 2,
+          "overrides": [
+            { "id": "q1", "excludedMods": [] },
+            { "id": "q2" }
+          ]
+        }
+        """)!.AsObject();
+
+        var result = Migrations.v2_to_v3_Quest(json);
+
+        result.ContainsKey("_v2_to_v3_excludedMods_semantic_changed").Should().BeFalse();
+    }
 }

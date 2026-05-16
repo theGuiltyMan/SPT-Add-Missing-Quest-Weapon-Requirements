@@ -38,27 +38,48 @@ public sealed class QuestOverrideEntry
     public ExpansionMode ModsExpansionMode { get; init; } = ExpansionMode.Auto;
 
     /// <summary>
-    /// Attachment IDs or type names appended as new singleton groups to the matched
-    /// condition's mod field (inclusive or exclusive, whichever is being processed).
-    /// Each type-name entry expands to one singleton group per member. Applied in
-    /// <see cref="ExpansionMode.Auto"/> and <see cref="ExpansionMode.NoExpansion"/>;
-    /// under <see cref="ExpansionMode.WhitelistOnly"/> the field is rebuilt from
-    /// these alone (original groups discarded).
+    /// Attachment IDs or type names appended as new <b>singleton</b> groups to
+    /// <c>weaponModsInclusive</c> only. Each type-name entry expands to one singleton
+    /// per type member. Applied in <see cref="ExpansionMode.Auto"/> and
+    /// <see cref="ExpansionMode.NoExpansion"/>; under <see cref="ExpansionMode.WhitelistOnly"/>
+    /// the inclusive field is rebuilt from these alone.
+    ///
+    /// <para>For multi-attachment AND bundles (e.g. <c>barrel + scope</c>) use
+    /// <see cref="IncludedModBundles"/> instead.</para>
     /// </summary>
     [JsonPropertyName("includedMods")]
     public List<string> IncludedMods { get; init; } = [];
 
     /// <summary>
-    /// Attachment IDs or type names that cause output groups to be dropped. Applied
-    /// last, after all expansion and inclusion steps.
-    /// <list type="bullet">
-    /// <item><description>A bare attachment ID drops any output group that contains
-    /// that ID (aggressive — removes mixed AND-bundles that reference it).</description></item>
-    /// <item><description>A type name drops only output groups whose members are
-    /// <b>entirely</b> within that type. Mixed bundles that span multiple types
-    /// are preserved.</description></item>
-    /// </list>
+    /// Attachment IDs or type names appended as new <b>singleton</b> groups to
+    /// <c>weaponModsExclusive</c> only. Each type-name entry expands to one singleton
+    /// per type member. Forbids weapons carrying any listed attachment.
+    ///
+    /// <para><b>Behavior changed in config v3 (mod 2.1.0):</b> previously this list
+    /// dropped groups from both fields. Now it only appends to the exclusive field.</para>
     /// </summary>
     [JsonPropertyName("excludedMods")]
     public List<string> ExcludedMods { get; init; } = [];
+
+    /// <summary>
+    /// Cartesian AND-bundles appended to <c>weaponModsInclusive</c>. Each outer entry
+    /// is a list of <i>sets</i>: a type-name expands to its member set, a bare id is
+    /// a singleton-set. The output is the cartesian product of the sets, emitted as
+    /// one group per combination (each group an AND-bundle of one id per set).
+    ///
+    /// <para>Example: <c>[["m60_barrels", "aimpoint_scopes"]]</c> with 2 barrels and
+    /// 5 scopes emits 10 bundles of shape <c>[barrel, scope]</c>.</para>
+    ///
+    /// <para>Per-entry product is capped by <see cref="ModConfig.ModBundleCartesianCap"/>
+    /// (default 500). Exceeding entries are truncated and logged.</para>
+    /// </summary>
+    [JsonPropertyName("includedModBundles")]
+    public List<List<string>> IncludedModBundles { get; init; } = [];
+
+    /// <summary>
+    /// Cartesian AND-bundles appended to <c>weaponModsExclusive</c>. Same shape and
+    /// expansion rules as <see cref="IncludedModBundles"/>.
+    /// </summary>
+    [JsonPropertyName("excludedModBundles")]
+    public List<List<string>> ExcludedModBundles { get; init; } = [];
 }

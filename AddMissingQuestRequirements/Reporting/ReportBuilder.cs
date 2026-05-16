@@ -224,6 +224,10 @@ public static class ReportBuilder
                             ModsExpansionMode = (overrideEntry?.ModsExpansionMode ?? ExpansionMode.Auto).ToString(),
                             OverrideIncludedMods = overrideEntry?.IncludedMods.ToList() ?? [],
                             OverrideExcludedMods = overrideEntry?.ExcludedMods.ToList() ?? [],
+                            OverrideIncludedModBundles = overrideEntry?.IncludedModBundles
+                                .Select(b => b.ToList()).ToList() ?? [],
+                            OverrideExcludedModBundles = overrideEntry?.ExcludedModBundles
+                                .Select(b => b.ToList()).ToList() ?? [],
                         };
                     })
                     .ToList();

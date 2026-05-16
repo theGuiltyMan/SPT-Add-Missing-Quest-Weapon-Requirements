@@ -653,7 +653,7 @@ public class OverrideReaderTests : IDisposable
 
         File.Exists(path + ".v1.bak").Should().BeTrue();
         var rewritten = File.ReadAllText(path);
-        rewritten.Should().Contain("\"version\": 2");
+        rewritten.Should().Contain("\"version\": 3");
         rewritten.Should().Contain("excludedQuests");
         rewritten.Should().Contain("includedWeapons");
     }

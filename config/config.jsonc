@@ -12,6 +12,9 @@
   "excludedItems": [],
   "excludedWeaponTypes": [],
   "weaponLikeAncestors": ["Weapon", "Knife", "ThrowWeap", "Launcher"],
+  // Per-entry cap on the cartesian product produced by includedModBundles /
+  // excludedModBundles in QuestOverrides. Truncated + warned at startup.
+  "modBundleCartesianCap": 500,
   "includeParentCategories": true,
   "bestCandidateExpansion": false,
   // 0 = Strip, 1 = KeepInDb (old `keepUnknownWeapons: true` equivalent), 2 = KeepAll (conservative)

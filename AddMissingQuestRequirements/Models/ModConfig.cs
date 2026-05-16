@@ -59,4 +59,14 @@ public sealed class ModConfig : IVersionedConfig
     /// </summary>
     [JsonPropertyName("weaponLikeAncestors")]
     public List<string> WeaponLikeAncestors { get; init; } = ["Weapon", "Knife", "ThrowWeap", "Launcher"];
+
+    /// <summary>
+    /// Per-entry cap on the cartesian product produced by
+    /// <see cref="QuestOverrideEntry.IncludedModBundles"/> /
+    /// <see cref="QuestOverrideEntry.ExcludedModBundles"/>. When a single entry's
+    /// product would exceed this many groups, output is truncated and the patcher
+    /// logs a warning naming the quest/condition. Default 500.
+    /// </summary>
+    [JsonPropertyName("modBundleCartesianCap")]
+    public int ModBundleCartesianCap { get; init; } = 500;
 }

@@ -7,19 +7,24 @@ using AddMissingQuestRequirements.Util;
 namespace AddMissingQuestRequirements.Pipeline.Attachment;
 
 /// <summary>
-/// Rewrites <c>weaponModsInclusive</c> and <c>weaponModsExclusive</c> under the
-/// confirmed intra-group AND, cross-group OR semantics.
+/// Rewrites <c>weaponModsInclusive</c> and <c>weaponModsExclusive</c> under
+/// intra-group AND, cross-group OR semantics.
 ///
-/// <para>Singleton groups under <see cref="ExpansionMode.Auto"/> are expanded
-/// OUTWARDS into N new singleton groups (one per attachment-type member, plus
-/// aliases), broadening the cross-group OR. Multi-item groups (AND bundles,
-/// e.g. <c>Test Drive</c>) are kept verbatim so the conjunction is preserved.</para>
+/// <para><b>Per-field overrides (since 2.1.0):</b>
+/// <c>includedMods</c> + <c>includedModBundles</c> append only to
+/// <c>weaponModsInclusive</c>. <c>excludedMods</c> + <c>excludedModBundles</c>
+/// append only to <c>weaponModsExclusive</c>. Neither set drops groups from
+/// either field.</para>
 ///
-/// <para>Override modes operate at the group level — <see cref="ExpansionMode.WhitelistOnly"/>
-/// discards the original field and rebuilds it from <c>includedMods</c>;
-/// <see cref="ExpansionMode.NoExpansion"/> keeps every original group verbatim
-/// and still appends <c>includedMods</c> as new singleton groups. <c>excludedMods</c>
-/// drops any output group containing an excluded id.</para>
+/// <para><b>Singleton consensus expansion (Auto):</b> when a field has ≥2
+/// singletons sharing a single minimal covering type, expansion emits one
+/// singleton per type member (plus <c>canBeUsedAs</c> aliases). Multi-item
+/// groups are AND bundles and pass through verbatim.</para>
+///
+/// <para><b>Bundle fields:</b> each bundle is a list of <i>sets</i>
+/// (type-name = members, bare id = singleton-set). Output = cartesian product,
+/// one AND-bundle per combination. Truncated to
+/// <see cref="ModConfig.ModBundleCartesianCap"/>.</para>
 /// </summary>
 public sealed class WeaponModsExpander : IConditionExpander
 {
@@ -30,8 +35,8 @@ public sealed class WeaponModsExpander : IConditionExpander
     public WeaponModsExpander(AttachmentCategorizationResult attachmentCategorization, INameResolver nameResolver)
     {
         _attachmentCategorization = attachmentCategorization;
-        _typeSelector = new TypeSelector();
-        _nameResolver = nameResolver;
+        _typeSelector             = new TypeSelector();
+        _nameResolver             = nameResolver;
     }
 
     public void Expand(
@@ -41,11 +46,17 @@ public sealed class WeaponModsExpander : IConditionExpander
         ModConfig config,
         IModLogger logger)
     {
-        if (condition.WeaponModsInclusive.Count == 0 && condition.WeaponModsExclusive.Count == 0
-            && (overrideEntry is null
-                || (overrideEntry.IncludedMods.Count == 0
-                    && overrideEntry.ExcludedMods.Count == 0
-                    && overrideEntry.ModsExpansionMode == ExpansionMode.Auto)))
+        var hasOverrideWork =
+            overrideEntry is not null
+            && (overrideEntry.IncludedMods.Count > 0
+                || overrideEntry.ExcludedMods.Count > 0
+                || overrideEntry.IncludedModBundles.Count > 0
+                || overrideEntry.ExcludedModBundles.Count > 0
+                || overrideEntry.ModsExpansionMode != ExpansionMode.Auto);
+
+        if (condition.WeaponModsInclusive.Count == 0
+            && condition.WeaponModsExclusive.Count == 0
+            && !hasOverrideWork)
         {
             return;
         }
@@ -54,7 +65,9 @@ public sealed class WeaponModsExpander : IConditionExpander
             condition.WeaponModsInclusive,
             condition.Id,
             "weaponModsInclusive",
-            overrideEntry,
+            overrideEntry?.ModsExpansionMode ?? ExpansionMode.Auto,
+            overrideEntry?.IncludedMods ?? [],
+            overrideEntry?.IncludedModBundles ?? [],
             config,
             logger);
 
@@ -62,12 +75,12 @@ public sealed class WeaponModsExpander : IConditionExpander
             condition.WeaponModsExclusive,
             condition.Id,
             "weaponModsExclusive",
-            overrideEntry,
+            overrideEntry?.ModsExpansionMode ?? ExpansionMode.Auto,
+            overrideEntry?.ExcludedMods ?? [],
+            overrideEntry?.ExcludedModBundles ?? [],
             config,
             logger);
 
-        // The fields are init-only properties with a List<List<string>> backing. Mutate in
-        // place to avoid touching the ConditionNode type.
         condition.WeaponModsInclusive.Clear();
         condition.WeaponModsInclusive.AddRange(newInclusive);
 
@@ -77,32 +90,33 @@ public sealed class WeaponModsExpander : IConditionExpander
 
     // ── Core rewrite ─────────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Rewrites a single field. <paramref name="appendEntries"/> are appended as
+    /// singletons (post-expansion of type names). <paramref name="appendBundles"/>
+    /// are appended as cartesian AND-bundles, capped by config.
+    /// </summary>
     private List<List<string>> RewriteField(
         List<List<string>> original,
         string conditionId,
         string fieldName,
-        QuestOverrideEntry? overrideEntry,
+        ExpansionMode mode,
+        IReadOnlyList<string> appendEntries,
+        IReadOnlyList<List<string>> appendBundles,
         ModConfig config,
         IModLogger logger)
     {
-        var mode     = overrideEntry?.ModsExpansionMode ?? ExpansionMode.Auto;
-        var includes = overrideEntry?.IncludedMods ?? [];
-        var excludes = overrideEntry?.ExcludedMods ?? [];
-
         var output = new List<List<string>>();
 
         if (mode == ExpansionMode.WhitelistOnly)
         {
-            // Discard original groups entirely; rebuild from IncludedMods alone.
-            foreach (var id in ResolveEntries(includes))
+            // Originals discarded; field rebuilt from append-only sources.
+            foreach (var id in ResolveEntries(appendEntries))
             {
                 output.Add([id]);
             }
         }
         else if (mode == ExpansionMode.NoExpansion)
         {
-            // Preserve input order verbatim (after unknown-handling). No reordering,
-            // no type consensus. IncludedMods still appended.
             foreach (var group in original)
             {
                 var kept = FilterByUnknownHandling(group, config, logger, conditionId, fieldName);
@@ -114,17 +128,13 @@ public sealed class WeaponModsExpander : IConditionExpander
                 output.Add(kept);
             }
 
-            foreach (var id in ResolveEntries(includes))
+            foreach (var id in ResolveEntries(appendEntries))
             {
                 output.Add([id]);
             }
         }
         else
         {
-            // Auto mode: partition groups (post unknown-handling filter) into singletons
-            // and multis. Singleton partition is keyed on post-filter size: a multi-item
-            // AND bundle stripped to one member via unknown-handling no longer represents
-            // an AND, so the survivor is treated as an atom for consensus purposes.
             var singletons = new List<List<string>>();
             var multis     = new List<List<string>>();
 
@@ -146,12 +156,6 @@ public sealed class WeaponModsExpander : IConditionExpander
                 }
             }
 
-            // Field-level type-consensus decision. We use the STRICT rule: every singleton
-            // must resolve to the same minimal covering type. A shared broader ancestor
-            // (e.g. Muzzle over Silencer+MuzzleBrake) does NOT count — that catch-all
-            // would produce over-broad expansions for contaminated quest data (silencer
-            // quest with a stray brake singleton should stay verbatim, not balloon to all
-            // Muzzle devices).
             var willExpand = false;
             IReadOnlySet<string>? typeMembers = null;
 
@@ -191,7 +195,6 @@ public sealed class WeaponModsExpander : IConditionExpander
                 }
             }
 
-            // Emission order: multis verbatim → expansion batch OR singletons verbatim → includes.
             foreach (var g in multis)
             {
                 output.Add(g);
@@ -209,54 +212,15 @@ public sealed class WeaponModsExpander : IConditionExpander
                 }
             }
 
-            foreach (var id in ResolveEntries(includes))
+            foreach (var id in ResolveEntries(appendEntries))
             {
                 output.Add([id]);
             }
         }
 
-        // ExcludedMods applied last. Two drop rules:
-        //   - Bare-id entry   → drop any group that contains that id.
-        //   - Type-name entry → drop any group whose members are ALL inside the type.
-        // Rationale: a bare id names a specific attachment the authored bundle must not
-        // rely on; a type name names a category and only fully-excluded bundles are
-        // dropped so mixed-category AND bundles (e.g. [stock_b, supp_a] vs exclude Stock)
-        // are preserved.
-        if (excludes.Count > 0)
-        {
-            var bareIdExcludes = new HashSet<string>();
-            var typeExcludes = new List<IReadOnlySet<string>>();
-
-            foreach (var entry in excludes)
-            {
-                if (_attachmentCategorization.AttachmentTypes.TryGetValue(entry, out var members))
-                {
-                    typeExcludes.Add(members);
-                }
-                else
-                {
-                    bareIdExcludes.Add(entry);
-                }
-            }
-
-            output.RemoveAll(group =>
-            {
-                if (bareIdExcludes.Count > 0 && group.Any(id => bareIdExcludes.Contains(id)))
-                {
-                    return true;
-                }
-
-                foreach (var typeMembers in typeExcludes)
-                {
-                    if (group.All(id => typeMembers.Contains(id)))
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
-            });
-        }
+        // Cartesian bundles appended in every mode (including WhitelistOnly:
+        // they extend the rebuilt list, they don't get discarded).
+        AppendCartesianBundles(output, appendBundles, config, logger, conditionId, fieldName);
 
         return DedupeGroupsInOrder(output);
     }
@@ -286,10 +250,111 @@ public sealed class WeaponModsExpander : IConditionExpander
     }
 
     /// <summary>
-    /// Applies unknown-id handling via <see cref="GroupExpander.BucketAndLog"/> and
-    /// returns the kept ids preserving input order (categorized ∪ uncategorizedInDb
-    /// when kept ∪ notInDb when kept).
+    /// Resolves a bundle's inner entries to per-position sets:
+    /// type-name → member set; bare id → singleton-set.
     /// </summary>
+    private List<IReadOnlyList<string>> ResolveBundleSets(IReadOnlyList<string> bundle)
+    {
+        var sets = new List<IReadOnlyList<string>>(bundle.Count);
+        foreach (var entry in bundle)
+        {
+            if (_attachmentCategorization.AttachmentTypes.TryGetValue(entry, out var members))
+            {
+                sets.Add(members.ToList());
+            }
+            else
+            {
+                sets.Add([entry]);
+            }
+        }
+
+        return sets;
+    }
+
+    /// <summary>
+    /// Emits the cartesian product of each bundle's resolved sets as AND-bundles.
+    /// Truncates per entry to <see cref="ModConfig.ModBundleCartesianCap"/> and
+    /// warns on truncation.
+    /// </summary>
+    private void AppendCartesianBundles(
+        List<List<string>> output,
+        IReadOnlyList<List<string>> bundles,
+        ModConfig config,
+        IModLogger logger,
+        string conditionId,
+        string fieldName)
+    {
+        if (bundles.Count == 0)
+        {
+            return;
+        }
+
+        var cap = Math.Max(1, config.ModBundleCartesianCap);
+
+        for (var bIx = 0; bIx < bundles.Count; bIx++)
+        {
+            var bundle = bundles[bIx];
+            if (bundle.Count == 0)
+            {
+                continue;
+            }
+
+            var sets = ResolveBundleSets(bundle);
+            if (sets.Any(s => s.Count == 0))
+            {
+                logger.Warning(
+                    $"[mods-expander] condition '{conditionId}' field '{fieldName}': " +
+                    $"bundle #{bIx} contains an empty set; bundle dropped.");
+                continue;
+            }
+
+            long fullProduct = 1;
+            foreach (var s in sets)
+            {
+                fullProduct *= s.Count;
+                if (fullProduct > int.MaxValue)
+                {
+                    fullProduct = int.MaxValue;
+                    break;
+                }
+            }
+
+            var truncated = fullProduct > cap;
+            var emit = truncated ? cap : (int)fullProduct;
+
+            var idx = new int[sets.Count];
+            for (var k = 0; k < emit; k++)
+            {
+                var combo = new List<string>(sets.Count);
+                for (var p = 0; p < sets.Count; p++)
+                {
+                    combo.Add(sets[p][idx[p]]);
+                }
+
+                output.Add(combo);
+
+                for (var p = sets.Count - 1; p >= 0; p--)
+                {
+                    idx[p]++;
+                    if (idx[p] < sets[p].Count)
+                    {
+                        break;
+                    }
+
+                    idx[p] = 0;
+                }
+            }
+
+            if (truncated)
+            {
+                logger.Warning(
+                    $"[mods-expander] condition '{conditionId}' field '{fieldName}': " +
+                    $"bundle #{bIx} cartesian product {fullProduct} exceeds cap {cap}; " +
+                    $"output truncated to {cap} groups.");
+            }
+        }
+    }
+
     private List<string> FilterByUnknownHandling(
         IReadOnlyList<string> group,
         ModConfig config,
@@ -329,13 +394,6 @@ public sealed class WeaponModsExpander : IConditionExpander
         return kept;
     }
 
-    /// <summary>
-    /// Field-level expansion batch: given the chosen type's <paramref name="typeMembers"/>,
-    /// emit one singleton group per member, and for each emitted id emit one singleton per
-    /// <c>canBeUsedAs</c> alias (type-name aliases expand to their members).
-    /// Only called when singleton count ≥ 2 AND a common covering type was found —
-    /// lone singletons never reach this path and therefore never emit aliases.
-    /// </summary>
     private void AppendFieldExpansion(List<List<string>> output, IReadOnlySet<string> typeMembers)
     {
         var emittedIds = new List<string>(typeMembers.Count);
@@ -346,8 +404,6 @@ public sealed class WeaponModsExpander : IConditionExpander
             emittedIds.Add(member);
         }
 
-        // Aliases: each alias value may be a bare id OR a type name. Type names expand
-        // to their members (each as its own singleton group); bare ids emit one group.
         foreach (var emitted in emittedIds)
         {
             if (!_attachmentCategorization.CanBeUsedAs.TryGetValue(emitted, out var aliases))
@@ -372,14 +428,10 @@ public sealed class WeaponModsExpander : IConditionExpander
         }
     }
 
-    /// <summary>
-    /// Drops duplicate groups from <paramref name="groups"/> based on each group's
-    /// sorted-set representation. First occurrence wins; ordering otherwise preserved.
-    /// </summary>
     private static List<List<string>> DedupeGroupsInOrder(List<List<string>> groups)
     {
         var seenKeys = new HashSet<string>();
-        var result = new List<List<string>>(groups.Count);
+        var result   = new List<List<string>>(groups.Count);
 
         foreach (var group in groups)
         {

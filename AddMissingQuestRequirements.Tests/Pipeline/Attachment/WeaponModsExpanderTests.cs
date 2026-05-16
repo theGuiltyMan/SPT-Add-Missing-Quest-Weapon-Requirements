@@ -536,66 +536,50 @@ public class WeaponModsExpanderTests
             ["stock_a"]);
     }
 
-    // ── ExcludedMods drops any output group matching an exclude rule ────────
+    // ── ExcludedMods appends singletons to weaponModsExclusive only ──────────
 
     [Fact]
-    public void excluded_mods_drops_multi_item_group_when_any_member_excluded()
+    public void excluded_mods_under_auto_appends_to_exclusive_only()
     {
-        // Multi-item [["scope_a", "supp_a"]] + ExcludedMods ["scope_a"] → [].
-        var condition = MakeCondition(inclusive: [["scope_a", "supp_a"]]);
+        var condition = MakeCondition(
+            inclusive: [["scope_a", "supp_a"]],
+            exclusive: []);
 
         var overrideEntry = new QuestOverrideEntry
         {
-            Id = "q1",
+            Id           = "q1",
             ExcludedMods = ["scope_a"],
         };
 
         RunWithOverride(MakeExpander(), condition, overrideEntry);
 
-        AssertGroups(condition.WeaponModsInclusive /* empty */);
+        AssertGroups(condition.WeaponModsInclusive,
+            ["scope_a", "supp_a"]);
+        AssertGroups(condition.WeaponModsExclusive,
+            ["scope_a"]);
     }
 
     [Fact]
-    public void excluded_mods_type_name_drops_every_group_whose_members_all_in_type()
+    public void excluded_mods_type_name_appends_one_singleton_per_member_to_exclusive()
     {
-        // Groups: [stock_a] (all Stock → dropped), [scope_a] (not Stock → kept),
-        //         [stock_b, supp_a] (not all Stock → kept).
-        var condition = MakeCondition(inclusive: [["stock_a"], ["scope_a"], ["stock_b", "supp_a"]]);
+        var condition = MakeCondition(
+            inclusive: [["scope_a"]],
+            exclusive: []);
 
         var overrideEntry = new QuestOverrideEntry
         {
-            Id = "q1",
-            // NoExpansion so the singletons stay verbatim, avoiding entangling
-            // ExcludedMods behaviour with the field-level consensus rule.
+            Id                = "q1",
             ModsExpansionMode = ExpansionMode.NoExpansion,
-            ExcludedMods = ["Stock"],
+            ExcludedMods      = ["Stock"],
         };
 
         RunWithOverride(MakeExpander(), condition, overrideEntry);
 
         AssertGroups(condition.WeaponModsInclusive,
-            ["scope_a"],
-            ["stock_b", "supp_a"]);
-    }
-
-    [Fact]
-    public void excluded_mods_drops_expanded_singletons_that_land_on_excluded_id()
-    {
-        // Field-level expansion: [[stock_a], [stock_b]] share Stock (3 members)
-        // → expands to [stock_a], [stock_b], [stock_c]. ExcludedMods ["stock_b"]
-        // drops the [stock_b] group from the expanded output.
-        var condition = MakeCondition(inclusive: [["stock_a"], ["stock_b"]]);
-
-        var overrideEntry = new QuestOverrideEntry
-        {
-            Id = "q1",
-            ExcludedMods = ["stock_b"],
-        };
-
-        RunWithOverride(MakeExpander(), condition, overrideEntry);
-
-        AssertGroupsUnordered(condition.WeaponModsInclusive,
+            ["scope_a"]);
+        AssertGroupsUnordered(condition.WeaponModsExclusive,
             ["stock_a"],
+            ["stock_b"],
             ["stock_c"]);
     }
 
@@ -817,6 +801,235 @@ public class WeaponModsExpanderTests
             ["stock_b"],
             ["stock_c"],
             ["supp_a"]);
+    }
+
+    // ── Bug repros (per-field semantics) ──────────────────────────────────────
+
+    [Fact]
+    public void included_mods_must_not_leak_into_exclusive_field()
+    {
+        // Clay Pigeons / Tester-10 reproduction. IncludedMods should append only to
+        // weaponModsInclusive; weaponModsExclusive must stay empty when ModsExclusiveBefore
+        // was empty.
+        var expander = MakeExpander();
+        var condition = MakeCondition(
+            inclusive: [["scope_a"]],
+            exclusive: []);
+        var ov = new QuestOverrideEntry
+        {
+            Id                = "q1",
+            ModsExpansionMode = ExpansionMode.NoExpansion,
+            IncludedMods      = ["scope_b"],
+        };
+
+        RunWithOverride(expander, condition, ov);
+
+        condition.WeaponModsExclusive.Should().BeEmpty(
+            "IncludedMods must not append to the exclusive field");
+        AssertGroups(condition.WeaponModsInclusive,
+            ["scope_a"],
+            ["scope_b"]);
+    }
+
+    [Fact]
+    public void excluded_mods_must_append_to_exclusive_not_drop_from_inclusive()
+    {
+        // Light's Out reproduction (variant). ExcludedMods should append only to
+        // weaponModsExclusive; weaponModsInclusive must be untouched.
+        var expander = MakeExpander();
+        var condition = MakeCondition(
+            inclusive: [["scope_a"]],
+            exclusive: []);
+        var ov = new QuestOverrideEntry
+        {
+            Id                = "q1",
+            ModsExpansionMode = ExpansionMode.NoExpansion,
+            ExcludedMods      = ["Stock"],
+        };
+
+        RunWithOverride(expander, condition, ov);
+
+        AssertGroups(condition.WeaponModsInclusive,
+            ["scope_a"]);
+        AssertGroupsUnordered(condition.WeaponModsExclusive,
+            ["stock_a"],
+            ["stock_b"],
+            ["stock_c"]);
+    }
+
+    [Fact]
+    public void excluded_mods_appends_to_existing_exclusive_field()
+    {
+        // Variant with pre-populated exclusive. ExcludedMods appends; pre-existing
+        // groups preserved; original inclusive untouched.
+        var expander = MakeExpander();
+        var condition = MakeCondition(
+            inclusive: [["scope_a"]],
+            exclusive: [["supp_a"]]);
+        var ov = new QuestOverrideEntry
+        {
+            Id                = "q1",
+            ModsExpansionMode = ExpansionMode.NoExpansion,
+            ExcludedMods      = ["stock_a"],
+        };
+
+        RunWithOverride(expander, condition, ov);
+
+        AssertGroups(condition.WeaponModsInclusive,
+            ["scope_a"]);
+        AssertGroups(condition.WeaponModsExclusive,
+            ["supp_a"],
+            ["stock_a"]);
+    }
+
+    // ── ModBundles cartesian + cap ────────────────────────────────────────────
+
+    [Fact]
+    public void included_mod_bundles_cartesian_with_type_names_expands_to_product_groups()
+    {
+        var condition = MakeCondition(inclusive: [], exclusive: []);
+
+        var overrideEntry = new QuestOverrideEntry
+        {
+            Id                 = "q1",
+            IncludedModBundles = [["Stock", "Scope"]],
+        };
+
+        RunWithOverride(MakeExpander(), condition, overrideEntry);
+
+        // 3 stocks × 2 scopes = 6 bundles
+        condition.WeaponModsInclusive.Should().HaveCount(6);
+        condition.WeaponModsInclusive.Should().AllSatisfy(g =>
+            g.Should().HaveCount(2, "each emitted bundle is one stock id + one scope id"));
+        condition.WeaponModsExclusive.Should().BeEmpty(
+            "IncludedModBundles must not leak into exclusive");
+    }
+
+    [Fact]
+    public void included_mod_bundles_with_bare_id_treats_it_as_singleton_set()
+    {
+        var condition = MakeCondition(inclusive: [], exclusive: []);
+
+        var overrideEntry = new QuestOverrideEntry
+        {
+            Id                 = "q1",
+            IncludedModBundles = [["stock_a", "Scope"]],
+        };
+
+        RunWithOverride(MakeExpander(), condition, overrideEntry);
+
+        AssertGroupsUnordered(condition.WeaponModsInclusive,
+            ["stock_a", "scope_a"],
+            ["stock_a", "scope_b"]);
+    }
+
+    [Fact]
+    public void excluded_mod_bundles_appends_cartesian_to_exclusive_only()
+    {
+        var condition = MakeCondition(
+            inclusive: [["scope_a"]],
+            exclusive: []);
+
+        var overrideEntry = new QuestOverrideEntry
+        {
+            Id                 = "q1",
+            ExcludedModBundles = [["Suppressor", "scope_b"]],
+        };
+
+        RunWithOverride(MakeExpander(), condition, overrideEntry);
+
+        AssertGroups(condition.WeaponModsInclusive, ["scope_a"]);
+        AssertGroupsUnordered(condition.WeaponModsExclusive,
+            ["supp_a", "scope_b"],
+            ["supp_b", "scope_b"]);
+    }
+
+    [Fact]
+    public void mod_bundle_cap_truncates_product_and_warns()
+    {
+        var condition = MakeCondition(inclusive: [], exclusive: []);
+
+        var overrideEntry = new QuestOverrideEntry
+        {
+            Id                 = "q1",
+            IncludedModBundles = [["Stock", "Scope", "Suppressor"]], // 3×2×2 = 12
+        };
+        var config = new ModConfig { ModBundleCartesianCap = 5 };
+        var logger = new CapturingModLogger();
+
+        RunWithOverride(MakeExpander(), condition, overrideEntry, logger, config);
+
+        condition.WeaponModsInclusive.Should().HaveCount(5);
+        logger.Warnings.Should().Contain(w => w.Contains("cap 5") && w.Contains("12"));
+    }
+
+    [Fact]
+    public void mod_bundle_under_cap_emits_full_product()
+    {
+        var condition = MakeCondition(inclusive: [], exclusive: []);
+
+        var overrideEntry = new QuestOverrideEntry
+        {
+            Id                 = "q1",
+            IncludedModBundles = [["Stock", "Scope"]], // 3×2 = 6
+        };
+        var config = new ModConfig { ModBundleCartesianCap = 500 };
+        var logger = new CapturingModLogger();
+
+        RunWithOverride(MakeExpander(), condition, overrideEntry, logger, config);
+
+        condition.WeaponModsInclusive.Should().HaveCount(6);
+        logger.Warnings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void included_mod_bundles_three_set_cartesian_visits_every_combination()
+    {
+        // 3 sets: Scope (2) × Suppressor (2) × bare stock_a (1) = 4 combinations.
+        // Locks the mixed-radix counter for arity ≥ 3.
+        var condition = MakeCondition(inclusive: [], exclusive: []);
+
+        var overrideEntry = new QuestOverrideEntry
+        {
+            Id                 = "q1",
+            IncludedModBundles = [["Scope", "Suppressor", "stock_a"]],
+        };
+
+        RunWithOverride(MakeExpander(), condition, overrideEntry);
+
+        condition.WeaponModsInclusive.Should().HaveCount(4);
+        AssertGroupsUnordered(condition.WeaponModsInclusive,
+            ["scope_a", "supp_a", "stock_a"],
+            ["scope_a", "supp_b", "stock_a"],
+            ["scope_b", "supp_a", "stock_a"],
+            ["scope_b", "supp_b", "stock_a"]);
+    }
+
+    [Fact]
+    public void whitelist_only_mode_still_appends_cartesian_bundles()
+    {
+        // WhitelistOnly discards original groups; bundles must still be appended
+        // (contract: bundles append in every mode).
+        var condition = MakeCondition(
+            inclusive: [["scope_a"]],
+            exclusive: []);
+
+        var overrideEntry = new QuestOverrideEntry
+        {
+            Id                 = "q1",
+            ModsExpansionMode  = ExpansionMode.WhitelistOnly,
+            IncludedMods       = ["supp_a"],
+            IncludedModBundles = [["stock_a", "Scope"]], // 1×2 = 2 bundles
+        };
+
+        RunWithOverride(MakeExpander(), condition, overrideEntry);
+
+        // Original [scope_a] discarded by WhitelistOnly.
+        // Output: IncludedMods singleton [supp_a] + 2 cartesian bundles.
+        AssertGroupsUnordered(condition.WeaponModsInclusive,
+            ["supp_a"],
+            ["stock_a", "scope_a"],
+            ["stock_a", "scope_b"]);
     }
 
     // ── Misc: weapon array is not touched ─────────────────────────────────────

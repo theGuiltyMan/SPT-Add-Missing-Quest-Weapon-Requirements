@@ -658,6 +658,43 @@ public class MergeHelperTests
         entry.ExcludedMods.Should().BeEquivalentTo(["mod-x", "mod-y"]);
     }
 
+    [Fact]
+    public void MergeQuestEntries_MERGE_unions_mod_bundles_by_structural_equality()
+    {
+        var existing = new Dictionary<string, List<QuestOverrideEntry>>
+        {
+            ["q1"] =
+            [
+                new()
+                {
+                    Id                 = "q1",
+                    Conditions         = ["c1"],
+                    IncludedModBundles = [["barrel_a", "scope_a"], ["barrel_b"]],
+                    ExcludedModBundles = [["mod_x"]],
+                },
+            ],
+        };
+        var incoming = new List<QuestOverrideEntry>
+        {
+            new()
+            {
+                Id                 = "q1",
+                Conditions         = ["c1"],
+                // First bundle is the same as existing's first bundle in reverse order — must dedupe.
+                IncludedModBundles = [["scope_a", "barrel_a"], ["barrel_c"]],
+                ExcludedModBundles = [["mod_x"], ["mod_y"]],
+            },
+        };
+
+        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
+        var entry  = result["q1"].Single();
+
+        entry.IncludedModBundles.Should().HaveCount(3,
+            "duplicate barrel_a/scope_a bundle should dedupe regardless of inner order");
+        entry.ExcludedModBundles.Should().HaveCount(2,
+            "duplicate mod_x bundle should dedupe");
+    }
+
     // ── ExpansionMode priority in MergeEntries ──────────────────────────────
 
     [Fact]

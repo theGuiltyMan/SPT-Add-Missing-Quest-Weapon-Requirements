@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "overrideBehaviour": 0,
   "excludedQuests": [
     "5c1234c286f77406fa13baeb",
@@ -99,20 +99,52 @@
     "Ammo_Proficiency_61962d879bb3d20b0946d385_Trade",
     "double_agent_19_fence"
   ],
-  // Mod-group overrides (A3). Mod groups use intra-group AND, cross-group OR:
+  // Mod-group overrides. Mod groups use intra-group AND, cross-group OR.
+  // Each field below is per-target: includedMods / includedModBundles affect
+  // weaponModsInclusive only; excludedMods / excludedModBundles affect
+  // weaponModsExclusive only. No drop-from-the-other-field semantic.
+  //
   //   "modsExpansionMode": "Auto" | "WhitelistOnly" | "NoExpansion"
   //     Auto           — singleton groups expand via type + aliases into new singleton
   //                      groups; multi-item groups kept verbatim (AND-bundles preserved).
-  //     WhitelistOnly  — original field discarded; rebuilt as singleton groups from
-  //                      includedMods alone.
-  //     NoExpansion    — original groups kept verbatim; includedMods still appended.
-  //   "includedMods":  ["attachmentId", "TypeName", ...]  appended as new singleton
-  //                                                       groups (type names expand
-  //                                                       to one singleton per member).
-  //   "excludedMods":  ["attachmentId", "TypeName", ...]  applied last:
-  //                      bare id    → drops any output group containing the id;
-  //                      type name  → drops only groups whose members are entirely
-  //                                   within that type (mixed bundles kept).
+  //     WhitelistOnly  — original field discarded; rebuilt from append-only sources
+  //                      (includedMods + includedModBundles for inclusive;
+  //                       excludedMods + excludedModBundles for exclusive).
+  //     NoExpansion    — original groups kept verbatim; append-only sources still apply.
+  //
+  //   "includedMods":        ["attachmentId", "TypeName", ...]
+  //                           Appended as singleton groups to weaponModsInclusive
+  //                           (required-mods). Type names expand to one singleton
+  //                           per member.
+  //   "excludedMods":        ["attachmentId", "TypeName", ...]
+  //                           Appended as singleton groups to weaponModsExclusive
+  //                           (forbidden-mods). Type names expand to one singleton
+  //                           per member.
+  //   "includedModBundles":  [["TypeOrId", "TypeOrId", ...], ...]
+  //                           Cartesian AND-bundles appended to weaponModsInclusive.
+  //                           Each inner entry is a SET (type-name = member set,
+  //                           bare id = singleton-set); output = cross product, one
+  //                           AND-bundle per combination. Truncated per entry by
+  //                           ModConfig.modBundleCartesianCap (default 500).
+  //   "excludedModBundles":  same shape, appended to weaponModsExclusive.
+  //
+  // All entries below default to []; set per-quest as needed.
+  //
+  // Template (commented out — copy and adapt):
+  /*
+    {
+      "id": "<questId>",
+      "conditions": [],                                 // optional: empty = all conditions on the quest
+      "expansionMode": 0,                               // 0=Auto, 1=WhitelistOnly, 2=NoExpansion
+      "includedWeapons": [],                            // weapon IDs / type names appended to the weapon array
+      "excludedWeapons": [],                            // weapon IDs / type names removed last
+      "modsExpansionMode": 0,                           // 0=Auto, 1=WhitelistOnly, 2=NoExpansion
+      "includedMods": [],                               // appended as singletons to weaponModsInclusive
+      "excludedMods": [],                               // appended as singletons to weaponModsExclusive
+      "includedModBundles": [["TypeA", "TypeB"]],       // cartesian AND-bundles into weaponModsInclusive
+      "excludedModBundles": []                          // cartesian AND-bundles into weaponModsExclusive
+    }
+  */
   "overrides": [
     {
       "id": "59ca2eb686f77445a80ed049",

@@ -1,0 +1,47 @@
+{
+  "planPath": "docs/superpowers/plans/2026-05-16-mod-include-exclude-rework.md",
+  "tasks": [
+    {
+      "id": 1,
+      "subject": "Task 0: Pin per-field bug repros in WeaponModsExpanderTests",
+      "status": "pending",
+      "description": "**Goal:** Lock Clay Pigeons / Tester-10 / Light's Out into red tests before any production code changes.\n\n**Files:**\n- Modify: `AddMissingQuestRequirements.Tests/Pipeline/Attachment/WeaponModsExpanderTests.cs`\n\n**Acceptance Criteria:**\n- 3 new failing tests added under `// ── Bug repros (per-field semantics) ──`\n- Build green; existing tests untouched\n\n**Verify:** `dotnet test --filter \"FullyQualifiedName~WeaponModsExpanderTests\" -c Release`\n\n```json:metadata\n{\"files\": [\"AddMissingQuestRequirements.Tests/Pipeline/Attachment/WeaponModsExpanderTests.cs\"], \"verifyCommand\": \"dotnet test --filter \\\"FullyQualifiedName~WeaponModsExpanderTests\\\" -c Release\", \"acceptanceCriteria\": [\"3 new failing tests added\", \"build green\", \"existing tests untouched\"]}\n```"
+    },
+    {
+      "id": 2,
+      "subject": "Task 1: Model + ModConfig + MergeHelper plumbing for bundles + cap",
+      "status": "pending",
+      "blockedBy": [1],
+      "description": "**Goal:** Schema changes only (no behavior). Add `IncludedModBundles`/`ExcludedModBundles` on QuestOverrideEntry, `ModBundleCartesianCap` on ModConfig, MergeHelper structural-dedupe union.\n\n**Files:**\n- Modify: `AddMissingQuestRequirements/Models/QuestOverrideEntry.cs`\n- Modify: `AddMissingQuestRequirements/Models/ModConfig.cs`\n- Modify: `AddMissingQuestRequirements/Util/MergeHelper.cs`\n- Modify: `AddMissingQuestRequirements.Tests/Util/MergeHelperTests.cs`\n\n**Acceptance Criteria:**\n- New bundle fields, IncludedMods/ExcludedMods XML docs rewritten\n- ModBundleCartesianCap int default 500\n- MergeHelper unions bundles by sorted-distinct key\n- New merge test passes; only the 3 Task 0 repros fail\n\n**Verify:** `dotnet build -c Release && dotnet test --filter \"Category!=Integration\" -c Release`\n\n```json:metadata\n{\"files\": [\"AddMissingQuestRequirements/Models/QuestOverrideEntry.cs\", \"AddMissingQuestRequirements/Models/ModConfig.cs\", \"AddMissingQuestRequirements/Util/MergeHelper.cs\", \"AddMissingQuestRequirements.Tests/Util/MergeHelperTests.cs\"], \"verifyCommand\": \"dotnet build -c Release && dotnet test --filter \\\"Category!=Integration\\\" -c Release\", \"acceptanceCriteria\": [\"new model fields\", \"MergeHelper unions bundles\", \"merge test passes\"]}\n```"
+    },
+    {
+      "id": 3,
+      "subject": "Task 2: WeaponModsExpander rework — per-field + cartesian + cap",
+      "status": "pending",
+      "blockedBy": [2],
+      "description": "**Goal:** Replace symmetric RewriteField with per-field calls. IncludedMods/IncludedModBundles → inclusive only; ExcludedMods/ExcludedModBundles → exclusive only. Drop semantics removed. Cap enforced per entry.\n\n**Files:**\n- Modify: `AddMissingQuestRequirements/Pipeline/Attachment/WeaponModsExpander.cs`\n- Modify: `AddMissingQuestRequirements.Tests/Pipeline/Attachment/WeaponModsExpanderTests.cs`\n\n**Acceptance Criteria:**\n- 3 Task 0 repros now pass\n- Drop-semantic tests removed, replaced by per-field append tests\n- Cartesian + cap tests added and pass\n\n**Verify:** `dotnet test --filter \"Category!=Integration\" -c Release`\n\n```json:metadata\n{\"files\": [\"AddMissingQuestRequirements/Pipeline/Attachment/WeaponModsExpander.cs\", \"AddMissingQuestRequirements.Tests/Pipeline/Attachment/WeaponModsExpanderTests.cs\"], \"verifyCommand\": \"dotnet test --filter \\\"Category!=Integration\\\" -c Release\", \"acceptanceCriteria\": [\"bug repros pass\", \"cartesian tests pass\", \"cap tests pass\", \"drop tests removed\"]}\n```"
+    },
+    {
+      "id": 4,
+      "subject": "Task 3: QuestOverrides schema v2 → v3 migration with semantic-flip notice",
+      "status": "pending",
+      "blockedBy": [3],
+      "description": "**Goal:** Bump quest schema version. Migration plants a sentinel when any entry has non-empty `excludedMods`; the override reader surfaces it as a one-line load warning.\n\n**Files:**\n- Modify: `AddMissingQuestRequirements/Config/Migrations.cs`\n- Modify: `AddMissingQuestRequirements/Pipeline/Override/OverrideReader.cs`\n- Modify/Create: migration tests file\n\n**Acceptance Criteria:**\n- `v2_to_v3_Quest` migration added\n- CurrentVersion bumped 2 → 3, migration list updated\n- Warning surfaces in logger when sentinel present\n- Sentinel stripped before deserialization\n- Migration tests added\n\n**Verify:** `dotnet test --filter \"Category!=Integration\" -c Release`\n\n```json:metadata\n{\"files\": [\"AddMissingQuestRequirements/Config/Migrations.cs\", \"AddMissingQuestRequirements/Pipeline/Override/OverrideReader.cs\"], \"verifyCommand\": \"dotnet test --filter \\\"Category!=Integration\\\" -c Release\", \"acceptanceCriteria\": [\"CurrentVersion=3\", \"sentinel migration works\", \"warning surfaces\", \"sentinel stripped\"]}\n```"
+    },
+    {
+      "id": 5,
+      "subject": "Task 4: Inspector report surfaces ModBundles fields",
+      "status": "pending",
+      "blockedBy": [3],
+      "description": "**Goal:** Inspector JSON + HTML report show `overrideIncludedModBundles` / `overrideExcludedModBundles`.\n\n**Files:**\n- Modify: `AddMissingQuestRequirements/Reporting/InspectorResult.cs`\n- Modify: `AddMissingQuestRequirements/Reporting/ReportBuilder.cs`\n- Modify: `AddMissingQuestRequirements/Reporting/Assets/report.js`\n\n**Acceptance Criteria:**\n- Inspector model has new fields; populated by ReportBuilder\n- report.js renders bundles when non-empty (members joined by ' + ')\n- Manual smoke test\n\n**Verify:** `dotnet build -c Release` + manual inspector run\n\n```json:metadata\n{\"files\": [\"AddMissingQuestRequirements/Reporting/InspectorResult.cs\", \"AddMissingQuestRequirements/Reporting/ReportBuilder.cs\", \"AddMissingQuestRequirements/Reporting/Assets/report.js\"], \"verifyCommand\": \"dotnet build -c Release\", \"acceptanceCriteria\": [\"fields added\", \"populated\", \"rendered\", \"smoke tested\"]}\n```"
+    },
+    {
+      "id": 6,
+      "subject": "Task 5: Version bump 2.1.0 + CLAUDE.md doc rewrite",
+      "status": "pending",
+      "blockedBy": [3, 4, 5],
+      "description": "**Goal:** ModMetadata.Version 2.0.5 → 2.1.0. Rewrite CLAUDE.md §Mod-group expansion + new §Improvements entry.\n\n**Files:**\n- Modify: `AddMissingQuestRequirements/Spt/ModMetadata.cs`\n- Modify: `CLAUDE.md`\n\n**Acceptance Criteria:**\n- Version bumped\n- CLAUDE.md sections updated to per-field semantics, cartesian bundles, cap\n- Build + tests green\n\n**Verify:** `dotnet build -c Release && dotnet test --filter \"Category!=Integration\" -c Release`\n\n```json:metadata\n{\"files\": [\"AddMissingQuestRequirements/Spt/ModMetadata.cs\", \"CLAUDE.md\"], \"verifyCommand\": \"dotnet build -c Release && dotnet test --filter \\\"Category!=Integration\\\" -c Release\", \"acceptanceCriteria\": [\"version bumped\", \"docs updated\", \"build green\"]}\n```"
+    }
+  ],
+  "lastUpdated": "2026-05-16T00:00:00Z"
+}

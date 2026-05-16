@@ -361,6 +361,51 @@ public static class Migrations
     }
 
     /// <summary>
+    /// Sentinel key planted on the root JsonObject by <see cref="v2_to_v3_Quest"/>
+    /// to signal that a non-empty <c>excludedMods</c> was present in the migrated
+    /// file. The override reader surfaces this as a one-line load warning.
+    /// </summary>
+    public const string V2ToV3ExcludedModsSemanticChangedKey = "_v2_to_v3_excludedMods_semantic_changed";
+
+    /// <summary>
+    /// Migrates QuestOverrides from version 2 to version 3 (semantic flip).
+    /// <para>In v2 <c>excludedMods</c> dropped groups from both the inclusive and
+    /// exclusive fields. In v3 it appends singletons to the exclusive field only.
+    /// Schema keys are unchanged.</para>
+    /// <para>The loader surfaces a one-line warning when any entry has a non-empty
+    /// <c>excludedMods</c> so authors notice the new per-field semantics. The notice is carried as a
+    /// sentinel boolean <c>_v2_to_v3_excludedMods_semantic_changed</c> on the root
+    /// JsonObject. <c>System.Text.Json</c> ignores unknown properties on
+    /// deserialization, so the sentinel is harmless to leave in place.</para>
+    /// </summary>
+    public static JsonObject v2_to_v3_Quest(JsonObject obj)
+    {
+        if (obj["overrides"] is not JsonArray overrides)
+        {
+            return obj;
+        }
+
+        var anyNonEmpty = false;
+        foreach (var item in overrides)
+        {
+            if (item is JsonObject entry
+                && entry["excludedMods"] is JsonArray arr
+                && arr.Count > 0)
+            {
+                anyNonEmpty = true;
+                break;
+            }
+        }
+
+        if (anyNonEmpty)
+        {
+            obj[V2ToV3ExcludedModsSemanticChangedKey] = true;
+        }
+
+        return obj;
+    }
+
+    /// <summary>
     /// Migrates WeaponOverrides (now <see cref="Models.WeaponOverridesFile"/>) from version 1 to 2.
     /// - <c>Override</c> → merged into <c>manualTypeOverrides</c> (existing keys win)
     /// - <c>CanBeUsedAsShortNameWhitelist</c> → <c>aliasNameStripWords</c>

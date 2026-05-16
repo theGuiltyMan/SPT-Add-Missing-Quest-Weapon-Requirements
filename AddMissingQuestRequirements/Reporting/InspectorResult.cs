@@ -97,6 +97,8 @@ public sealed class ConditionResult
     public string ModsExpansionMode { get; init; } = "Auto";
     public List<string> OverrideIncludedMods { get; init; } = [];
     public List<string> OverrideExcludedMods { get; init; } = [];
+    public List<List<string>> OverrideIncludedModBundles { get; init; } = [];
+    public List<List<string>> OverrideExcludedModBundles { get; init; } = [];
 
     public bool Expanded =>
         After.Count > Before.Count

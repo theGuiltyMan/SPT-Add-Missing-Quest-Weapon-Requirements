@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using AddMissingQuestRequirements.Config;
 using AddMissingQuestRequirements.Models;
 using AddMissingQuestRequirements.Util;
@@ -22,11 +23,12 @@ public sealed class OverrideReader(IModDirectoryProvider modDirProvider, IModLog
     private const string AttachmentOverridesFileName = "AttachmentOverrides.jsonc";
 
     // Current config version the mod expects (increment on breaking changes)
-    private const int CurrentVersion = 2;
+    private const int CurrentQuestVersion = 3;
+    private const int CurrentWeaponVersion = 2;
     private const int CurrentAttachmentVersion = 1;
 
     private static readonly Func<System.Text.Json.Nodes.JsonObject, System.Text.Json.Nodes.JsonObject>[]
-        QuestMigrations = [Migrations.v0_to_v1, Migrations.v1_to_v2_Quest];
+        QuestMigrations = [Migrations.v0_to_v1, Migrations.v1_to_v2_Quest, Migrations.v2_to_v3_Quest];
 
     private static readonly Func<System.Text.Json.Nodes.JsonObject, System.Text.Json.Nodes.JsonObject>[]
         WeaponsMigrations = [Migrations.v0_to_v1_Weapons, Migrations.v1_to_v2_Weapons];
@@ -102,13 +104,26 @@ public sealed class OverrideReader(IModDirectoryProvider modDirProvider, IModLog
         var exists = File.Exists(path);
         Trace($"QuestOverrides path='{path}' exists={exists}");
         var loaded = ConfigLoader.LoadFromFile<Models.QuestOverridesFile>(
-            path, CurrentVersion, QuestMigrations);
+            path, CurrentQuestVersion, QuestMigrations);
         var file = loaded.Config;
         Trace($"QuestOverrides loaded behaviour={file.OverrideBehaviour}, " +
             $"overrides={file.Overrides.Count}, excludedQuests={file.ExcludedQuests.Count}");
         foreach (var w in loaded.Warnings)
         {
             Trace($"QuestOverrides warning: {w}");
+        }
+
+        // v2→v3 semantic-flip notice. The migration plants a sentinel when any
+        // entry has a non-empty excludedMods; surface it once per file so authors
+        // notice the new per-field semantics.
+        if (loaded.MigratedJson[Migrations.V2ToV3ExcludedModsSemanticChangedKey] is JsonValue sentinelValue
+            && sentinelValue.TryGetValue<bool>(out var sentinelBool)
+            && sentinelBool)
+        {
+            logger?.Warning(
+                $"[migration] '{path}': excludedMods semantics changed in config v3 — " +
+                $"these IDs now append to weaponModsExclusive instead of dropping groups. " +
+                $"Review your overrides.");
         }
 
         var fileBehaviour = file.OverrideBehaviour;
@@ -157,7 +172,7 @@ public sealed class OverrideReader(IModDirectoryProvider modDirProvider, IModLog
         Trace($"WeaponOverrides newExists={newExists} pickedLegacy={pickedLegacy} path='{path}'");
 
         var loaded = ConfigLoader.LoadFromFile<Models.WeaponOverridesFile>(
-            path, CurrentVersion, WeaponsMigrations);
+            path, CurrentWeaponVersion, WeaponsMigrations);
         var file = loaded.Config;
         Trace($"WeaponOverrides loaded behaviour={file.OverrideBehaviour}, " +
             $"manualTypeOverrides={file.ManualTypeOverrides.Count}, " +

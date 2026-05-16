@@ -295,31 +295,35 @@ public static class MergeHelper
 
     private static QuestOverrideEntry CloneEntry(QuestOverrideEntry e) => new()
     {
-        Id                = e.Id,
-        Behaviour         = e.Behaviour,
-        ExpansionMode     = e.ExpansionMode,
-        Conditions        = [..e.Conditions],
-        IncludedWeapons   = [..e.IncludedWeapons],
-        ExcludedWeapons   = [..e.ExcludedWeapons],
-        ModsExpansionMode = e.ModsExpansionMode,
-        IncludedMods      = [..e.IncludedMods],
-        ExcludedMods      = [..e.ExcludedMods],
+        Id                 = e.Id,
+        Behaviour          = e.Behaviour,
+        ExpansionMode      = e.ExpansionMode,
+        Conditions         = [..e.Conditions],
+        IncludedWeapons    = [..e.IncludedWeapons],
+        ExcludedWeapons    = [..e.ExcludedWeapons],
+        ModsExpansionMode  = e.ModsExpansionMode,
+        IncludedMods       = [..e.IncludedMods],
+        ExcludedMods       = [..e.ExcludedMods],
+        IncludedModBundles = e.IncludedModBundles.Select(b => (List<string>)[..b]).ToList(),
+        ExcludedModBundles = e.ExcludedModBundles.Select(b => (List<string>)[..b]).ToList(),
     };
 
     private static QuestOverrideEntry MergeEntries(QuestOverrideEntry a, QuestOverrideEntry b) => new()
     {
-        Id                = a.Id,
-        Behaviour         = a.Behaviour,
+        Id                 = a.Id,
+        Behaviour          = a.Behaviour,
         // Prefer the most restrictive mode. Order: WhitelistOnly (discards original)
         // > NoExpansion (preserves original) > Auto (broadens original). The enum's
         // int values do NOT match this order — see MoreRestrictive.
-        ExpansionMode     = MoreRestrictive(a.ExpansionMode, b.ExpansionMode),
-        Conditions        = [..a.Conditions.Union(b.Conditions)],
-        IncludedWeapons   = [..a.IncludedWeapons.Union(b.IncludedWeapons)],
-        ExcludedWeapons   = [..a.ExcludedWeapons.Union(b.ExcludedWeapons)],
-        ModsExpansionMode = MoreRestrictive(a.ModsExpansionMode, b.ModsExpansionMode),
-        IncludedMods      = [..a.IncludedMods.Union(b.IncludedMods)],
-        ExcludedMods      = [..a.ExcludedMods.Union(b.ExcludedMods)],
+        ExpansionMode      = MoreRestrictive(a.ExpansionMode, b.ExpansionMode),
+        Conditions         = [..a.Conditions.Union(b.Conditions)],
+        IncludedWeapons    = [..a.IncludedWeapons.Union(b.IncludedWeapons)],
+        ExcludedWeapons    = [..a.ExcludedWeapons.Union(b.ExcludedWeapons)],
+        ModsExpansionMode  = MoreRestrictive(a.ModsExpansionMode, b.ModsExpansionMode),
+        IncludedMods       = [..a.IncludedMods.Union(b.IncludedMods)],
+        ExcludedMods       = [..a.ExcludedMods.Union(b.ExcludedMods)],
+        IncludedModBundles = UnionBundles(a.IncludedModBundles, b.IncludedModBundles),
+        ExcludedModBundles = UnionBundles(a.ExcludedModBundles, b.ExcludedModBundles),
     };
 
     private static ExpansionMode MoreRestrictive(ExpansionMode a, ExpansionMode b)
@@ -346,5 +350,27 @@ public static class MergeHelper
         var setA = new HashSet<string>(a, StringComparer.Ordinal);
         var setB = new HashSet<string>(b, StringComparer.Ordinal);
         return setA.SetEquals(setB);
+    }
+
+    /// <summary>
+    /// Unions two lists of bundles by structural equality. A bundle's key is the
+    /// sorted, distinct, ordinal-joined member-id list (same convention as
+    /// <c>WeaponModsExpander.DedupeGroupsInOrder</c>).
+    /// </summary>
+    private static List<List<string>> UnionBundles(List<List<string>> a, List<List<string>> b)
+    {
+        var seen   = new HashSet<string>();
+        var result = new List<List<string>>(a.Count + b.Count);
+
+        foreach (var bundle in a.Concat(b))
+        {
+            var key = string.Join("\0", bundle.Distinct().OrderBy(x => x, StringComparer.Ordinal));
+            if (seen.Add(key))
+            {
+                result.Add([..bundle]);
+            }
+        }
+
+        return result;
     }
 }
