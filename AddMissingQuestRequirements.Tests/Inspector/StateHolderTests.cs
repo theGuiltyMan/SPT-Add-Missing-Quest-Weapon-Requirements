@@ -70,4 +70,48 @@ public class StateHolderTests
         snap.LastError.Should().NotBeNullOrEmpty();
         snap.Version.Should().Be(1);
     }
+
+    [Fact]
+    public void ReloadPipeline_BrokenMainOverrideFile_FailsReloadAndKeepsLastGoodState()
+    {
+        using var fx = new InspectorFixture();
+        var loaded = InspectorLoader.Load(fx.Config, fx.Logger);
+        var result = PipelineRunner.Run(loaded, fx.Logger);
+        var holder = new StateHolder();
+        holder.ApplyReload(loaded, result);
+
+        var brokenPath = Path.Combine(fx.ConfigPath, "MissingQuestWeapons", "WeaponOverrides.jsonc");
+        File.WriteAllText(brokenPath, "{ \"overrideBehaviour\": \"MERG\" }");
+
+        var ok = ReloadPipeline.Run(fx.Config, holder, fx.Logger);
+
+        ok.Should().BeFalse();
+        var snap = holder.GetSnapshot();
+        snap.Result.Should().BeSameAs(result);
+        snap.LastError.Should().Contain("WeaponOverrides.jsonc");
+        snap.Version.Should().Be(1);
+    }
+
+    [Fact]
+    public void ReloadPipeline_BrokenOtherModFile_DoesNotFailReload()
+    {
+        using var fx = new InspectorFixture();
+        var container = Path.Combine(fx.RootDir, "mods");
+        var otherMqw = Path.Combine(container, "OtherMod", "MissingQuestWeapons");
+        Directory.CreateDirectory(otherMqw);
+        File.WriteAllText(Path.Combine(otherMqw, "WeaponOverrides.jsonc"), "{ broken");
+        var config = new InspectorConfig
+        {
+            ExportedDbPath = fx.DbPath,
+            MainConfigPath = fx.ConfigPath,
+            OtherModConfigPaths = [container],
+            OutputReportPath = fx.Config.OutputReportPath,
+        };
+
+        var holder = new StateHolder();
+        var ok = ReloadPipeline.Run(config, holder, fx.Logger);
+
+        ok.Should().BeTrue();
+        holder.GetSnapshot().LastError.Should().BeNull();
+    }
 }

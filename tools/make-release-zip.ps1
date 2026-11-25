@@ -8,7 +8,7 @@
 #
 # Output: {OutDir}\GuiltyMan-AddMissingQuestRequirements-v{Version}.zip
 # Layout inside zip:
-#   SPT/user/mods/GuiltyMan-AddMissingQuestRequirements/
+#   SPT_Runtime/user/mods/GuiltyMan-AddMissingQuestRequirements/
 #     AddMissingQuestRequirements.dll
 #     config/config.jsonc
 #     MissingQuestWeapons/{Quest,Weapon,Attachment}Overrides.jsonc
@@ -68,7 +68,7 @@ foreach ($p in @($Dll, $ConfigSrc, $MqwSrc)) {
 }
 
 $StageRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("amqr-release-" + [Guid]::NewGuid().ToString("N"))
-$ModStage  = Join-Path $StageRoot "SPT\user\mods\$ModFolderName"
+$ModStage  = Join-Path $StageRoot "SPT_Runtime\user\mods\$ModFolderName"
 
 try {
     New-Item -ItemType Directory -Force -Path $ModStage | Out-Null
@@ -86,7 +86,7 @@ try {
     }
 
     Write-Host "==> compressing → $ZipPath"
-    Compress-Archive -Path (Join-Path $StageRoot "SPT") -DestinationPath $ZipPath -CompressionLevel Optimal
+    Compress-Archive -Path (Join-Path $StageRoot "SPT_Runtime") -DestinationPath $ZipPath -CompressionLevel Optimal
 
     $sizeKB = [math]::Round((Get-Item -LiteralPath $ZipPath).Length / 1KB, 1)
     Write-Host ""

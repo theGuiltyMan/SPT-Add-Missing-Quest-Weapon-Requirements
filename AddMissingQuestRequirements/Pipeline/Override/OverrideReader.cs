@@ -8,8 +8,16 @@ namespace AddMissingQuestRequirements.Pipeline.Override;
 /// <summary>
 /// Scans all mod directories for MissingQuestWeapons config files,
 /// loads them, and merges them into a single <see cref="OverriddenSettings"/>.
+/// <para>
+/// <paramref name="persistMigrations"/> controls whether quest and weapon files loaded
+/// at an older version are rewritten on disk (attachment files never are). The SPT loader persists; the Inspector is
+/// read-only and migrates in memory only.
+/// </para>
 /// </summary>
-public sealed class OverrideReader(IModDirectoryProvider modDirProvider, IModLogger? logger = null)
+public sealed class OverrideReader(
+    IModDirectoryProvider modDirProvider,
+    IModLogger? logger = null,
+    bool persistMigrations = true)
 {
     private void Trace(string message)
     {
@@ -22,10 +30,13 @@ public sealed class OverrideReader(IModDirectoryProvider modDirProvider, IModLog
     private const string LegacyWeaponOverridesFile = "OverriddenWeapons.jsonc";
     private const string AttachmentOverridesFileName = "AttachmentOverrides.jsonc";
 
-    // Current config version the mod expects (increment on breaking changes)
-    private const int CurrentQuestVersion = 3;
-    private const int CurrentWeaponVersion = 2;
-    private const int CurrentAttachmentVersion = 1;
+    // Versions the loader expects (increment on breaking changes). Public so the
+    // Inspector's ConfigExporter stamps exported files with the same numbers.
+    public const int CurrentQuestVersion = 3;
+    public const int CurrentWeaponVersion = 2;
+
+    // v1 -> v2 changed no shape; files written by the 2.x exporter already say 2.
+    public const int CurrentAttachmentVersion = 2;
 
     private static readonly Func<System.Text.Json.Nodes.JsonObject, System.Text.Json.Nodes.JsonObject>[]
         QuestMigrations = [Migrations.v0_to_v1, Migrations.v1_to_v2_Quest, Migrations.v2_to_v3_Quest];
@@ -34,10 +45,36 @@ public sealed class OverrideReader(IModDirectoryProvider modDirProvider, IModLog
         WeaponsMigrations = [Migrations.v0_to_v1_Weapons, Migrations.v1_to_v2_Weapons];
 
     private static readonly Func<System.Text.Json.Nodes.JsonObject, System.Text.Json.Nodes.JsonObject>[]
-        AttachmentMigrations = [];
+        AttachmentMigrations = [Migrations.NoOp, Migrations.NoOp];
 
-    public OverriddenSettings Read()
+    /// <summary>
+    /// Loads one override file. A file that cannot be read, parsed or migrated is logged as a
+    /// warning, recorded in <paramref name="fileErrors"/> and skipped (returns null) so one
+    /// bad file never takes down the rest of the merge.
+    /// </summary>
+    private LoadResult<T>? TryLoad<T>(
+        string path,
+        int currentVersion,
+        Func<JsonObject, JsonObject>[] migrations,
+        List<OverrideFileError> fileErrors)
+        where T : IVersionedConfig, new()
     {
+        try
+        {
+            return ConfigLoader.LoadFromFile<T>(path, currentVersion, migrations);
+        }
+        catch (Exception ex)
+        {
+            logger?.Warning($"Skipping override file '{path}': {ex.Message}");
+            fileErrors.Add(new OverrideFileError(path, ex.Message));
+            return null;
+        }
+    }
+
+    /// <param name="config">Bound to <see cref="OverriddenSettings.Config"/>; defaults when null.</param>
+    public OverriddenSettings Read(ModConfig? config = null)
+    {
+        var fileErrors = new List<OverrideFileError>();
         var excludedQuests = new List<string>();
         var questOverrides = new Dictionary<string, List<QuestOverrideEntry>>();
         var manualTypeOverrides = new Dictionary<string, string>();
@@ -64,11 +101,12 @@ public sealed class OverrideReader(IModDirectoryProvider modDirProvider, IModLog
             matchedDirs++;
             Trace($"scanning '{modDir}' (has MissingQuestWeapons folder)");
 
-            ApplyQuestOverrides(mqwDir, ref excludedQuests, ref questOverrides);
-            ApplyWeaponOverrides(mqwDir, ref manualTypeOverrides, ref canBeUsedAs, ref aliasNameStripWords,
+            ApplyQuestOverrides(mqwDir, fileErrors, ref excludedQuests, ref questOverrides);
+            ApplyWeaponOverrides(mqwDir, fileErrors, ref manualTypeOverrides, ref canBeUsedAs, ref aliasNameStripWords,
                 ref aliasNameExcludeWeapons, ref typeRules);
             ApplyAttachmentOverrides(
                 mqwDir,
+                fileErrors,
                 ref manualAttachmentTypeOverrides,
                 ref attachmentCanBeUsedAs,
                 ref attachmentAliasNameStripWords,
@@ -81,6 +119,7 @@ public sealed class OverrideReader(IModDirectoryProvider modDirProvider, IModLog
 
         return new OverriddenSettings
         {
+            Config = config ?? new ModConfig(),
             ExcludedQuests = [..excludedQuests],
             QuestOverrides = questOverrides,
             ManualTypeOverrides = manualTypeOverrides,
@@ -92,19 +131,26 @@ public sealed class OverrideReader(IModDirectoryProvider modDirProvider, IModLog
             AttachmentCanBeUsedAs = attachmentCanBeUsedAs,
             AttachmentAliasNameStripWords = attachmentAliasNameStripWords,
             AttachmentTypeRules = attachmentTypeRules,
+            FileErrors = fileErrors,
         };
     }
 
     private void ApplyQuestOverrides(
         string mqwDir,
+        List<OverrideFileError> fileErrors,
         ref List<string> excludedQuests,
         ref Dictionary<string, List<QuestOverrideEntry>> questOverrides)
     {
         var path = Path.Combine(mqwDir, QuestOverridesFile);
         var exists = File.Exists(path);
         Trace($"QuestOverrides path='{path}' exists={exists}");
-        var loaded = ConfigLoader.LoadFromFile<Models.QuestOverridesFile>(
-            path, CurrentQuestVersion, QuestMigrations);
+        var loaded = TryLoad<Models.QuestOverridesFile>(
+            path, CurrentQuestVersion, QuestMigrations, fileErrors);
+        if (loaded is null)
+        {
+            return;
+        }
+
         var file = loaded.Config;
         Trace($"QuestOverrides loaded behaviour={file.OverrideBehaviour}, " +
             $"overrides={file.Overrides.Count}, excludedQuests={file.ExcludedQuests.Count}");
@@ -137,7 +183,7 @@ public sealed class OverrideReader(IModDirectoryProvider modDirProvider, IModLog
         var afterEntries = questOverrides.Values.Sum(l => l.Count);
         Trace($"QuestOverrides post-merge entries: {beforeEntries} -> {afterEntries}");
 
-        if (loaded.WasMigrated)
+        if (persistMigrations && loaded.WasMigrated)
         {
             MigrationWriter.Persist(
                 sourcePath: path,
@@ -150,6 +196,7 @@ public sealed class OverrideReader(IModDirectoryProvider modDirProvider, IModLog
 
     private void ApplyWeaponOverrides(
         string mqwDir,
+        List<OverrideFileError> fileErrors,
         ref Dictionary<string, string> manualTypeOverrides,
         ref Dictionary<string, HashSet<string>> canBeUsedAs,
         ref List<string> aliasNameStripWords,
@@ -171,8 +218,13 @@ public sealed class OverrideReader(IModDirectoryProvider modDirProvider, IModLog
         }
         Trace($"WeaponOverrides newExists={newExists} pickedLegacy={pickedLegacy} path='{path}'");
 
-        var loaded = ConfigLoader.LoadFromFile<Models.WeaponOverridesFile>(
-            path, CurrentWeaponVersion, WeaponsMigrations);
+        var loaded = TryLoad<Models.WeaponOverridesFile>(
+            path, CurrentWeaponVersion, WeaponsMigrations, fileErrors);
+        if (loaded is null)
+        {
+            return;
+        }
+
         var file = loaded.Config;
         Trace($"WeaponOverrides loaded behaviour={file.OverrideBehaviour}, " +
             $"manualTypeOverrides={file.ManualTypeOverrides.Count}, " +
@@ -200,7 +252,7 @@ public sealed class OverrideReader(IModDirectoryProvider modDirProvider, IModLog
         typeRules = MergeHelper.MergeTypeRules(
             typeRules, file.CustomTypeRules, fileBehaviour);
 
-        if (loaded.WasMigrated)
+        if (persistMigrations && loaded.WasMigrated)
         {
             MigrationWriter.Persist(
                 sourcePath: path,
@@ -213,14 +265,20 @@ public sealed class OverrideReader(IModDirectoryProvider modDirProvider, IModLog
 
     private void ApplyAttachmentOverrides(
         string mqwDir,
+        List<OverrideFileError> fileErrors,
         ref Dictionary<string, string> manualAttachmentTypeOverrides,
         ref Dictionary<string, HashSet<string>> attachmentCanBeUsedAs,
         ref List<string> attachmentAliasNameStripWords,
         ref List<TypeRule> attachmentTypeRules)
     {
         var path = Path.Combine(mqwDir, AttachmentOverridesFileName);
-        var loaded = ConfigLoader.LoadFromFile<Models.AttachmentOverridesFile>(
-            path, CurrentAttachmentVersion, AttachmentMigrations);
+        var loaded = TryLoad<Models.AttachmentOverridesFile>(
+            path, CurrentAttachmentVersion, AttachmentMigrations, fileErrors);
+        if (loaded is null)
+        {
+            return;
+        }
+
         var file = loaded.Config;
 
         var fileBehaviour = file.OverrideBehaviour;

@@ -17,8 +17,8 @@
   "modBundleCartesianCap": 500,
   "includeParentCategories": true,
   "bestCandidateExpansion": false,
-  // 0 = Strip, 1 = KeepInDb (old `keepUnknownWeapons: true` equivalent), 2 = KeepAll (conservative)
-  "unknownWeaponHandling": 2,
+  // "Strip" | "KeepInDb" (old `keepUnknownWeapons: true` equivalent) | "KeepAll" (conservative). 0 | 1 | 2 also work.
+  "unknownWeaponHandling": "KeepAll",
   "validateOverrideIds": false,
   "debug": false
 }

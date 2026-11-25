@@ -4,7 +4,7 @@ Guidance for AI coding assistants (Claude Code, GitHub Copilot, etc.) working in
 
 ## Project Overview
 
-**AddMissingQuestRequirements** is a C# server-side mod for SPT 4.x. At server startup it scans every installed mod for a `MissingQuestWeapons/` config folder, categorizes every weapon and attachment in the SPT item database by type, and rewrites quest conditions that list specific weapon IDs so they also accept every modded weapon of the same type. The same pipeline runs via a standalone **Inspector** CLI for offline iteration against an exported DB slice.
+**AddMissingQuestRequirements** is a C# server-side mod for SPT 4.1. At server startup it scans every installed mod for a `MissingQuestWeapons/` config folder, categorizes every weapon and attachment in the SPT item database by type, and rewrites quest conditions that list specific weapon IDs so they also accept every modded weapon of the same type. The same pipeline runs via a standalone **Inspector** CLI for offline iteration against an exported DB slice.
 
 Ancestry: a rewrite of an upstream TypeScript mod of the same name. The C# version inherits the TS design's behavioural rules (see §Key Behavioural Rules) and extends them (see §Improvements).
 
@@ -20,7 +20,7 @@ These live outside this repo; use them when you need ground truth:
 
 ## Build
 
-.NET 9 class library. Standard workflow:
+.NET 10 class library. Standard workflow:
 
 ```bash
 dotnet build -c Release
@@ -43,19 +43,19 @@ Two modes, one binary:
 
 Every SPT C# mod follows these conventions.
 
-**Mod metadata**: one `record ModMetadata : AbstractModMetadata` per project, with `ModGuid`, `Name`, `Author`, `Version`, and `SptVersion` range.
+Targets SPT 4.1.x (`SPTarkov.*` 4.1.2 packages, net10.0). The 4.0 line stays on the released 2.x builds.
 
-**Entry points**: classes implement `IOnLoad` and carry `[Injectable(TypePriority = ...)]`. The DI container (Microsoft.Extensions.DI via `SPTarkov.DI`) resolves and calls them. Constructor params are injected.
+**Mod metadata**: one `record ModMetadata : IModMetadata` per project, with `ModGuid`, `Name`, `Author`, `Version`, and `SptVersion` range.
 
-**Load order anchors** (from `OnLoadOrder`):
-- `PostDBModLoader + 1` — the database is loaded but SPT hasn't finished processing it. This is the hook this mod uses (equivalent to the TS `postDBLoad`).
-- `PostSptModLoader + 1` — after SPT's own processing.
+**Entry points**: classes implement `IOnLoad.OnLoadAsync(CancellationToken)` and carry `[Injectable(TypePriority = ...)]`. The DI container (Microsoft.Extensions.DI via `SPTarkov.DI`) resolves and calls them. Constructor params are injected.
+
+**Load order**: this mod runs at `OnLoadOrder.TraderRegistration + 9999`, after trader mods have registered their quests.
 
 **Injected services** used by this mod:
-- `DatabaseServer` → `GetTables().Templates.Items` (item DB), `GetTables().Templates.Quests` (quest DB).
-- `ISptLogger<T>` → structured logging. Wrapped by `SptModLogger<T>` so the pipeline can stay on the domain-only `IModLogger` surface.
-- `LocaleService` → item + quest locale lookup (names and descriptions).
-- `ModHelper` → `GetAbsolutePathToModFolder(Assembly.GetExecutingAssembly())` for the mod's install path.
+- `TemplateTable` (`SPTarkov.Server.Core.Models.Spt.Tables`) → `.Items` (item DB), `.Quests` (quest DB).
+- `ISptLogger<T>` (`SPTarkov.Common.Models.Logging`) → structured logging. Wrapped by `SptModLogger<T>` so the pipeline can stay on the domain-only `IModLogger` surface.
+- `LocaleService` (`SPTarkov.Server.Core.Services.Locales`) → item + quest locale lookup (names and descriptions).
+- `ModHelper` (`SPTarkov.Server.Core.Helpers.Server`) → `GetAbsolutePathToModFolder(Assembly.GetExecutingAssembly())` for the mod's install path.
 
 JSONC config files are parsed through `Util/JsoncReader.cs` + `Config/ConfigLoader.cs`, which wrap `System.Text.Json` with `JsonCommentHandling.Skip` + `AllowTrailingCommas` and then run the version-migration chain. `ModHelper.GetJsonDataFromFile` is NOT JSONC-safe.
 
@@ -63,13 +63,13 @@ JSONC config files are parsed through `Util/JsoncReader.cs` + `Config/ConfigLoad
 
 ### Three-phase pipeline
 
-Runs once during `IOnLoad.OnLoad()`. See `AddMissingQuestRequirements/Spt/AddMissingQuestRequirementsLoader.cs`.
+Runs once during `IOnLoad.OnLoadAsync()`. See `AddMissingQuestRequirements/Spt/AddMissingQuestRequirementsLoader.cs`.
 
 1. **OverrideReader** (`Pipeline/Override/`) — discovers every mod directory with a `MissingQuestWeapons/` folder, reads `QuestOverrides.jsonc`, `WeaponOverrides.jsonc`, `AttachmentOverrides.jsonc`, and merges them via the `OverrideBehaviour` system. Emits an `OverriddenSettings` container consumed by the other phases.
 2. **WeaponCategorizer** / **AttachmentCategorizer** (`Pipeline/Weapon/`, `Pipeline/Attachment/`) — walk the item DB filtered by `weaponLikeAncestors` (weapons) or `Mod` ancestry (attachments), run the rule engine, apply `manualTypeOverrides`, and build the short-name alias map. Default rules for weapons come from `DefaultWeaponRuleFactory.Build(itemDb, config.WeaponLikeAncestors)` — one rule per ancestor, either `{directChildOf:A}` when `A` has a subtree (Weapon → AssaultRifle → …) or literal `A` when items are direct children (Knife, ThrowWeap, Launcher).
 3. **QuestPatcher** (`Pipeline/Quest/`) — iterates every `CounterCreator` condition. For each sub-condition it dispatches to every registered `IConditionExpander` (`WeaponArrayExpander`, `WeaponModsExpander`). Expanders mutate in place and don't coordinate.
 
-Adding a new expandable condition field is one new `IConditionExpander` + a registration in `QuestPatcher`'s constructor list in `AddMissingQuestRequirementsLoader.OnLoad`. The patcher core loop stays unchanged.
+Adding a new expandable condition field is one new `IConditionExpander` + a registration in `QuestPatcher`'s constructor list in `AddMissingQuestRequirementsLoader.OnLoadAsync`. The patcher core loop stays unchanged.
 
 ### CounterCreator sub-condition fields
 
@@ -110,7 +110,9 @@ The SPT loader wires: `TeeModLogger(SptModLogger, DebugFilteringModLogger(FileMo
 
 ### Override system
 
-`OverrideBehaviour` enum: `IGNORE` (default), `MERGE`, `REPLACE`, `DELETE`. Applied at three levels — file, entry, individual array value. Array values support `{ "value": "...", "behaviour": "DELETE" }`. Condition-override precedence: condition-specific override (matching `condition` ID in the entry) → generic quest override → no override. See `Pipeline/Override/OverrideReader.cs` for the merge loop.
+`OverrideBehaviour` enum: `IGNORE` (default), `MERGE`, `REPLACE`, `DELETE`. Applied at three levels — file, entry, individual array value. Array values support `{ "value": "...", "behaviour": "DELETE" }`. `IGNORE` everywhere means "don't overwrite what an earlier file set, still add what's new": for plain string lists that is a union; for `customTypeRules` a rule is skipped only when an earlier file has the same `Type`. Never make `IGNORE` drop a whole list because the accumulator is non-empty. Folder order is fixed by `ModDirectoryProvider` (shared by the SPT loader and the Inspector): own folder first, then the rest sorted `OrdinalIgnoreCase`. See `Pipeline/Override/OverrideReader.cs` for the merge loop.
+
+Quest override entries merge per condition, not per entry. `MergeHelper.MergeQuestEntries` matches and drops nothing: it keeps every entry whole and stamps it with its effective behaviour and its file's load-order `Layer`. `QuestOverrideResolver` folds them for one condition at a time. An entry targets a condition when its `conditions` names the sub-condition id or the CounterCreator parent id; an empty `conditions` list is quest-wide and targets every condition. For each file in order, the resolver takes that file's entries targeting the condition specifically, or, if it has none, its quest-wide entries, and applies each one: `IGNORE` keeps an earlier result, `REPLACE` takes the entry, `MERGE` field-merges it (lists unioned, more restrictive expansion mode wins), `DELETE` clears the result. Consequences: within one file, a condition-specific entry beats the quest-wide one; across files, a quest-wide entry counts as covering every condition, so a later `IGNORE` entry can't override it. Rationale: `docs/decisions/2026-11-25-per-condition-quest-override-merge.md`.
 
 ### Rule-chain type detection
 
@@ -228,6 +230,8 @@ These were the reasons for the rewrite and are all shipped today.
 ## Releasing
 
 Every PR that ships user-visible behaviour (bugfix, feature, breaking change) must bump `ModMetadata.Version` in `AddMissingQuestRequirements/Spt/ModMetadata.cs` as part of the same PR. Use semver: patch for fixes, minor for additive features, major for breaking changes. Pure-docs / pure-test / pure-refactor PRs may skip the bump. When in doubt, bump.
+
+**`CHANGELOG.md` is user-facing.** Each entry is one or two short sentences: what changed for the user, plus any action they must take (e.g. "set `overrideBehaviour` to `MERGE`"). No root cause or "Before, X happened because Y" narrative, no internal mechanics, and no names of other mods, mod folders or mod-added quests (vanilla quest and weapon names are fine). Reasoning and evidence go in the commit message and PR description.
 
 ## C# code style
 

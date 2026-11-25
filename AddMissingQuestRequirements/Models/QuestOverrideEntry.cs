@@ -82,4 +82,12 @@ public sealed class QuestOverrideEntry
     /// </summary>
     [JsonPropertyName("excludedModBundles")]
     public List<List<string>> ExcludedModBundles { get; init; } = [];
+
+    /// <summary>
+    /// Load-order index of the file this entry came from (0 = first file loaded).
+    /// Stamped by <c>MergeHelper.MergeQuestEntries</c>; read by <c>QuestOverrideResolver</c>
+    /// to tell entries from one file apart from entries in later files. Not serialized.
+    /// </summary>
+    [JsonIgnore]
+    public int Layer { get; init; }
 }

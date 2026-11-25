@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for considering a contribution. This is a server-side SPT 4.x mod written in C# (.NET 9).
+Thanks for considering a contribution. This is a server-side SPT 4.1 mod written in C# (.NET 10).
 
 ## Getting started
 

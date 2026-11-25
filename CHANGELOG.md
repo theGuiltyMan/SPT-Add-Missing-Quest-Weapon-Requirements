@@ -1,5 +1,27 @@
 # Changelog
 
+## 3.0.0
+
+**Breaking**
+- Requires SPT 4.1.x. Built against `SPTarkov.*` 4.1.2 on .NET 10. SPT 4.0 users stay on 2.3.0.
+- The release zip now unpacks to `SPT_Runtime/user/mods/GuiltyMan-AddMissingQuestRequirements/` (SPT 4.1 layout).
+- Override folders now load in a fixed order: this mod's own folder first, then the others alphabetically. Under the default `IGNORE` the shipped settings win; override packs that change shipped settings must set `overrideBehaviour` to `MERGE` or `REPLACE`.
+
+**Fixes**
+- A broken override file from another mod (invalid JSON, misspelled `overrideBehaviour`) is now skipped with a warning naming the file, instead of stopping all quest patching.
+- `overrideBehaviour: IGNORE` (the default) now adds new items to `excludedQuests`, `aliasNameStripWords`, `aliasNameExcludeWeapons` and `customTypeRules` instead of discarding the file's whole list.
+- Inspector: results now match the live server (attachment `customTypeRules`, folder order, file migrations). It still never writes to your config files.
+- Inspector `ExportConfigPath`: the export now keeps every `config.jsonc` field, every quest override entry and attachment `customTypeRules`, and uses the current file versions. With several override folders, a re-imported export can resolve some conditions differently.
+- `AttachmentOverrides.jsonc` is now expected at version 2, matching the shipped file. Existing files need no change.
+- Quest override entries now merge per condition. Several entries for the same quest, one per condition, all apply. `IGNORE` applies only to conditions no earlier entry covered; `REPLACE`, `MERGE` and `DELETE` act on exactly the conditions they list. An empty `conditions` list covers every condition.
+- The `AK` weapon type no longer includes the Akula push dagger, the Bofors Ak5 rifles or the AK-50.
+- Mod-added quests with several kill conditions, each needing a different weapon, now accept only that condition's weapons.
+- Two quests with bundled overrides (20 gauge / 23x75 weapons, Mosin rifles) accepted no weapon at all. They now accept the intended weapons.
+- Override packs can now add weapons to quest conditions that require one specific weapon; the shipped config no longer blocks them.
+
+**Internal**
+- Ported to the SPT 4.1 server API: `IOnLoad.OnLoadAsync`, `IModMetadata`, and injected `TemplateTable` in place of `DatabaseServer`. No behaviour change in categorization or quest patching.
+
 ## 2.3.0
 
 **Fixes**

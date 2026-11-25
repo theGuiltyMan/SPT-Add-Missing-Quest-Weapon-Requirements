@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "overrideBehaviour": 0,
+  "overrideBehaviour": "IGNORE",
   "excludedQuests": [
     "5c1234c286f77406fa13baeb",
     "666314b2a9290f9e0806cca3",
@@ -135,10 +135,10 @@
     {
       "id": "<questId>",
       "conditions": [],                                 // optional: empty = all conditions on the quest
-      "expansionMode": 0,                               // 0=Auto, 1=WhitelistOnly, 2=NoExpansion
+      "expansionMode": "Auto",                               // "Auto" | "WhitelistOnly" | "NoExpansion" (0 | 1 | 2 also work)
       "includedWeapons": [],                            // weapon IDs / type names appended to the weapon array
       "excludedWeapons": [],                            // weapon IDs / type names removed last
-      "modsExpansionMode": 0,                           // 0=Auto, 1=WhitelistOnly, 2=NoExpansion
+      "modsExpansionMode": "Auto",                           // "Auto" | "WhitelistOnly" | "NoExpansion"
       "includedMods": [],                               // appended as singletons to weaponModsInclusive
       "excludedMods": [],                               // appended as singletons to weaponModsExclusive
       "includedModBundles": [["TypeA", "TypeB"]],       // cartesian AND-bundles into weaponModsInclusive
@@ -148,7 +148,7 @@
   "overrides": [
     {
       "id": "59ca2eb686f77445a80ed049",
-      "expansionMode": 2,
+      "expansionMode": "NoExpansion",
       "conditions": [],
       "includedWeapons": [
         "SVD"
@@ -157,7 +157,7 @@
     },
     {
       "id": "5a27bb8386f7741c770d2d0a",
-      "expansionMode": 2,
+      "expansionMode": "NoExpansion",
       "conditions": [],
       "includedWeapons": [
         "AR-15"
@@ -166,28 +166,73 @@
     },
     {
       "id": "668caeedbdb70c05d702f1fc",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [
-        "668caeedbdb70c05d702f200",
-        "668caeedbdb70c05d702f203",
-        "668caeedbdb70c05d702f206",
-        "668caeedbdb70c05d702f209",
-        "668caeedbdb70c05d702f20c",
+        "668caeedbdb70c05d702f200"
+      ],
+      "includedWeapons": [
+        "AssaultCarbine"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "668caeedbdb70c05d702f1fc",
+      "expansionMode": "Auto",
+      "conditions": [
+        "668caeedbdb70c05d702f203"
+      ],
+      "includedWeapons": [
+        "AssaultRifle"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "668caeedbdb70c05d702f1fc",
+      "expansionMode": "Auto",
+      "conditions": [
+        "668caeedbdb70c05d702f206"
+      ],
+      "includedWeapons": [
+        "MachineGun"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "668caeedbdb70c05d702f1fc",
+      "expansionMode": "Auto",
+      "conditions": [
+        "668caeedbdb70c05d702f209"
+      ],
+      "includedWeapons": [
+        "MarksmanRifle"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "668caeedbdb70c05d702f1fc",
+      "expansionMode": "Auto",
+      "conditions": [
+        "668caeedbdb70c05d702f20c"
+      ],
+      "includedWeapons": [
+        "Shotgun"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "668caeedbdb70c05d702f1fc",
+      "expansionMode": "Auto",
+      "conditions": [
         "668caeedbdb70c05d702f20f"
       ],
       "includedWeapons": [
-        "AssaultCarbine",
-        "AssaultRifle",
-        "MachineGun",
-        "MarksmanRifle",
-        "Shotgun",
         "Smg"
       ],
       "excludedWeapons": []
     },
     {
       "id": "677fdcdc374fd42fac57454e",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "AK"
@@ -196,7 +241,7 @@
     },
     {
       "id": "677fdcdca4df7500db1c7eb6",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "AKS-74U"
@@ -205,16 +250,16 @@
     },
     {
       "id": "677fdce0d063b4d3a555643e",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
-        "mosin"
+        "Mosin"
       ],
       "excludedWeapons": []
     },
     {
       "id": "66c8b497a756f800b530a071",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [
         "66c8b8148a5ca21e986773c7"
       ],
@@ -225,7 +270,7 @@
     },
     {
       "id": "67ea813bd8d2dc676746f53e",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [],
       "includedWeapons": [
         "BoltActionSniperRifle",
@@ -235,7 +280,7 @@
     },
     {
       "id": "676acb5bc60f9d06283a2234",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "AKM"
@@ -244,7 +289,7 @@
     },
     {
       "id": "674758ea142f52a016ecd92d",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [],
       "includedWeapons": [
         "AK"
@@ -253,7 +298,7 @@
     },
     {
       "id": "6747b568ffb78dbbb8a7968d",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [],
       "includedWeapons": [
         "HK"
@@ -262,7 +307,7 @@
     },
     {
       "id": "6747b6d1b00b3bfcb6b02f94",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "SR-25_like"
@@ -271,7 +316,7 @@
     },
     {
       "id": "67966e33a1a7e9077af54709",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [],
       "includedWeapons": [
         "cal_9x39"
@@ -280,20 +325,29 @@
     },
     {
       "id": "66c3ccf91d8e4df0710ee395",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [
-        "66c3ccf9df6f8b969eb31400",
+        "66c3ccf9df6f8b969eb31400"
+      ],
+      "includedWeapons": [
+        "smg_9x19PARA"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "66c3ccf91d8e4df0710ee395",
+      "expansionMode": "WhitelistOnly",
+      "conditions": [
         "66c3ccf965bd6fffa7cad7ec"
       ],
       "includedWeapons": [
-        "smg_9x19PARA",
         "12ga"
       ],
       "excludedWeapons": []
     },
     {
       "id": "66c3fa32b966223ebb542e27",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [],
       "includedWeapons": [
         "MarksmanRifle"
@@ -302,22 +356,40 @@
     },
     {
       "id": "66c404ba2bd9c56b380a89d7",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [
-        "66c404ba5cbd8135838bba10",
-        "66c404ba8eaf6d1c3fb36ef6",
+        "66c404ba5cbd8135838bba10"
+      ],
+      "includedWeapons": [
+        "MarksmanRifle"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "66c404ba2bd9c56b380a89d7",
+      "expansionMode": "Auto",
+      "conditions": [
+        "66c404ba8eaf6d1c3fb36ef6"
+      ],
+      "includedWeapons": [
+        "BoltActionSniperRifle"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "66c404ba2bd9c56b380a89d7",
+      "expansionMode": "Auto",
+      "conditions": [
         "66c404ba4b9d5eb6d35fb944"
       ],
       "includedWeapons": [
-        "MarksmanRifle",
-        "BoltActionSniperRifle",
         "BA_MR_762x54R"
       ],
       "excludedWeapons": []
     },
     {
       "id": "66c40852e32a65ddf98e38f8",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [
         "66c40852392c8b4f78743bc8"
       ],
@@ -329,20 +401,29 @@
     },
     {
       "id": "66c24845a671c1a1aa170372",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [
-        "66c2488b5a88529678c23390",
+        "66c2488b5a88529678c23390"
+      ],
+      "includedWeapons": [
+        "cal_545x39"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "66c24845a671c1a1aa170372",
+      "expansionMode": "WhitelistOnly",
+      "conditions": [
         "66c2488b00349f29537663c8"
       ],
       "includedWeapons": [
-        "cal_545x39",
         "cal_762x39"
       ],
       "excludedWeapons": []
     },
     {
       "id": "66c249657e6d87ebf458f0bf",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "cal_366TKM"
@@ -351,7 +432,7 @@
     },
     {
       "id": "676ace5f69e9afec028e5221",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "20ga",
@@ -361,7 +442,7 @@
     },
     {
       "id": "6747bfd667581ad41fc4a9de",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [],
       "includedWeapons": [
         "Shotgun",
@@ -371,7 +452,7 @@
     },
     {
       "id": "676b0de9ab6151bd15ce350e",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "AR-15"
@@ -380,7 +461,7 @@
     },
     {
       "id": "6747c136681e886c4f32ec2d",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [],
       "includedWeapons": [
         "AssaultRifle"
@@ -393,7 +474,7 @@
     },
     {
       "id": "6747c182942fe0faa5478a5e",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "AK"
@@ -402,7 +483,7 @@
     },
     {
       "id": "6747c0991fa4b29ab5692551",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [],
       "includedWeapons": [
         "AK"
@@ -411,7 +492,7 @@
     },
     {
       "id": "674882b91e3043f208409ba5",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [],
       "includedWeapons": [
         "cal_338"
@@ -420,7 +501,7 @@
     },
     {
       "id": "67518cbcb6c904e276ea22cb",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [
         "67518dd72d114057705a3d79",
         "67518d7d433c688fdcb5cc17"
@@ -432,7 +513,7 @@
     },
     {
       "id": "67519005bdabf0213250f1dd",
-      "expansionMode": 2,
+      "expansionMode": "NoExpansion",
       "conditions": [
         "6751907449a55cff66a65832",
         "67519170878bf4da86e5f1ad"
@@ -442,7 +523,7 @@
     },
     {
       "id": "675192a9ccd06a5a07e78922",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "VSS",
@@ -452,7 +533,7 @@
     },
     {
       "id": "67519b5f3de90180bd0768a4",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [],
       "includedWeapons": [
         "AKM"
@@ -461,7 +542,7 @@
     },
     {
       "id": "675356e57d04aa9325c82e00",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [],
       "includedWeapons": [
         "mcx_spear"
@@ -470,7 +551,7 @@
     },
     {
       "id": "67487bd534005ee5fe84e59d",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [],
       "includedWeapons": [
         "AssaultRifle",
@@ -486,7 +567,7 @@
     },
     {
       "id": "67487d759f790d565629d605",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "mcx_any"
@@ -495,7 +576,7 @@
     },
     {
       "id": "67487e1e0cccda4800c62658",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "M4A1"
@@ -504,7 +585,7 @@
     },
     {
       "id": "67487f06faadf7934dfd29e4",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "SR-25_like"
@@ -513,7 +594,7 @@
     },
     {
       "id": "67d81b374bfc36986e9e2839",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "scar_any"
@@ -522,7 +603,7 @@
     },
     {
       "id": "6747c36d4e805e1b7f6387b5",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "AK"
@@ -531,7 +612,7 @@
     },
     {
       "id": "67486b938b89470d9673a492",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [],
       "includedWeapons": [
         "BoltActionSniperRifle",
@@ -541,7 +622,7 @@
     },
     {
       "id": "67486c0582d1897605b403c5",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "cal_9x39"
@@ -550,7 +631,7 @@
     },
     {
       "id": "67486879604d84c3e3e3ddd0",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "AK-74"
@@ -559,7 +640,7 @@
     },
     {
       "id": "6748690cb0fff3f2a5ba3d47",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "AKM"
@@ -568,7 +649,7 @@
     },
     {
       "id": "67486a921ef237f01abfd45f",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "VSS"
@@ -577,7 +658,7 @@
     },
     {
       "id": "67ee61bb0084128bf23f5477",
-      "expansionMode": 0,
+      "expansionMode": "Auto",
       "conditions": [],
       "includedWeapons": [
         "AssaultRifle",
@@ -604,7 +685,7 @@
     },
     {
       "id": "68b1d617ec28f2ab78f9b4c8",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "AK"
@@ -613,7 +694,7 @@
     },
     {
       "id": "68037d165a7e1349b4901c3b",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "cal_338"
@@ -622,103 +703,256 @@
     },
     {
       "id": "68a324f0e5c58491cf1cc17e",
-      "expansionMode": 2,
+      "expansionMode": "NoExpansion",
       "conditions": [
-        "68a3412b17b2f3c601f6f2ce",
-        "68a3413f0ea23979f767e267",
-        "68a341148847c4bb51155b55",
+        "68a341148847c4bb51155b55"
+      ],
+      "includedWeapons": [
+        "M4A1"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a324f0e5c58491cf1cc17e",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a3412b17b2f3c601f6f2ce"
+      ],
+      "includedWeapons": [],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a324f0e5c58491cf1cc17e",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a3413f0ea23979f767e267"
+      ],
+      "includedWeapons": [],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a324f0e5c58491cf1cc17e",
+      "expansionMode": "NoExpansion",
+      "conditions": [
         "68a34186945a804f83e1df30"
       ],
       "includedWeapons": [
-        "M4A1",
         "scar_any"
       ],
       "excludedWeapons": []
     },
     {
       "id": "68a324e08f8840a01589ddd2",
-      "expansionMode": 2,
+      "expansionMode": "NoExpansion",
       "conditions": [
-        "68a341af829ce17fd07324a9",
-        "68a341dd988686e19d19d327",
-        "68a3421e50e72938f4db28bb",
-        "68a3424b80045e52876e770a",
-        "68a342832a452b16d01ffdfe",
-        "68a3429fa46a0051aa5b0a37",
-        "68a3429094965f2dafc01083"
+        "68a341af829ce17fd07324a9"
       ],
       "includedWeapons": [
-        "AKM_only",
-        "AK-100_only",
-        "AK-74_only",
-        "AKS-74U",
-        "AK-12_like",
+        "AKM_only"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a324e08f8840a01589ddd2",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a341dd988686e19d19d327"
+      ],
+      "includedWeapons": [
+        "AK-100_only"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a324e08f8840a01589ddd2",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a3421e50e72938f4db28bb"
+      ],
+      "includedWeapons": [
+        "AK-74_only"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a324e08f8840a01589ddd2",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a3424b80045e52876e770a"
+      ],
+      "includedWeapons": [
+        "AKS-74U"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a324e08f8840a01589ddd2",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a342832a452b16d01ffdfe"
+      ],
+      "includedWeapons": [
+        "AK-12_like"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a324e08f8840a01589ddd2",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a3429fa46a0051aa5b0a37"
+      ],
+      "includedWeapons": [
         "Velociraptor_only"
       ],
       "excludedWeapons": []
     },
     {
       "id": "68a31c0682f6f122b650f97e",
-      "expansionMode": 2,
+      "expansionMode": "NoExpansion",
       "conditions": [
-        "68a342ae0e25ca0fce80d00f",
-        "68a342bda2fb18340f7274d4",
-        "68a342cbf7211c3f7c996750",
-        "68a342d767741a2ade695b6f",
-        "68a342e099698f4ce4a88d7f",
-        "68a342eb9fd4b979b6989a90"
+        "68a342ae0e25ca0fce80d00f"
       ],
       "includedWeapons": [
-        "Mk47_only",
+        "Mk47_only"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a31c0682f6f122b650f97e",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a342bda2fb18340f7274d4"
+      ],
+      "includedWeapons": [
         "MCX-blk_only"
       ],
       "excludedWeapons": []
     },
     {
-      "id": "68a317daa4acb2d09cc8822b",
-      "expansionMode": 2,
+      "id": "68a31c0682f6f122b650f97e",
+      "expansionMode": "NoExpansion",
       "conditions": [
-        "68a3431ded2231920c38080f",
-        "68a343305229d6b7e674748d",
-        "68a3437f3efb363032ff1927",
-        "68a3433a19630a553f8e9c1a",
-        "68a34361cf00143a0c145b9f",
-        "68a34349a6ceee6b41d80f3f",
-        "68a3436f7d6e77b83de0e6b3"
+        "68a342cbf7211c3f7c996750"
       ],
       "includedWeapons": [
-        "Mosin",
-        "m700",
-        "AXMC",
-        "DVL-10",
+        "mcx_spear"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a317daa4acb2d09cc8822b",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a3431ded2231920c38080f"
+      ],
+      "includedWeapons": [
+        "Mosin"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a317daa4acb2d09cc8822b",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a343305229d6b7e674748d"
+      ],
+      "includedWeapons": [
+        "m700"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a317daa4acb2d09cc8822b",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a3433a19630a553f8e9c1a"
+      ],
+      "includedWeapons": [
+        "DVL-10"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a317daa4acb2d09cc8822b",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a34361cf00143a0c145b9f"
+      ],
+      "includedWeapons": [
         "SV-98"
       ],
       "excludedWeapons": []
     },
     {
-      "id": "68a317ca41081fb3942fd195",
-      "expansionMode": 2,
+      "id": "68a317daa4acb2d09cc8822b",
+      "expansionMode": "NoExpansion",
       "conditions": [
-        "68a3439195abc61f95dc0ca1",
-        "68a3439b57c587edde1b9f61",
-        "68a343bef96edd5623bea860",
-        "68a343c7fa259490ef1c4a5c",
-        "68a343e207b44a79caa8299d",
-        "68a343a5b3ff55dbf03ac845",
-        "68a343b194ead884d843f815"
+        "68a3437f3efb363032ff1927"
       ],
       "includedWeapons": [
-        "VSS",
-        "M1A",
-        "SR-25_like",
-        "SVD",
+        "AXMC"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a317ca41081fb3942fd195",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a3439195abc61f95dc0ca1"
+      ],
+      "includedWeapons": [
+        "VSS"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a317ca41081fb3942fd195",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a3439b57c587edde1b9f61"
+      ],
+      "includedWeapons": [
+        "M1A"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a317ca41081fb3942fd195",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a343bef96edd5623bea860"
+      ],
+      "includedWeapons": [
+        "SR-25_like"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a317ca41081fb3942fd195",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a343c7fa259490ef1c4a5c"
+      ],
+      "includedWeapons": [
+        "SVD"
+      ],
+      "excludedWeapons": []
+    },
+    {
+      "id": "68a317ca41081fb3942fd195",
+      "expansionMode": "NoExpansion",
+      "conditions": [
+        "68a343e207b44a79caa8299d"
+      ],
+      "includedWeapons": [
         "HK-G28_like"
       ],
       "excludedWeapons": []
     },
     {
       "id": "68c084031fd16ee291638622",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [
         "68c0863a9d3578d974db2119"
       ],
@@ -730,7 +964,7 @@
     },
     {
       "id": "6747c298d1c2a3d2091dbe7d",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "soviet"
@@ -739,7 +973,7 @@
     },
     {
       "id": "6747268e69275427dffb78f7",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "AK-12_like",
@@ -749,7 +983,7 @@
     },
     {
       "id": "67472a63f94746bd0f99ff9e",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "AK-12_like",
@@ -759,7 +993,7 @@
     },
     {
       "id": "676aca14fe90a5a838dd04c3",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "cal_762x25TT"
@@ -767,17 +1001,8 @@
       "excludedWeapons": []
     },
     {
-      "id": "5c1234c286f77406fa13baeb",
-      "expansionMode": 1,
-      "conditions": [],
-      "includedWeapons": [
-        "MP-shotguns"
-      ],
-      "excludedWeapons": []
-    },
-    {
       "id": "5a03153686f77442d90e2171",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "12ga"
@@ -786,7 +1011,7 @@
     },
     {
       "id": "59ca264786f77445a80ed044",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "12ga"
@@ -795,7 +1020,7 @@
     },
     {
       "id": "5c0d4c12d09282029f539173",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "M4A1"
@@ -804,7 +1029,7 @@
     },
     {
       "id": "666314b4d7f171c4c20226c3",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "M4A1"
@@ -813,7 +1038,7 @@
     },
     {
       "id": "66058cb9e8e4f17985230805",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "AKS-74UB"
@@ -822,7 +1047,7 @@
     },
     {
       "id": "64e7b9bffd30422ed03dad38",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "AssaultRifle",
@@ -832,7 +1057,7 @@
     },
     {
       "id": "5c0bd94186f7747a727f09b2",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "M1A"
@@ -841,7 +1066,7 @@
     },
     {
       "id": "64f5deac39e45b527a7c4232",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "AK-12_like"
@@ -850,7 +1075,7 @@
     },
     {
       "id": "675c1ff1a757ddd00404f0aa",
-      "expansionMode": 1,
+      "expansionMode": "WhitelistOnly",
       "conditions": [],
       "includedWeapons": [
         "Velociraptor_only"

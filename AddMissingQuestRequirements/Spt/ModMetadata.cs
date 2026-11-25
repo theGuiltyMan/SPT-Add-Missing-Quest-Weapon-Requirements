@@ -6,20 +6,20 @@ namespace AddMissingQuestRequirements.Spt;
 
 /// <summary>
 /// SPT mod metadata record.
-/// Every abstract property on <see cref="AbstractModMetadata"/> must be overridden.
+/// Every property on <see cref="IModMetadata"/> must be implemented.
 /// Nullable properties we do not use are set to <c>null</c>.
 /// </summary>
-public sealed record ModMetadata : AbstractModMetadata
+public sealed record ModMetadata : IModMetadata
 {
-    public override string ModGuid { get; init; } = "com.guiltyman.addmissingquestrequirements";
-    public override string Name { get; init; } = "AddMissingQuestRequirements";
-    public override string Author { get; init; } = "guiltyman";
-    public override List<string>? Contributors { get; init; } = null;
-    public override Version Version { get; init; } = new("2.3.0");
-    public override Range SptVersion { get; init; } = new("~4.0.0");
-    public override List<string>? Incompatibilities { get; init; } = null;
-    public override Dictionary<string, Range>? ModDependencies { get; init; } = null;
-    public override string? Url { get; init; } = null;
-    public override bool? IsBundleMod { get; init; } = false;
-    public override string License { get; init; } = "MIT";
+    public string ModGuid { get; init; } = "com.guiltyman.addmissingquestrequirements";
+    public string Name { get; init; } = "AddMissingQuestRequirements";
+    public string Author { get; init; } = "guiltyman";
+    public List<string>? Contributors { get; init; } = null;
+    public Version Version { get; init; } = new("3.0.0");
+    public Range SptVersion { get; init; } = new("~4.1.0");
+    public bool HasPrepatcher { get; init; } = false;
+    public List<string>? Incompatibilities { get; init; } = null;
+    public Dictionary<string, Range>? ModDependencies { get; init; } = null;
+    public string? Url { get; init; } = null;
+    public string License { get; init; } = "MIT";
 }

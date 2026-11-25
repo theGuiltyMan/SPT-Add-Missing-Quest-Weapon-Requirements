@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using AddMissingQuestRequirements.Config;
 using AddMissingQuestRequirements.Models;
@@ -13,12 +12,12 @@ using AddMissingQuestRequirements.Pipeline.Shared;
 using AddMissingQuestRequirements.Pipeline.Weapon;
 using AddMissingQuestRequirements.Reporting;
 using AddMissingQuestRequirements.Util;
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
-using SPTarkov.Server.Core.Helpers;
-using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Servers;
-using SPTarkov.Server.Core.Services;
+using SPTarkov.Server.Core.Helpers.Server;
+using SPTarkov.Server.Core.Models.Spt.Tables;
+using SPTarkov.Server.Core.Services.Locales;
 
 namespace AddMissingQuestRequirements.Spt;
 
@@ -32,17 +31,7 @@ namespace AddMissingQuestRequirements.Spt;
 [Injectable(TypePriority = OnLoadOrder.TraderRegistration + 9999)]
 public sealed class AddMissingQuestRequirementsLoader : IOnLoad
 {
-    private const int CurrentConfigVersion = 4;
-
-    private static readonly Func<JsonObject, JsonObject>[] ConfigMigrations =
-    [
-        Migrations.v0_to_v1,
-        Migrations.v1_to_v2_Config,
-        Migrations.v2_to_v3_Config,
-        Migrations.v3_to_v4_Config,
-    ];
-
-    private readonly DatabaseServer _databaseServer;
+    private readonly TemplateTable _templateTable;
     private readonly LocaleService _localeService;
     private readonly ModHelper _modHelper;
     private readonly ISptLogger<AddMissingQuestRequirementsLoader> _sptLogger;
@@ -50,14 +39,14 @@ public sealed class AddMissingQuestRequirementsLoader : IOnLoad
     private readonly ISptLogger<SptQuestDatabase> _questDbLogger;
 
     public AddMissingQuestRequirementsLoader(
-        DatabaseServer databaseServer,
+        TemplateTable templateTable,
         LocaleService localeService,
         ModHelper modHelper,
         ISptLogger<AddMissingQuestRequirementsLoader> sptLogger,
         ISptLogger<SptItemDatabase> itemDbLogger,
         ISptLogger<SptQuestDatabase> questDbLogger)
     {
-        _databaseServer = databaseServer;
+        _templateTable = templateTable;
         _localeService = localeService;
         _modHelper = modHelper;
         _sptLogger = sptLogger;
@@ -65,7 +54,7 @@ public sealed class AddMissingQuestRequirementsLoader : IOnLoad
         _questDbLogger = questDbLogger;
     }
 
-    public Task OnLoad()
+    public Task OnLoadAsync(CancellationToken cancellationToken)
     {
         var sw = Stopwatch.StartNew();
         try
@@ -87,29 +76,12 @@ public sealed class AddMissingQuestRequirementsLoader : IOnLoad
                 return Task.CompletedTask;
             }
 
-            var itemDb = new SptItemDatabase(_databaseServer, _localeService, _itemDbLogger);
-            var questDb = new SptQuestDatabase(_databaseServer, _questDbLogger);
-            var modDirs = new SptModDirectoryProvider(_modHelper, ownAssembly);
+            var itemDb = new SptItemDatabase(_templateTable, _localeService, _itemDbLogger);
+            var questDb = new SptQuestDatabase(_templateTable, _questDbLogger);
+            var modDirs = ModDirectoryProvider.ForInstalledMod(ownModPath);
             var nameResolver = new ItemDbNameResolver(itemDb);
 
-            // OverrideReader.Read() produces a settings container with a default
-            // ModConfig. Rebind the loaded config so downstream phases see it.
-            var readSettings = new OverrideReader(modDirs, logger).Read();
-            var settings = new OverriddenSettings
-            {
-                Config = config,
-                ExcludedQuests = readSettings.ExcludedQuests,
-                QuestOverrides = readSettings.QuestOverrides,
-                ManualTypeOverrides = readSettings.ManualTypeOverrides,
-                CanBeUsedAs = readSettings.CanBeUsedAs,
-                AliasNameStripWords = readSettings.AliasNameStripWords,
-                AliasNameExcludeWeapons = readSettings.AliasNameExcludeWeapons,
-                ManualAttachmentTypeOverrides = readSettings.ManualAttachmentTypeOverrides,
-                AttachmentCanBeUsedAs = readSettings.AttachmentCanBeUsedAs,
-                AttachmentAliasNameStripWords = readSettings.AttachmentAliasNameStripWords,
-                TypeRules = readSettings.TypeRules,
-                AttachmentTypeRules = readSettings.AttachmentTypeRules,
-            };
+            var settings = new OverrideReader(modDirs, logger).Read(config);
 
             // Fold any miscased override item IDs (e.g. uppercase Massivesoft IDs)
             // to the DB's canonical casing — fixes both lookups and write-back.
@@ -129,12 +101,12 @@ public sealed class AddMissingQuestRequirementsLoader : IOnLoad
                 ValidateOverrideIds(settings, itemDb, nameResolver, logger);
             }
 
-            // User rules first (first-match-wins in the engine), then the
-            // per-ancestor defaults built from WeaponLikeAncestors. Each ancestor
-            // gets {directChildOf:A} when a subtree exists (Weapon → AssaultRifle…)
-            // or literal type=A when items are direct children (Knife, ThrowWeap).
-            // WeaponCategorizer re-appends settings.TypeRules internally —
-            // duplication is harmless because the first match wins.
+            // User rules, then the per-ancestor defaults built from
+            // WeaponLikeAncestors. Each ancestor gets {directChildOf:A} when a
+            // subtree exists (Weapon → AssaultRifle…) or literal type=A when items
+            // are direct children (Knife, ThrowWeap). The engine unions every
+            // matching rule. WeaponCategorizer re-appends settings.TypeRules
+            // internally, so user rules run twice; the union makes that harmless.
             var defaultWeaponRules = DefaultWeaponRuleFactory.Build(itemDb, config.WeaponLikeAncestors);
             var weaponCat = new WeaponCategorizer(settings.TypeRules.Concat(defaultWeaponRules))
                 .Categorize(itemDb, settings, config);
@@ -260,7 +232,7 @@ public sealed class AddMissingQuestRequirementsLoader : IOnLoad
 
     private ModConfig LoadConfig(string ownModPath)
     {
-        var configPath = Path.Combine(ownModPath, "config", "config.jsonc");
+        var configPath = Path.Combine(ownModPath, "config", ModConfigFile.FileName);
         if (!File.Exists(configPath))
         {
             _sptLogger.Warning(
@@ -270,9 +242,7 @@ public sealed class AddMissingQuestRequirementsLoader : IOnLoad
 
         try
         {
-            var loaded = ConfigLoader.LoadFromFile<ModConfig>(
-                configPath, CurrentConfigVersion, ConfigMigrations);
-            return loaded.Config;
+            return ModConfigFile.Load(configPath);
         }
         catch (Exception ex)
         {
@@ -291,7 +261,8 @@ public sealed class AddMissingQuestRequirementsLoader : IOnLoad
     {
         foreach (var (questId, entries) in settings.QuestOverrides)
         {
-            foreach (var entry in entries)
+            // DELETE entries only clear a condition; their weapon lists are never applied.
+            foreach (var entry in entries.Where(e => e.Behaviour != OverrideBehaviour.DELETE))
             {
                 foreach (var id in entry.IncludedWeapons.Concat(entry.ExcludedWeapons))
                 {

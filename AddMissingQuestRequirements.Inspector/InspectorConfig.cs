@@ -27,7 +27,7 @@ public sealed class InspectorConfig
     public string OutputReportPath { get; init; } = "inspector-report.html";
 
     /// <summary>
-    /// Optional. When set, the merged config is exported as v2 JSONC files after loading.
+    /// Optional. When set, the merged config is exported as JSONC files (current versions) after loading.
     /// Writes <c>config.jsonc</c> to the root and <c>QuestOverrides.jsonc</c>,
     /// <c>WeaponOverrides.jsonc</c>, <c>AttachmentOverrides.jsonc</c> inside a
     /// <c>MissingQuestWeapons/</c> subfolder. Useful for migrating old config to the new format.

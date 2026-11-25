@@ -1,6 +1,6 @@
-using SPTarkov.Server.Core.Models.Logging;
-using SPTarkov.Server.Core.Models.Spt.Logging;
-using SPTarkov.Server.Core.Models.Utils;
+using Microsoft.Extensions.Logging;
+using SPTarkov.Common.Models.Logging;
+using Spectre.Console;
 
 namespace AddMissingQuestRequirements.Tests.Spt.Fakes;
 
@@ -15,7 +15,7 @@ public sealed class FakeSptLogger<T> : ISptLogger<T>
     public List<string> Warnings { get; } = [];
     public List<string> Infos { get; } = [];
     public List<string> Debugs { get; } = [];
-    public List<(string Message, LogTextColor? TextColor, LogBackgroundColor? BackgroundColor)> WithColor { get; } = [];
+    public List<(string Message, Color? TextColor, Color? BackgroundColor)> WithColor { get; } = [];
 
     public void Success(string data, Exception? ex = null)
     {
@@ -39,8 +39,8 @@ public sealed class FakeSptLogger<T> : ISptLogger<T>
 
     public void LogWithColor(
         string data,
-        LogTextColor? textColor = null,
-        LogBackgroundColor? backgroundColor = null,
+        Color? textColor = null,
+        Color? backgroundColor = null,
         Exception? ex = null)
     {
         WithColor.Add((data, textColor, backgroundColor));
@@ -59,8 +59,8 @@ public sealed class FakeSptLogger<T> : ISptLogger<T>
     public void Log(
         LogLevel level,
         string data,
-        LogTextColor? textColor = null,
-        LogBackgroundColor? backgroundColor = null,
+        Color? textColor = null,
+        Color? backgroundColor = null,
         Exception? ex = null)
     {
         throw new NotImplementedException("FakeSptLogger.Log not modelled");
@@ -69,10 +69,5 @@ public sealed class FakeSptLogger<T> : ISptLogger<T>
     public bool IsLogEnabled(LogLevel level)
     {
         throw new NotImplementedException("FakeSptLogger.IsLogEnabled not modelled");
-    }
-
-    public void DumpAndStop()
-    {
-        throw new NotImplementedException("FakeSptLogger.DumpAndStop not modelled");
     }
 }

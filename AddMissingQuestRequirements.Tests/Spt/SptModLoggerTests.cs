@@ -1,7 +1,6 @@
 using AddMissingQuestRequirements.Spt;
 using AddMissingQuestRequirements.Tests.Spt.Fakes;
 using FluentAssertions;
-using SPTarkov.Server.Core.Models.Logging;
 
 namespace AddMissingQuestRequirements.Tests.Spt;
 

@@ -11,8 +11,9 @@ public static class MergeHelper
 
     /// <summary>
     /// Merges two plain string lists according to <paramref name="behaviour"/>.
-    /// IGNORE: keep existing, skip all incoming.
-    /// MERGE: union (deduplicated).
+    /// IGNORE / MERGE: keep existing, append incoming items not yet present. A string list
+    /// has no per-item value to protect, so IGNORE's "don't overwrite, still add new"
+    /// (as for dicts and quest entries) reduces to a union.
     /// REPLACE: use incoming only.
     /// DELETE: remove incoming items from existing.
     /// </summary>
@@ -20,8 +21,7 @@ public static class MergeHelper
         List<string> existing, List<string> incoming, OverrideBehaviour behaviour) =>
         behaviour switch
         {
-            OverrideBehaviour.IGNORE  => existing.Count > 0 ? [..existing] : [..incoming],
-            OverrideBehaviour.MERGE   => [..existing.Union(incoming)],
+            OverrideBehaviour.IGNORE or OverrideBehaviour.MERGE => [..existing.Union(incoming)],
             OverrideBehaviour.REPLACE => [..incoming],
             OverrideBehaviour.DELETE  => existing.Where(x => !incoming.Contains(x)).ToList(),
             _                         => [..existing]
@@ -160,65 +160,42 @@ public static class MergeHelper
     // ── Quest override entries (keyed by quest ID) ───────────────────────────
 
     /// <summary>
-    /// Merges incoming <see cref="QuestOverrideEntry"/> list into the existing map.
-    /// The effective behaviour per entry is: entry.Behaviour ?? fileDefaultBehaviour.
+    /// Adds one file's <see cref="QuestOverrideEntry"/> list to the accumulated map.
+    /// Every entry is kept whole and stamped with its effective behaviour
+    /// (<c>entry.Behaviour ?? fileDefaultBehaviour</c>) and the file's load-order
+    /// <see cref="QuestOverrideEntry.Layer"/>. Nothing is matched or dropped here:
+    /// an entry can name a condition by its sub-condition id or its CounterCreator
+    /// parent id, so overlap is only decidable per condition, in
+    /// <see cref="Pipeline.Quest.QuestOverrideResolver"/>. DELETE entries are stored
+    /// too, even for a quest with no earlier entries: within one file a condition-specific
+    /// DELETE must still beat that file's quest-wide entry, whatever order they appear in.
     /// </summary>
     public static Dictionary<string, List<QuestOverrideEntry>> MergeQuestEntries(
         Dictionary<string, List<QuestOverrideEntry>> existing,
         List<QuestOverrideEntry> incoming,
         OverrideBehaviour fileDefaultBehaviour)
     {
+        var layer = existing.Values
+            .SelectMany(entries => entries)
+            .Select(e => e.Layer)
+            .DefaultIfEmpty(-1)
+            .Max() + 1;
+
         var result = existing.ToDictionary(
             kv => kv.Key,
-            kv => kv.Value.Select(CloneEntry).ToList());
+            kv => kv.Value.Select(e => CloneEntry(e, e.Behaviour, e.Layer)).ToList());
 
         foreach (var entry in incoming)
         {
             var effective = entry.Behaviour ?? fileDefaultBehaviour;
 
-            if (!result.TryGetValue(entry.Id, out var existingEntries))
+            if (!result.TryGetValue(entry.Id, out var questEntries))
             {
-                if (effective == OverrideBehaviour.DELETE)
-                {
-                    continue;
-                }
-
-                result[entry.Id] = [CloneEntry(entry)];
-                continue;
+                questEntries = [];
+                result[entry.Id] = questEntries;
             }
 
-            var matchIndex = existingEntries.FindIndex(e => SameConditionSet(e.Conditions, entry.Conditions));
-
-            if (matchIndex < 0)
-            {
-                if (effective == OverrideBehaviour.DELETE
-                    || effective == OverrideBehaviour.IGNORE)
-                {
-                    continue;
-                }
-
-                existingEntries.Add(CloneEntry(entry));
-                continue;
-            }
-
-            switch (effective)
-            {
-                case OverrideBehaviour.IGNORE:
-                    break;
-                case OverrideBehaviour.REPLACE:
-                    existingEntries[matchIndex] = CloneEntry(entry);
-                    break;
-                case OverrideBehaviour.MERGE:
-                    existingEntries[matchIndex] = MergeEntries(existingEntries[matchIndex], entry);
-                    break;
-                case OverrideBehaviour.DELETE:
-                    existingEntries.RemoveAt(matchIndex);
-                    if (existingEntries.Count == 0)
-                    {
-                        result.Remove(entry.Id);
-                    }
-                    break;
-            }
+            questEntries.Add(CloneEntry(entry, effective, layer));
         }
 
         return result;
@@ -230,14 +207,16 @@ public static class MergeHelper
     /// Merges an incoming <see cref="TypeRule"/> list into an existing one using two-level semantics:
     /// <para>
     /// File-level <paramref name="fileBehaviour"/>:
-    /// IGNORE: return existing unchanged if non-empty, else process incoming normally.
+    /// IGNORE: rules without a per-rule behaviour are skipped when an earlier file already
+    /// has a rule of the same Type, otherwise appended. Rules sharing a new Type within this
+    /// file are all kept.
     /// MERGE: process each incoming rule (default).
     /// REPLACE: discard existing entirely, then process each incoming rule.
     /// DELETE: return empty list immediately.
     /// </para>
     /// <para>
     /// Per-rule <see cref="TypeRule.Behaviour"/> (applied for each incoming rule, keyed on Type):
-    /// null: always append.
+    /// null: append (subject to file-level IGNORE above).
     /// IGNORE: skip if any rule with the same Type already exists in accumulated list.
     /// REPLACE: remove all accumulated rules with the same Type, then append.
     /// DELETE: remove all accumulated rules with the same Type; do not append.
@@ -252,10 +231,7 @@ public static class MergeHelper
             return [];
         }
 
-        if (fileBehaviour == OverrideBehaviour.IGNORE && existing.Count > 0)
-        {
-            return [..existing];
-        }
+        var typesFromEarlierFiles = existing.Select(r => r.Type).ToHashSet();
 
         var result = fileBehaviour == OverrideBehaviour.REPLACE
             ? new List<TypeRule>()
@@ -283,6 +259,12 @@ public static class MergeHelper
 
                 default:
                     // null or MERGE (MERGE has no defined semantics at rule-level — treat as append)
+                    if (rule.Behaviour is null
+                        && fileBehaviour == OverrideBehaviour.IGNORE
+                        && typesFromEarlierFiles.Contains(rule.Type))
+                    {
+                        break;
+                    }
                     result.Add(rule);
                     break;
             }
@@ -293,10 +275,11 @@ public static class MergeHelper
 
     // ── Private helpers ──────────────────────────────────────────────────────
 
-    private static QuestOverrideEntry CloneEntry(QuestOverrideEntry e) => new()
+    private static QuestOverrideEntry CloneEntry(QuestOverrideEntry e, OverrideBehaviour? behaviour, int layer) => new()
     {
         Id                 = e.Id,
-        Behaviour          = e.Behaviour,
+        Behaviour          = behaviour,
+        Layer              = layer,
         ExpansionMode      = e.ExpansionMode,
         Conditions         = [..e.Conditions],
         IncludedWeapons    = [..e.IncludedWeapons],
@@ -308,10 +291,15 @@ public static class MergeHelper
         ExcludedModBundles = e.ExcludedModBundles.Select(b => (List<string>)[..b]).ToList(),
     };
 
-    private static QuestOverrideEntry MergeEntries(QuestOverrideEntry a, QuestOverrideEntry b) => new()
+    /// <summary>
+    /// Field-merges two entries for the same condition (MERGE behaviour): lists are
+    /// unioned, bundles deduped structurally, and the more restrictive expansion mode wins.
+    /// </summary>
+    internal static QuestOverrideEntry MergeEntries(QuestOverrideEntry a, QuestOverrideEntry b) => new()
     {
         Id                 = a.Id,
         Behaviour          = a.Behaviour,
+        Layer              = b.Layer,
         // Prefer the most restrictive mode. Order: WhitelistOnly (discards original)
         // > NoExpansion (preserves original) > Auto (broadens original). The enum's
         // int values do NOT match this order — see MoreRestrictive.
@@ -337,19 +325,6 @@ public static class MergeHelper
             return ExpansionMode.NoExpansion;
         }
         return ExpansionMode.Auto;
-    }
-
-    private static bool SameConditionSet(
-        IReadOnlyCollection<string> a,
-        IReadOnlyCollection<string> b)
-    {
-        if (a.Count != b.Count)
-        {
-            return false;
-        }
-        var setA = new HashSet<string>(a, StringComparer.Ordinal);
-        var setB = new HashSet<string>(b, StringComparer.Ordinal);
-        return setA.SetEquals(setB);
     }
 
     /// <summary>

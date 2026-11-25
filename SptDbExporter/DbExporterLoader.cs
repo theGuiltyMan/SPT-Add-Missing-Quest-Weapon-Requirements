@@ -1,19 +1,20 @@
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.DI.Annotations;
 using SPTarkov.Server.Core.DI;
-using SPTarkov.Server.Core.Helpers;
+using SPTarkov.Server.Core.Helpers.Server;
 using SPTarkov.Server.Core.Models.Common;
-using SPTarkov.Server.Core.Models.Logging;
-using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Servers;
+using SPTarkov.Server.Core.Models.Spt.Tables;
 
 namespace SptDbExporter;
 
-[Injectable(TypePriority = OnLoadOrder.TraderRegistration + 9999)]
+// One below AddMissingQuestRequirements (+9999) so the export holds unpatched quests.
+[Injectable(TypePriority = OnLoadOrder.TraderRegistration + 9998)]
 public sealed class DbExporterLoader(
-    DatabaseServer databaseServer,
+    TemplateTable templateTable,
+    LocaleTable localeTable,
     ModHelper modHelper,
     ISptLogger<DbExporterLoader> logger) : IOnLoad
 {
@@ -52,7 +53,7 @@ public sealed class DbExporterLoader(
         Converters = { new MongoIdConverter() }
     };
 
-    public async Task OnLoad()
+    public async Task OnLoadAsync(CancellationToken cancellationToken)
     {
         var modDir = modHelper.GetAbsolutePathToModFolder(Assembly.GetExecutingAssembly());
         var configPath = Path.Combine(modDir, "exporter-config.json");
@@ -82,29 +83,27 @@ public sealed class DbExporterLoader(
         {
             Directory.CreateDirectory(config.OutputPath);
 
-            var tables = databaseServer.GetTables();
-
             // ── Items ────────────────────────────────────────────────────────────
             var itemsPath = Path.Combine(config.OutputPath, "items.json");
             await using (var itemsStream = File.Create(itemsPath))
             {
-                await JsonSerializer.SerializeAsync(itemsStream, tables.Templates.Items, _writeOptions);
+                await JsonSerializer.SerializeAsync(itemsStream, templateTable.Items, _writeOptions);
             }
 
-            logger.Info($"[SptDbExporter] Wrote {tables.Templates.Items.Count} items → {itemsPath}");
+            logger.Info($"[SptDbExporter] Wrote {templateTable.Items.Count} items → {itemsPath}");
 
             // ── Quests ───────────────────────────────────────────────────────────
             var questsPath = Path.Combine(config.OutputPath, "quests.json");
             await using (var questsStream = File.Create(questsPath))
             {
-                await JsonSerializer.SerializeAsync(questsStream, tables.Templates.Quests, _writeOptions);
+                await JsonSerializer.SerializeAsync(questsStream, templateTable.Quests, _writeOptions);
             }
 
-            logger.Info($"[SptDbExporter] Wrote {tables.Templates.Quests.Count} quests → {questsPath}");
+            logger.Info($"[SptDbExporter] Wrote {templateTable.Quests.Count} quests → {questsPath}");
 
             // ── Locale (English) ─────────────────────────────────────────────────
             var localePath = Path.Combine(config.OutputPath, "locale_en.json");
-            var enLocale = tables.Locales.Global.TryGetValue("en", out var lazyEn)
+            var enLocale = localeTable.Global.TryGetValue("en", out var lazyEn)
                 ? lazyEn.Value ?? []
                 : [];
 

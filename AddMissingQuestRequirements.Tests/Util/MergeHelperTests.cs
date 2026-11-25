@@ -9,14 +9,14 @@ public class MergeHelperTests
     // ── MergeStringLists ────────────────────────────────────────────────────
 
     [Fact]
-    public void MergeStringLists_IGNORE_keeps_existing_skips_new()
+    public void MergeStringLists_IGNORE_keeps_existing_and_adds_new_items()
     {
         var existing = new List<string> { "a", "b" };
-        var incoming = new List<string> { "c", "d" };
+        var incoming = new List<string> { "b", "c", "d" };
 
         var result = MergeHelper.MergeStringLists(existing, incoming, OverrideBehaviour.IGNORE);
 
-        result.Should().BeEquivalentTo(["a", "b"]);
+        result.Should().Equal("a", "b", "c", "d");
     }
 
     [Fact]
@@ -218,111 +218,6 @@ public class MergeHelperTests
         result["weapon_new"].Should().BeEquivalentTo(["weapon_x", "weapon_y"]);
     }
 
-    // ── MergeQuestEntries ───────────────────────────────────────────────────
-
-    [Fact]
-    public void MergeQuestEntries_IGNORE_skips_second_mods_entry_for_same_quest()
-    {
-        var existing = EntriesToDict([new QuestOverrideEntry
-        {
-            Id = "quest1",
-            IncludedWeapons = ["weapon_a"]
-        }]);
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new() { Id = "quest1", IncludedWeapons = ["weapon_b"] }
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.IGNORE);
-
-        result["quest1"].Should().HaveCount(1);
-        result["quest1"][0].IncludedWeapons.Should().BeEquivalentTo(["weapon_a"]);
-    }
-
-    [Fact]
-    public void MergeQuestEntries_MERGE_combines_whitelist_arrays()
-    {
-        var existing = EntriesToDict([new QuestOverrideEntry
-        {
-            Id = "quest1",
-            IncludedWeapons = ["weapon_a"]
-        }]);
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new() { Id = "quest1", IncludedWeapons = ["weapon_b"] }
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
-
-        result["quest1"][0].IncludedWeapons.Should().BeEquivalentTo(["weapon_a", "weapon_b"]);
-    }
-
-    [Fact]
-    public void MergeQuestEntries_REPLACE_overwrites_existing_entry()
-    {
-        var existing = EntriesToDict([new QuestOverrideEntry
-        {
-            Id = "quest1",
-            IncludedWeapons = ["weapon_a"]
-        }]);
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new() { Id = "quest1", IncludedWeapons = ["weapon_b"] }
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.REPLACE);
-
-        result["quest1"].Should().HaveCount(1);
-        result["quest1"][0].IncludedWeapons.Should().BeEquivalentTo(["weapon_b"]);
-    }
-
-    [Fact]
-    public void MergeQuestEntries_DELETE_removes_quest_entirely()
-    {
-        var existing = EntriesToDict([new QuestOverrideEntry { Id = "quest1" }]);
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new() { Id = "quest1", Behaviour = OverrideBehaviour.DELETE }
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.IGNORE);
-
-        result.Should().NotContainKey("quest1");
-    }
-
-    [Fact]
-    public void MergeQuestEntries_entry_level_behaviour_overrides_file_level()
-    {
-        // File default is IGNORE, but this specific entry says REPLACE
-        var existing = EntriesToDict([new QuestOverrideEntry
-        {
-            Id = "quest1",
-            IncludedWeapons = ["weapon_a"]
-        }]);
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new() { Id = "quest1", Behaviour = OverrideBehaviour.REPLACE, IncludedWeapons = ["weapon_b"] }
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.IGNORE);
-
-        result["quest1"][0].IncludedWeapons.Should().BeEquivalentTo(["weapon_b"]);
-    }
-
-    [Fact]
-    public void MergeQuestEntries_adds_new_quest_id_regardless_of_behaviour()
-    {
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>();
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new() { Id = "quest_new", IncludedWeapons = ["weapon_x"] }
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.IGNORE);
-
-        result["quest_new"][0].IncludedWeapons.Should().BeEquivalentTo(["weapon_x"]);
-    }
-
     // ── MergeTypeRules ──────────────────────────────────────────────────────
 
     // File-level behaviour
@@ -340,15 +235,36 @@ public class MergeHelperTests
     }
 
     [Fact]
-    public void MergeTypeRules_file_IGNORE_returns_existing_when_non_empty()
+    public void MergeTypeRules_file_IGNORE_adds_rules_for_new_types_and_skips_known_types()
     {
         var existing = new List<TypeRule> { Rule("AKM") };
-        var incoming = new List<TypeRule> { Rule("AK74") };
+        var incoming = new List<TypeRule> { Rule("AKM"), Rule("AK74") };
 
         var result = MergeHelper.MergeTypeRules(existing, incoming, OverrideBehaviour.IGNORE);
 
-        result.Should().HaveCount(1);
-        result[0].Type.Should().Be("AKM");
+        result.Select(r => r.Type).Should().Equal("AKM", "AK74");
+    }
+
+    [Fact]
+    public void MergeTypeRules_file_IGNORE_keeps_all_rules_of_a_new_type_from_the_same_file()
+    {
+        var existing = new List<TypeRule> { Rule("AKM") };
+        var incoming = new List<TypeRule> { Rule("AK74"), Rule("AK74") };
+
+        var result = MergeHelper.MergeTypeRules(existing, incoming, OverrideBehaviour.IGNORE);
+
+        result.Select(r => r.Type).Should().Equal("AKM", "AK74", "AK74");
+    }
+
+    [Fact]
+    public void MergeTypeRules_file_IGNORE_honours_explicit_per_rule_behaviour()
+    {
+        var existing = new List<TypeRule> { Rule("AKM") };
+        var incoming = new List<TypeRule> { Rule("AKM", OverrideBehaviour.REPLACE) };
+
+        var result = MergeHelper.MergeTypeRules(existing, incoming, OverrideBehaviour.IGNORE);
+
+        result.Should().ContainSingle().Which.Should().BeSameAs(incoming[0]);
     }
 
     [Fact]
@@ -485,390 +401,6 @@ public class MergeHelperTests
         result[0].Behaviour.Should().Be(OverrideBehaviour.REPLACE);
     }
 
-    [Fact]
-    public void MergeQuestEntries_REPLACE_with_unmatched_conditions_appends_instead_of_wiping_id()
-    {
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>
-        {
-            ["q1"] =
-            [
-                new() { Id = "q1", Conditions = ["c1"], IncludedWeapons = ["a"] },
-                new() { Id = "q1", Conditions = ["c2"], IncludedWeapons = ["b"] },
-            ],
-        };
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new() { Id = "q1", Conditions = ["c3"], IncludedWeapons = ["c"] },
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.REPLACE);
-
-        result["q1"].Should().HaveCount(3);
-        result["q1"].Select(e => e.Conditions.Single())
-            .Should().BeEquivalentTo(["c1", "c2", "c3"]);
-    }
-
-    [Fact]
-    public void MergeQuestEntries_IGNORE_with_unmatched_conditions_skips_incoming()
-    {
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>
-        {
-            ["q1"] = [new() { Id = "q1", Conditions = ["c1"], IncludedWeapons = ["a"] }],
-        };
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new() { Id = "q1", Conditions = ["c2"], IncludedWeapons = ["b"] },
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.IGNORE);
-
-        result["q1"].Should().HaveCount(1);
-        result["q1"][0].Conditions.Should().BeEquivalentTo(["c1"]);
-        result["q1"][0].IncludedWeapons.Should().BeEquivalentTo(["a"]);
-    }
-
-    [Fact]
-    public void MergeQuestEntries_duplicate_condition_strings_are_not_treated_as_set_equal()
-    {
-        // Guards against a subset-probe regression in SameConditionSet: ["c1","c1"]
-        // and ["c1","c2"] have the same Count but are different sets. The duplicate-
-        // laden incoming entry must not match the distinct-element existing entry.
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>
-        {
-            ["q1"] = [new() { Id = "q1", Conditions = ["c1", "c2"], IncludedWeapons = ["a"] }],
-        };
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new() { Id = "q1", Conditions = ["c1", "c1"], IncludedWeapons = ["b"] },
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
-
-        result["q1"].Should().HaveCount(2);
-        result["q1"].Single(e => e.Conditions.SequenceEqual(new[] { "c1", "c2" })).IncludedWeapons
-            .Should().BeEquivalentTo(["a"]);
-    }
-
-    // ── Conditions-set scoping ───────────────────────────────────────────────
-
-    [Fact]
-    public void MergeQuestEntries_same_id_distinct_conditions_coexist_under_MERGE()
-    {
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>();
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new() { Id = "q1", Conditions = ["c1"], IncludedWeapons = ["a"] },
-            new() { Id = "q1", Conditions = ["c2"], IncludedWeapons = ["b"] },
-            new() { Id = "q1", Conditions = ["c3"], IncludedWeapons = ["c"] },
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
-
-        result["q1"].Should().HaveCount(3);
-        result["q1"].Select(e => e.Conditions.Single())
-            .Should().BeEquivalentTo(["c1", "c2", "c3"]);
-    }
-
-    [Fact]
-    public void MergeQuestEntries_empty_and_scoped_conditions_coexist()
-    {
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>
-        {
-            ["q1"] = [new() { Id = "q1", Conditions = [], IncludedWeapons = ["broad"] }],
-        };
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new() { Id = "q1", Conditions = ["c1"], IncludedWeapons = ["scoped"] },
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
-
-        result["q1"].Should().HaveCount(2);
-        result["q1"].Single(e => e.Conditions.Count == 0).IncludedWeapons
-            .Should().BeEquivalentTo(["broad"]);
-        result["q1"].Single(e => e.Conditions.SequenceEqual(new[] { "c1" })).IncludedWeapons
-            .Should().BeEquivalentTo(["scoped"]);
-    }
-
-    [Fact]
-    public void MergeQuestEntries_same_id_same_conditions_still_merge_under_MERGE()
-    {
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>
-        {
-            ["q1"] = [new() { Id = "q1", Conditions = ["c1"], IncludedWeapons = ["a"] }],
-        };
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new() { Id = "q1", Conditions = ["c1"], IncludedWeapons = ["b"] },
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
-
-        result["q1"].Should().HaveCount(1);
-        result["q1"][0].IncludedWeapons.Should().BeEquivalentTo(["a", "b"]);
-    }
-
-    // ── Mods fields round-trip ───────────────────────────────────────────────
-
-    [Fact]
-    public void MergeQuestEntries_preserves_mods_fields_on_first_insert()
-    {
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new()
-            {
-                Id = "q1",
-                Conditions = ["c1"],
-                ModsExpansionMode = ExpansionMode.NoExpansion,
-                IncludedMods = ["mod-a", "mod-b"],
-                ExcludedMods = ["mod-x"],
-            },
-        };
-
-        var result = MergeHelper.MergeQuestEntries(
-            new Dictionary<string, List<QuestOverrideEntry>>(),
-            incoming,
-            OverrideBehaviour.MERGE);
-
-        var entry = result["q1"].Single();
-        entry.ModsExpansionMode.Should().Be(ExpansionMode.NoExpansion);
-        entry.IncludedMods.Should().BeEquivalentTo(["mod-a", "mod-b"]);
-        entry.ExcludedMods.Should().BeEquivalentTo(["mod-x"]);
-    }
-
-    [Fact]
-    public void MergeQuestEntries_MERGE_unions_mod_lists_and_takes_most_restrictive_mods_mode()
-    {
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>
-        {
-            ["q1"] =
-            [
-                new()
-                {
-                    Id = "q1",
-                    Conditions = ["c1"],
-                    ModsExpansionMode = ExpansionMode.WhitelistOnly,
-                    IncludedMods = ["mod-a"],
-                    ExcludedMods = ["mod-x"],
-                },
-            ],
-        };
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new()
-            {
-                Id = "q1",
-                Conditions = ["c1"],
-                ModsExpansionMode = ExpansionMode.NoExpansion,
-                IncludedMods = ["mod-b"],
-                ExcludedMods = ["mod-y"],
-            },
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
-
-        var entry = result["q1"].Single();
-        // WhitelistOnly is more restrictive than NoExpansion — it wins.
-        entry.ModsExpansionMode.Should().Be(ExpansionMode.WhitelistOnly);
-        entry.IncludedMods.Should().BeEquivalentTo(["mod-a", "mod-b"]);
-        entry.ExcludedMods.Should().BeEquivalentTo(["mod-x", "mod-y"]);
-    }
-
-    [Fact]
-    public void MergeQuestEntries_MERGE_unions_mod_bundles_by_structural_equality()
-    {
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>
-        {
-            ["q1"] =
-            [
-                new()
-                {
-                    Id                 = "q1",
-                    Conditions         = ["c1"],
-                    IncludedModBundles = [["barrel_a", "scope_a"], ["barrel_b"]],
-                    ExcludedModBundles = [["mod_x"]],
-                },
-            ],
-        };
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new()
-            {
-                Id                 = "q1",
-                Conditions         = ["c1"],
-                // First bundle is the same as existing's first bundle in reverse order — must dedupe.
-                IncludedModBundles = [["scope_a", "barrel_a"], ["barrel_c"]],
-                ExcludedModBundles = [["mod_x"], ["mod_y"]],
-            },
-        };
-
-        var result = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
-        var entry  = result["q1"].Single();
-
-        entry.IncludedModBundles.Should().HaveCount(3,
-            "duplicate barrel_a/scope_a bundle should dedupe regardless of inner order");
-        entry.ExcludedModBundles.Should().HaveCount(2,
-            "duplicate mod_x bundle should dedupe");
-    }
-
-    // ── ExpansionMode priority in MergeEntries ──────────────────────────────
-
-    [Fact]
-    public void Merge_WhitelistOnly_Wins_Over_NoExpansion_On_ExpansionMode()
-    {
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>
-        {
-            ["q"] = [new QuestOverrideEntry
-            {
-                Id            = "q",
-                ExpansionMode = ExpansionMode.WhitelistOnly,
-            }],
-        };
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new()
-            {
-                Id            = "q",
-                ExpansionMode = ExpansionMode.NoExpansion,
-            },
-        };
-
-        var merged = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
-
-        merged["q"].Should().HaveCount(1);
-        merged["q"][0].ExpansionMode.Should().Be(ExpansionMode.WhitelistOnly);
-    }
-
-    [Fact]
-    public void Merge_WhitelistOnly_Wins_Over_Auto_On_ExpansionMode()
-    {
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>
-        {
-            ["q"] = [new QuestOverrideEntry
-            {
-                Id            = "q",
-                ExpansionMode = ExpansionMode.Auto,
-            }],
-        };
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new()
-            {
-                Id            = "q",
-                ExpansionMode = ExpansionMode.WhitelistOnly,
-            },
-        };
-
-        var merged = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
-
-        merged["q"].Should().HaveCount(1);
-        merged["q"][0].ExpansionMode.Should().Be(ExpansionMode.WhitelistOnly);
-    }
-
-    [Fact]
-    public void Merge_NoExpansion_Wins_Over_Auto_On_ExpansionMode()
-    {
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>
-        {
-            ["q"] = [new QuestOverrideEntry
-            {
-                Id            = "q",
-                ExpansionMode = ExpansionMode.NoExpansion,
-            }],
-        };
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new()
-            {
-                Id            = "q",
-                ExpansionMode = ExpansionMode.Auto,
-            },
-        };
-
-        var merged = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
-
-        merged["q"].Should().HaveCount(1);
-        merged["q"][0].ExpansionMode.Should().Be(ExpansionMode.NoExpansion);
-    }
-
-    [Fact]
-    public void Merge_WhitelistOnly_Wins_Over_NoExpansion_On_ModsExpansionMode()
-    {
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>
-        {
-            ["q"] = [new QuestOverrideEntry
-            {
-                Id                = "q",
-                ModsExpansionMode = ExpansionMode.WhitelistOnly,
-            }],
-        };
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new()
-            {
-                Id                = "q",
-                ModsExpansionMode = ExpansionMode.NoExpansion,
-            },
-        };
-
-        var merged = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
-
-        merged["q"].Should().HaveCount(1);
-        merged["q"][0].ModsExpansionMode.Should().Be(ExpansionMode.WhitelistOnly);
-    }
-
-    [Fact]
-    public void Merge_WhitelistOnly_Wins_Over_Auto_On_ModsExpansionMode()
-    {
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>
-        {
-            ["q"] = [new QuestOverrideEntry
-            {
-                Id                = "q",
-                ModsExpansionMode = ExpansionMode.Auto,
-            }],
-        };
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new()
-            {
-                Id                = "q",
-                ModsExpansionMode = ExpansionMode.WhitelistOnly,
-            },
-        };
-
-        var merged = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
-
-        merged["q"].Should().HaveCount(1);
-        merged["q"][0].ModsExpansionMode.Should().Be(ExpansionMode.WhitelistOnly);
-    }
-
-    [Fact]
-    public void Merge_NoExpansion_Wins_Over_Auto_On_ModsExpansionMode()
-    {
-        var existing = new Dictionary<string, List<QuestOverrideEntry>>
-        {
-            ["q"] = [new QuestOverrideEntry
-            {
-                Id                = "q",
-                ModsExpansionMode = ExpansionMode.NoExpansion,
-            }],
-        };
-        var incoming = new List<QuestOverrideEntry>
-        {
-            new()
-            {
-                Id                = "q",
-                ModsExpansionMode = ExpansionMode.Auto,
-            },
-        };
-
-        var merged = MergeHelper.MergeQuestEntries(existing, incoming, OverrideBehaviour.MERGE);
-
-        merged["q"].Should().HaveCount(1);
-        merged["q"][0].ModsExpansionMode.Should().Be(ExpansionMode.NoExpansion);
-    }
-
     // ── Helpers ─────────────────────────────────────────────────────────────
 
     private static TypeRule Rule(string type, OverrideBehaviour? behaviour = null) => new()
@@ -876,9 +408,4 @@ public class MergeHelperTests
         Type = type,
         Behaviour = behaviour
     };
-
-    private static Dictionary<string, List<QuestOverrideEntry>> EntriesToDict(
-        IEnumerable<QuestOverrideEntry> entries) =>
-        entries.GroupBy(e => e.Id)
-               .ToDictionary(g => g.Key, g => g.ToList());
 }

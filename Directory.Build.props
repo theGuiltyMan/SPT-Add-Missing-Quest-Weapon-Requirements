@@ -3,8 +3,8 @@
   <Import Project="local.props" Condition="Exists('$(MSBuildThisFileDirectory)local.props')" />
 
   <PropertyGroup>
-    <!-- SPT server lives under $(SptRoot)/SPT/ in the default layout. -->
-    <SptServerRoot Condition="'$(SptServerRoot)' == '' and '$(SptRoot)' != ''">$(SptRoot)\SPT</SptServerRoot>
+    <!-- SPT 4.1 server lives under $(SptRoot)/SPT_Runtime/ in the default layout. -->
+    <SptServerRoot Condition="'$(SptServerRoot)' == '' and '$(SptRoot)' != ''">$(SptRoot)\SPT_Runtime</SptServerRoot>
     <SptModsDir Condition="'$(SptModsDir)' == '' and '$(SptServerRoot)' != ''">$(SptServerRoot)\user\mods</SptModsDir>
   </PropertyGroup>
 </Project>

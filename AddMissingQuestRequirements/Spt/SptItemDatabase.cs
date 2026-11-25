@@ -1,20 +1,20 @@
 using System.Text.Json;
 using AddMissingQuestRequirements.Pipeline.Database;
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
-using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Servers;
-using SPTarkov.Server.Core.Services;
+using SPTarkov.Server.Core.Models.Spt.Tables;
+using SPTarkov.Server.Core.Services.Locales;
 
 namespace AddMissingQuestRequirements.Spt;
 
 /// <summary>
-/// Adapter over <see cref="DatabaseServer"/>'s item table and
+/// Adapter over <see cref="TemplateTable"/>'s item table and
 /// <see cref="LocaleService"/>'s client-locale dictionary, exposing the shape
 /// the pipeline phases expect via <see cref="IItemDatabase"/>.
 /// </summary>
 /// <remarks>
 /// Construction builds a snapshot of the item table — iterating
-/// <c>DatabaseServer.GetTables().Templates.Items</c> once and mapping every
+/// <c>TemplateTable.Items</c> once and mapping every
 /// <see cref="TemplateItem"/> to a framework-agnostic <see cref="ItemNode"/>.
 /// The client-locale dictionary is fetched once via
 /// <c>LocaleService.GetLocaleDb()</c> and kept for cheap <c>TryGetValue</c>
@@ -28,15 +28,13 @@ public sealed class SptItemDatabase : IItemDatabase
     private readonly IReadOnlyDictionary<string, string> _locale;
 
     public SptItemDatabase(
-        DatabaseServer databaseServer,
+        TemplateTable templateTable,
         LocaleService localeService,
         ISptLogger<SptItemDatabase> logger)
     {
-        _locale = localeService.GetLocaleDb() ?? new Dictionary<string, string>();
+        _locale = localeService.GetLocaleDb();
 
-        var raw = databaseServer.GetTables().Templates?.Items
-            ?? throw new InvalidOperationException(
-                "DatabaseServer.GetTables().Templates.Items is null — database not loaded.");
+        var raw = templateTable.Items;
 
         _items = new Dictionary<string, ItemNode>(raw.Count);
 

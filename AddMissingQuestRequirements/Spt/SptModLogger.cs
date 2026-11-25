@@ -1,5 +1,5 @@
 using AddMissingQuestRequirements.Util;
-using SPTarkov.Server.Core.Models.Utils;
+using SPTarkov.Common.Models.Logging;
 
 namespace AddMissingQuestRequirements.Spt;
 

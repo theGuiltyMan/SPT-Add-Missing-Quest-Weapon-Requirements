@@ -60,4 +60,14 @@ public sealed class OverriddenSettings
     /// Fully isolated from <see cref="TypeRules"/> — the two lists never intermix.
     /// </summary>
     public List<TypeRule> AttachmentTypeRules { get; init; } = [];
+
+    /// <summary>
+    /// Override files that failed to read, parse or migrate and were skipped. Each one has
+    /// already been logged as a warning; the Inspector's serve mode uses this to treat a
+    /// broken main-config file as a failed reload.
+    /// </summary>
+    public List<OverrideFileError> FileErrors { get; init; } = [];
 }
+
+/// <summary>An override file that could not be loaded, with the reason.</summary>
+public sealed record OverrideFileError(string Path, string Message);

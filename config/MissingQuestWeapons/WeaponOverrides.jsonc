@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "overrideBehaviour": 0,
+  "overrideBehaviour": "IGNORE",
   "manualTypeOverrides": {
     "61f7c9e189e6fb1a5e3ea78d": "12ga,BA_MR_762x54R,MP-shotguns",
     "weapon_striker_12": "12ga",
@@ -308,14 +308,6 @@
         "caliber": "Caliber12g"
       },
       "type": "12ga",
-      "alsoAs": []
-    },
-    {
-      "comment": "Migrated from CustomCategories 'AK'",
-      "conditions": {
-        "nameMatches": "\\b(AK|Draco)\\w*"
-      },
-      "type": "AK",
       "alsoAs": []
     },
     {
@@ -1406,6 +1398,20 @@
         "caliber": "Caliber762x25TT"
       },
       "type": "cal_762x25TT",
+      "alsoAs": []
+    },
+    {
+      "conditions": {
+        "caliber": "Caliber20g"
+      },
+      "type": "20ga",
+      "alsoAs": []
+    },
+    {
+      "conditions": {
+        "caliber": "Caliber23x75"
+      },
+      "type": "cal_23x75",
       "alsoAs": []
     }
   ]

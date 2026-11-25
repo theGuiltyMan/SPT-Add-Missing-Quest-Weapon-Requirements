@@ -1,5 +1,7 @@
 using AddMissingQuestRequirements.Models;
 using AddMissingQuestRequirements.Pipeline.Override;
+using AddMissingQuestRequirements.Pipeline.Quest;
+using AddMissingQuestRequirements.Util;
 using FluentAssertions;
 
 namespace AddMissingQuestRequirements.Tests.Pipeline.Override;
@@ -47,6 +49,12 @@ public class OverrideReaderTests : IDisposable
 
         return modDir;
     }
+
+    private static QuestOverrideEntry? Resolve(OverriddenSettings settings, string questId, string conditionId) =>
+        QuestOverrideResolver.Resolve(settings, questId, new ConditionNode { Id = conditionId });
+
+    private static QuestOverrideEntry? ResolveAnyCondition(OverriddenSettings settings, string questId) =>
+        Resolve(settings, questId, "any-condition");
 
     public void Dispose()
     {
@@ -177,7 +185,27 @@ public class OverrideReaderTests : IDisposable
         var reader = new OverrideReader(new InMemoryModDirectoryProvider([mod1, mod2]));
         var result = reader.Read();
 
-        result.QuestOverrides["quest1"][0].IncludedWeapons.Should().BeEquivalentTo(["weapon_a"]);
+        ResolveAnyCondition(result, "quest1")!.IncludedWeapons.Should().BeEquivalentTo(["weapon_a"]);
+    }
+
+    [Fact]
+    public void IGNORE_keeps_per_condition_entries_from_one_file()
+    {
+        var mod1 = MakeModDir(questOverridesJsonc: """
+        {
+            "OverrideBehaviour": "IGNORE",
+            "Overrides": [
+                { "id": "quest1", "conditions": ["c1"], "whiteListedWeapons": ["weapon_a"] },
+                { "id": "quest1", "conditions": ["c2"], "whiteListedWeapons": ["weapon_b"] }
+            ]
+        }
+        """);
+
+        var reader = new OverrideReader(new InMemoryModDirectoryProvider([mod1]));
+        var result = reader.Read();
+
+        Resolve(result, "quest1", "c1")!.IncludedWeapons.Should().BeEquivalentTo(["weapon_a"]);
+        Resolve(result, "quest1", "c2")!.IncludedWeapons.Should().BeEquivalentTo(["weapon_b"]);
     }
 
     [Fact]
@@ -198,7 +226,7 @@ public class OverrideReaderTests : IDisposable
         var reader = new OverrideReader(new InMemoryModDirectoryProvider([mod1, mod2]));
         var result = reader.Read();
 
-        result.QuestOverrides["quest1"][0].IncludedWeapons
+        ResolveAnyCondition(result, "quest1")!.IncludedWeapons
             .Should().BeEquivalentTo(["weapon_a", "weapon_b"]);
     }
 
@@ -392,9 +420,9 @@ public class OverrideReaderTests : IDisposable
     }
 
     [Fact]
-    public void Two_mods_file_IGNORE_default_uses_first_mods_rules_only()
+    public void Two_mods_file_IGNORE_default_adds_second_mods_rules_for_new_types()
     {
-        // Default OverrideBehaviour is IGNORE — if first mod sets rules, second mod is skipped
+        // Default OverrideBehaviour is IGNORE: an earlier mod's rules don't block new types
         var mod1 = MakeModDir(weaponOverridesJsonc: """
             {
                 "version": 2,
@@ -411,8 +439,29 @@ public class OverrideReaderTests : IDisposable
         var reader = new OverrideReader(new InMemoryModDirectoryProvider([mod1, mod2]));
         var settings = reader.Read();
 
-        settings.TypeRules.Should().HaveCount(1);
-        settings.TypeRules[0].Type.Should().Be("AKM");
+        settings.TypeRules.Select(r => r.Type).Should().Equal("AKM", "AK74");
+    }
+
+    [Fact]
+    public void IGNORE_file_excludedQuests_survive_an_earlier_mods_non_empty_list()
+    {
+        var earlier = MakeModDir(questOverridesJsonc: """
+        {
+            "OverrideBehaviour": "MERGE",
+            "excludedQuests": ["quest_other"]
+        }
+        """);
+        var baseline = MakeModDir(questOverridesJsonc: """
+        {
+            "OverrideBehaviour": "IGNORE",
+            "excludedQuests": ["quest1", "quest2", "quest_other"]
+        }
+        """);
+
+        var reader = new OverrideReader(new InMemoryModDirectoryProvider([earlier, baseline]));
+        var result = reader.Read();
+
+        result.ExcludedQuests.Should().BeEquivalentTo(["quest_other", "quest1", "quest2"]);
     }
 
     [Fact]
@@ -656,5 +705,131 @@ public class OverrideReaderTests : IDisposable
         rewritten.Should().Contain("\"version\": 3");
         rewritten.Should().Contain("excludedQuests");
         rewritten.Should().Contain("includedWeapons");
+    }
+
+    [Fact]
+    public void PersistMigrations_false_migrates_in_memory_and_leaves_the_folder_untouched()
+    {
+        var modDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        _tempDirs.Add(modDir);
+        var mqwDir = Path.Combine(modDir, "MissingQuestWeapons");
+        Directory.CreateDirectory(mqwDir);
+
+        var legacyPath = Path.Combine(mqwDir, "OverriddenWeapons.jsonc");
+        File.WriteAllText(legacyPath, """
+        {
+            "Override": { "weapon_legacy_id": "BoltActionSniperRifle" }
+        }
+        """);
+        File.WriteAllText(Path.Combine(mqwDir, "QuestOverrides.jsonc"), """
+        {
+            "version": 1,
+            "BlackListedQuests": ["q_a"]
+        }
+        """);
+        var before = Directory.GetFiles(mqwDir)
+            .ToDictionary(path => path, File.ReadAllBytes);
+
+        var settings = new OverrideReader(
+            new InMemoryModDirectoryProvider([modDir]), persistMigrations: false).Read();
+
+        settings.ManualTypeOverrides.Should().ContainKey("weapon_legacy_id");
+        settings.ExcludedQuests.Should().Contain("q_a");
+        var after = Directory.GetFiles(mqwDir)
+            .ToDictionary(path => path, File.ReadAllBytes);
+        after.Keys.Should().BeEquivalentTo(before.Keys);
+        foreach (var (path, bytes) in before)
+        {
+            after[path].Should().Equal(bytes, $"{path} must not be rewritten");
+        }
+    }
+
+    [Fact]
+    public void Read_binds_the_given_config()
+    {
+        var config = new ModConfig { Debug = true, ModBundleCartesianCap = 7 };
+
+        var settings = new OverrideReader(new InMemoryModDirectoryProvider([MakeModDir()])).Read(config);
+
+        settings.Config.Should().BeSameAs(config);
+    }
+
+    // ── Per-file failure isolation ───────────────────────────────────────────
+
+    [Fact]
+    public void Broken_json_in_one_mod_is_skipped_with_warning_and_other_mods_still_apply()
+    {
+        var good = MakeModDir(weaponOverridesJsonc: """
+        { "version": 2, "manualTypeOverrides": { "w_good": "AK" } }
+        """);
+        var bad = MakeModDir(weaponOverridesJsonc: "{ \"manualTypeOverrides\": { \"w_bad\": ");
+        var badPath = Path.Combine(bad, "MissingQuestWeapons", "WeaponOverrides.jsonc");
+        var logger = new CapturingModLogger();
+
+        var result = new OverrideReader(new InMemoryModDirectoryProvider([bad, good]), logger).Read();
+
+        result.ManualTypeOverrides.Should().ContainKey("w_good");
+        result.ManualTypeOverrides.Should().NotContainKey("w_bad");
+        logger.Warnings.Should().ContainSingle(w => w.Contains(badPath));
+        result.FileErrors.Should().ContainSingle(e => e.Path == badPath && e.Message.Length > 0);
+    }
+
+    [Fact]
+    public void Misspelled_enum_value_is_skipped_with_warning_and_other_mods_still_apply()
+    {
+        var good = MakeModDir(questOverridesJsonc: """
+        { "version": 3, "excludedQuests": ["q_good"] }
+        """);
+        var bad = MakeModDir(questOverridesJsonc: """
+        { "version": 3, "overrideBehaviour": "MERG", "excludedQuests": ["q_bad"] }
+        """);
+        var badPath = Path.Combine(bad, "MissingQuestWeapons", "QuestOverrides.jsonc");
+        var logger = new CapturingModLogger();
+
+        var result = new OverrideReader(new InMemoryModDirectoryProvider([bad, good]), logger).Read();
+
+        result.ExcludedQuests.Should().BeEquivalentTo(["q_good"]);
+        logger.Warnings.Should().ContainSingle(w => w.Contains(badPath));
+    }
+
+    [Fact]
+    public void Bad_file_does_not_block_good_files_in_the_same_folder()
+    {
+        var mod = MakeModDir(
+            questOverridesJsonc: "{ not json",
+            weaponOverridesJsonc: """{ "version": 2, "manualTypeOverrides": { "w1": "AK" } }""",
+            attachmentOverridesJsonc: """{ "version": 2, "manualAttachmentTypeOverrides": { "a1": "Scope" } }""");
+        var logger = new CapturingModLogger();
+
+        var result = new OverrideReader(new InMemoryModDirectoryProvider([mod]), logger).Read();
+
+        result.ManualTypeOverrides.Should().ContainKey("w1");
+        result.ManualAttachmentTypeOverrides.Should().ContainKey("a1");
+        logger.Warnings.Should().ContainSingle(w => w.Contains("QuestOverrides.jsonc"));
+        result.FileErrors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Bad_attachment_file_is_skipped_with_warning()
+    {
+        var mod = MakeModDir(attachmentOverridesJsonc: "[1,");
+        var logger = new CapturingModLogger();
+
+        var result = new OverrideReader(new InMemoryModDirectoryProvider([mod]), logger).Read();
+
+        logger.Warnings.Should().ContainSingle(w => w.Contains("AttachmentOverrides.jsonc"));
+        result.FileErrors.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void Valid_files_produce_no_file_errors()
+    {
+        var mod = MakeModDir(weaponOverridesJsonc: """{ "version": 2 }""");
+        var logger = new CapturingModLogger();
+
+        var result = new OverrideReader(new InMemoryModDirectoryProvider([mod]), logger).Read();
+
+        result.FileErrors.Should().BeEmpty();
+        logger.Warnings.Should().BeEmpty();
     }
 }

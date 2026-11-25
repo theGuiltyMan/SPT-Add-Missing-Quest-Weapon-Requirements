@@ -1,12 +1,12 @@
 using AddMissingQuestRequirements.Pipeline.Quest;
+using SPTarkov.Common.Models.Logging;
 using SPTarkov.Server.Core.Models.Eft.Common.Tables;
-using SPTarkov.Server.Core.Models.Utils;
-using SPTarkov.Server.Core.Servers;
+using SPTarkov.Server.Core.Models.Spt.Tables;
 
 namespace AddMissingQuestRequirements.Spt;
 
 /// <summary>
-/// Adapter over <see cref="DatabaseServer"/>'s quest table, exposing the shape
+/// Adapter over <see cref="TemplateTable"/>'s quest table, exposing the shape
 /// the pipeline phases expect via <see cref="IQuestDatabase"/> and a parallel
 /// <see cref="Sources"/> map from each emitted <see cref="ConditionNode"/>
 /// back to the real SPT <see cref="QuestConditionCounterCondition"/> it came
@@ -28,12 +28,10 @@ public sealed class SptQuestDatabase : IQuestDatabase
     private readonly Dictionary<ConditionNode, IConditionWriteTarget> _sources;
 
     public SptQuestDatabase(
-        DatabaseServer databaseServer,
+        TemplateTable templateTable,
         ISptLogger<SptQuestDatabase> logger)
     {
-        var raw = databaseServer.GetTables().Templates?.Quests
-            ?? throw new InvalidOperationException(
-                "DatabaseServer.GetTables().Templates.Quests is null — database not loaded.");
+        var raw = templateTable.Quests;
 
         _quests = new Dictionary<string, QuestNode>(raw.Count);
         _sources = new Dictionary<ConditionNode, IConditionWriteTarget>();

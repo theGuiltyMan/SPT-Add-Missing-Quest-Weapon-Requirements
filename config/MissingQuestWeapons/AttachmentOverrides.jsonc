@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "overrideBehaviour": 0,
+  "overrideBehaviour": "IGNORE",
 
   // Manual attachment type overrides: attachment ID → comma-separated type names.
   // When set, auto-detection by rule chain is bypassed for that item.

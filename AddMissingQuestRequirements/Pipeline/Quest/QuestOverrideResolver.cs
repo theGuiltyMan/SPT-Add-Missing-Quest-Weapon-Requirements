@@ -1,14 +1,24 @@
 using AddMissingQuestRequirements.Models;
+using AddMissingQuestRequirements.Util;
 
 namespace AddMissingQuestRequirements.Pipeline.Quest;
 
 /// <summary>
-/// Resolves the <see cref="QuestOverrideEntry"/> applicable to a given quest condition.
-/// Condition-specific matches win over generic (quest-wide) entries. A specific match
-/// accepts either the sub-condition id (<see cref="ConditionNode.Id"/>) or the outer
-/// CounterCreator wrapper id (<see cref="ConditionNode.ParentConditionId"/>); users
-/// commonly author overrides against the outer id because that is what quest editors
-/// and the locale keys surface.
+/// Resolves the <see cref="QuestOverrideEntry"/> applicable to one quest condition.
+/// <para>
+/// An entry targets the condition when its <c>Conditions</c> list names the
+/// sub-condition id (<see cref="ConditionNode.Id"/>) or the outer CounterCreator id
+/// (<see cref="ConditionNode.ParentConditionId"/>); users commonly author against the
+/// outer id because quest editors and locale keys surface it. An entry with an empty
+/// <c>Conditions</c> list is quest-wide and targets every condition.
+/// </para>
+/// <para>
+/// Files are folded in load order (<see cref="QuestOverrideEntry.Layer"/>). Each file
+/// contributes its entries that target the condition specifically, or, if it has none,
+/// its quest-wide entries. Each contributed entry is applied by its behaviour:
+/// IGNORE keeps an earlier result, REPLACE takes the entry, MERGE field-merges it
+/// into the earlier result, DELETE clears the result.
+/// </para>
 /// </summary>
 public static class QuestOverrideResolver
 {
@@ -22,28 +32,46 @@ public static class QuestOverrideResolver
             return null;
         }
 
-        foreach (var entry in entries)
+        QuestOverrideEntry? resolved = null;
+
+        foreach (var file in entries.GroupBy(e => e.Layer).OrderBy(g => g.Key))
         {
-            if (entry.Conditions.Count == 0)
+            var specific = file.Where(e => TargetsSpecifically(e, condition)).ToList();
+            var contributed = specific.Count > 0
+                ? specific
+                : file.Where(e => e.Conditions.Count == 0);
+
+            foreach (var entry in contributed)
             {
-                continue;
-            }
-            if (entry.Conditions.Contains(condition.Id)
-                || (!string.IsNullOrEmpty(condition.ParentConditionId)
-                    && entry.Conditions.Contains(condition.ParentConditionId)))
-            {
-                return entry;
+                resolved = Apply(resolved, entry);
             }
         }
 
-        foreach (var entry in entries)
-        {
-            if (entry.Conditions.Count == 0)
-            {
-                return entry;
-            }
-        }
+        return resolved;
+    }
 
-        return null;
+    private static bool TargetsSpecifically(QuestOverrideEntry entry, ConditionNode condition)
+    {
+        if (entry.Conditions.Contains(condition.Id))
+        {
+            return true;
+        }
+        return !string.IsNullOrEmpty(condition.ParentConditionId)
+            && entry.Conditions.Contains(condition.ParentConditionId);
+    }
+
+    private static QuestOverrideEntry? Apply(QuestOverrideEntry? current, QuestOverrideEntry incoming)
+    {
+        switch (incoming.Behaviour ?? OverrideBehaviour.IGNORE)
+        {
+            case OverrideBehaviour.REPLACE:
+                return incoming;
+            case OverrideBehaviour.MERGE:
+                return current is null ? incoming : MergeHelper.MergeEntries(current, incoming);
+            case OverrideBehaviour.DELETE:
+                return null;
+            default:
+                return current ?? incoming;
+        }
     }
 }
